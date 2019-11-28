@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         IdleLoops Predictor wstanulis
-// @namespace    https://github.com/wstanulis/
+// @namespace    https://github.com/Eredian/
 // @version      1.7.5
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
