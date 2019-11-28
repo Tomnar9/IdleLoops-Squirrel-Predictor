@@ -394,6 +394,8 @@ const Koviko = {
       ul.koviko .ritual{color:#ff1493}
       ul.koviko .artifacts{color:#ffd700}
       ul.koviko .mind{color:#006400}
+      .actionOptions .showthis {width:max-content;bottom:100%;max-width:400px;margin-bottom:5px;}
+      .travelContainer, .actionContainer {position:relative;}
       \`;
       document.getElementById("actionsColumn").style.width="400px";
 
