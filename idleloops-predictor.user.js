@@ -531,7 +531,7 @@ const Koviko = {
         'Mage Lessons': { effect: (r, k) => k.magic += 100 * (1 + g.getSkillLevelFromExp(k.alchemy) / 100), canStart: (input) => input.rep >= 2 },
         'Buy Supplies': { affected: ['gold'], effect: (r) => (r.gold -= 300 - Math.max((r.supplyDiscount || 0) * 20, 0), r.supplies = (r.supplies || 0) + 1), canStart: (input) => input.gold >= 300 - Math.max((input.supplyDiscount || 0) * 20, 0) },
         'Haggle': { affected: ['rep'], canStart: (input) => (input.rep > 0), effect: (r) => (r.rep--, r.supplyDiscount = (r.supplyDiscount >= 15 ? 15 : (r.supplyDiscount || 0) + 1)) },
-        'Start Journey': { effect: (r) => (r.supplies = (r.supplies || 0) - 1, r.town += 1) },
+        'Start Journey': { effect: (r) => (r.supplies = (r.supplies || 0) - 1, r.town += 1), canStart: r => r.supplies >= 1},
 
         // Forest Path
         'Explore Forest': {},
