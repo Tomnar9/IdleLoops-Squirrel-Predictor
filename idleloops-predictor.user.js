@@ -1078,7 +1078,9 @@ const Koviko = {
       // Perform all ticks in succession
       for (let ticks = 0; ticks < prediction.ticks(); ticks++) {
         state.resources.mana--;
-        if (!this.tick(prediction, state)) break;
+        if (state.resources.mana >= 0) {
+            if (!this.tick(prediction, state)) break;
+        }
       }
     }
   },
