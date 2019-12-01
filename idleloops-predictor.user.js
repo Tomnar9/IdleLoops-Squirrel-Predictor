@@ -564,7 +564,7 @@ const Koviko = {
 
         // Merchanton
         'Explore City': {},
-        'Gamble': { affected: ['gold', 'rep'], canStart: (input) => (input.rep >= -5), effect: (r) => {
+        'Gamble': { affected: ['gold', 'rep'], canStart: (input) => (input.rep >= -5 && input.gold >= 20), effect: (r) => {
           r.temp8 = (r.temp8 || 0) + 1;
           r.gold += r.temp8 <= towns[2].goodGamble ? 40 : -20;
           r.rep--;
@@ -644,7 +644,7 @@ const Koviko = {
           tick: (p, a, s, k, r) => offset => {
             let floor = Math.floor(p.completed / a.segments + .0000001);
 
-            return floor in g.dungeons[a.dungeonNum] ? (h.getSelfCombat(r, k) + g.getSkillLevelFromExp(k.magic)) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) * Math.sqrt(1 + g.dungeons[a.dungeonNum][floor].completed / 200) : 0;
+            return (h.getSelfCombat(r, k) + g.getSkillLevelFromExp(k.magic)) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) * Math.sqrt(1 + g.dungeons[a.dungeonNum][floor].completed / 200);
           },
           effect: { end: (r, k) => (k.combat += 5, k.magic += 5), loop: (r) => r.soul++ },
         }},
