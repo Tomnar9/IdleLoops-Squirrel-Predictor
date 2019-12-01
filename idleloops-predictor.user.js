@@ -527,9 +527,9 @@ const Koviko = {
           r.rep += r.temp4 <= towns[0].goodLQuests ? 1 : 0;
         }},
         'Throw Party': { affected: ['rep'], effect: (r) => r.rep -= 2 },
-        'Warrior Lessons': { effect: (r, k) => k.combat += 100 },
-        'Mage Lessons': { effect: (r, k) => k.magic += 100 * (1 + g.getSkillLevelFromExp(k.alchemy) / 100) },
-        'Buy Supplies': { affected: ['gold'], effect: (r) => (r.gold -= 300 - Math.max((r.supplyDiscount || 0) * 20, 0), r.supplies = (r.supplies || 0) + 1) },
+        'Warrior Lessons': { effect: (r, k) => k.combat += 100, canStart: (input) => input.rep >= 2 },
+        'Mage Lessons': { effect: (r, k) => k.magic += 100 * (1 + g.getSkillLevelFromExp(k.alchemy) / 100), canStart: (input) => input.rep >= 2 },
+        'Buy Supplies': { affected: ['gold'], effect: (r) => (r.gold -= 300 - Math.max((r.supplyDiscount || 0) * 20, 0), r.supplies = (r.supplies || 0) + 1), canStart: (input) => input.gold >= 300 - Math.max((input.supplyDiscount || 0) * 20, 0) },
         'Haggle': { affected: ['rep'], canStart: (input) => (input.rep > 0), effect: (r) => (r.rep--, r.supplyDiscount = (r.supplyDiscount >= 15 ? 15 : (r.supplyDiscount || 0) + 1)) },
         'Start Journey': { effect: (r) => (r.supplies = (r.supplies || 0) - 1, r.town += 1) },
 
@@ -638,7 +638,7 @@ const Koviko = {
         }},
 
         // Loops with Max
-        'Small Dungeon': { affected: ['soul'], loop: {
+        'Small Dungeon': { affected: ['soul'], canStart: (input) => input.rep >= 2, loop: {
           max: (a) => g.dungeons[a.dungeonNum].length,
           cost: (p, a) => segment => g.precision3(Math.pow(2, Math.floor((p.completed + segment) / a.segments + .0000001)) * 15000),
           tick: (p, a, s, k, r) => offset => {
@@ -746,8 +746,6 @@ const Koviko = {
       /**
        *This is used to see when the loop becomes invalid due to mana cost
        */
-      let loopInvalid = false;
-
 	  //This is the percision of the Time field
 	  let percisionForTime = \$('#updateTimePercision').val();
 
@@ -788,7 +786,8 @@ const Koviko = {
           // Predict each loop in sequence
           for (let loop = 0; loop < listedAction.loops; loop++) {
             let canStart = typeof(prediction.canStart) === "function" ? prediction.canStart(state.resources) : prediction.canStart;
-            if ( !canStart || listedAction.disabled ) break;
+            if (!canStart) { isValid = false; }
+            if ( !canStart || listedAction.disabled ) { break; }
 
             // Save the mana prior to the prediction
             currentMana = state.resources.mana;
@@ -807,7 +806,7 @@ const Koviko = {
             // Calculate the total amount of mana used in the prediction and add it to the total
             total += currentMana - state.resources.mana;
 
-            
+
 
             // Calculate time spent
             let temp = (currentMana - state.resources.mana) / Math.pow(1 + getSkillLevel("Chronomancy") / 60, 0.25);
@@ -849,8 +848,7 @@ const Koviko = {
           // Update the view
           if (div) {
             div.className += ' showthat';
-            div.innerHTML += this.template(listedAction.name, affected, state.resources, snapshots, loopInvalid ? false : isValid);
-            loopInvalid = isValid == false ? true : loopInvalid;
+            div.innerHTML += this.template(listedAction.name, affected, state.resources, snapshots, isValid);
           }
         }
       });
@@ -1046,7 +1044,7 @@ const Koviko = {
             if (prediction.loop.effect.loop) {
               prediction.loop.effect.loop(state.resources, state.skills);
             }
-            
+
             // Store remaining progress in next loop if next loop is allowed
             if (progression.completed < maxSegments) {
               progression.progress = progress;
