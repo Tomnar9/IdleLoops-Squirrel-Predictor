@@ -372,8 +372,9 @@ const Koviko = {
       // Build the CSS
       let css = \`
       .nextActionContainer{width:auto!important;padding:0 4px}
-      #nextActionsList{height:100%!important}
-      #nextActionsList:hover{margin-left:-100%;padding-left:100%}
+      #nextActionsList{height:100%!important; overflow-y:scroll;}
+      #curActionsListContainer{width:24%!important; z-index: 100;}
+      #nextActionsList:hover{margin-left:-40%;padding-left:40%}
       #actionList>div:nth-child(2){left: 53px !important}
       span.koviko{font-weight:bold;color:#8293ff}
       div.koviko{top:-5px;left:auto;right:100%}
@@ -397,7 +398,7 @@ const Koviko = {
       .actionOptions .showthis {width:max-content;bottom:100%;max-width:400px;margin-bottom:5px;}
       .travelContainer, .actionContainer {position:relative;}
       \`;
-      document.getElementById("actionsColumn").style.width="400px";
+      document.getElementById("actionsColumn").style.width="500px";
 
       // Create the <style> element if it doesn't already exist
       if (!style || style.tagName.toLowerCase() !== 'style') {
