@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IdleLoops Predictor Vivianne
 // @namespace    https://github.com/Eredian/
-// @version      1.7.6
+// @version      1.7.7
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://omsi6.github.io/loops/
@@ -646,7 +646,7 @@ const Koviko = {
           tick: (p, a, s, k, r) => offset => {
             let floor = Math.floor(p.completed / a.segments + .0000001);
 
-            return (h.getSelfCombat(r, k) + g.getSkillLevelFromExp(k.magic)) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) * Math.sqrt(1 + g.dungeons[a.dungeonNum][floor].completed / 200);
+            return floor in g.dungeons[a.dungeonNum] ? (h.getSelfCombat(r, k) + g.getSkillLevelFromExp(k.magic)) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) * Math.sqrt(1 + g.dungeons[a.dungeonNum][floor].completed / 200) : 0;
           },
           effect: { end: (r, k) => (k.combat += 5, k.magic += 5), loop: (r) => r.soul++ },
         }},
