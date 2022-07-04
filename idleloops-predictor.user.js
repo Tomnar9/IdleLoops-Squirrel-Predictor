@@ -605,55 +605,80 @@ const Koviko = {
 
         // Valhalla
         'Guided Tour': { affected: ['gold'], canStart: (input) => {
-          input.gold >= 10;
+          return (input.gold >= 10);
         }, effect: (r) => {
           r.gold -= 10;
         }},
         'Canvass': {},
         'Donate': { affected: ['gold', 'rep'], canStart: (input) => {
-          input.gold >= 20;
+          return (input.gold >= 20);
         }, effect: (r) => {
           r.gold -= 20;
           r.rep += 1;
         }},
         'Collect Donations': { affected: ['gold', 'rep'], canStart: (input) => {
-          input.rep >= 0;
+          return (input.rep >= 0);
         }, effect: (r) => {
           // TODO: Proper lootable first system
           r.gold += 20;
           r.rep -= 1;
         }},
         'Tidy Up': {affected: ['gold', 'rep'], loop: {
-          // TODO
+          // TODO: Proper tiled action
         }},
         'Buy Mana Z5': { affected: ['mana', 'gold'], effect: (r) => (r.mana += r.gold * 50, r.gold = 0)},
         'Sell Artifact': { affected: ['gold', 'artifacts'], canStart: (input) => {
-          input.artifacts >= 1;
+          return (input.artifacts >= 1);
         }, effect: (r) => {
           r.gold += 50;
           r.artifacts -= 1;
         }},
-        'Donate Artifact': {affected: ['artifacts'], canStart: (input) => {
-          input.artifacts >= 1;
+        'Donate Artifact': { affected: ['artifacts'], canStart: (input) => {
+          return (input.artifacts >= 1);
         }, effect: (r) => {
           r.artifacts -= 1;
           r.favor += 1;
         }},
         'Mercantilism': { effect: (r, k) => k.mercantilism += 100 },
         'Charm School': {},
-        'Enchant Armor': {},
-        'Wizard College': {},
-        'Restoration': {},
-        'Spatiomancy': {},
+        'Enchant Armor': { affected: ['armor', 'favor', 'enchantedarmor'], canStart: (input) => {
+          return (input.armor >= 0 && input.favor >= 0);
+        }, effect: (r) => {
+          r.armor -= 1;
+          r.favor -= 1;
+          r.enchantedarmor += 1;
+        }},
+        'Wizard College': {
+          // TODO: Proper tiled action
+        },
+        'Restoration': { effect: (r, k) => k.restoration += 100 },
+        'Spatiomancy': { effect: (r, k) => k.spatiomancy += 100 },
         'Seek Citizenship': {},
         'Build Housing': {},
         'Collect Taxes': {},
         'Oracle': {},
-        'Pegasus': {},
-        'Great Feast': {},
-        'Fight Giants': {},
-        'Seek Blessing': {},
-        'Fall From Grace': {},
+        'Pegasus': { affected: ['gold', 'favor'], canStart: (input) => {
+          return (input.gold >= 200 && input.favor >= 20);
+        }, effect: (r) => {
+          r.gold -= 200;
+          r.favor -= 20;
+          r.pegasus = true;
+        }},
+        'Great Feast': {
+          // TODO: Proper tiled action
+        },
+        'Fight Giants': {
+          // TODO: Proper tiled action
+        },
+        'Seek Blessing': { canStart: (input) => {
+          return (input.pegasus);
+        }, effect: (r, k) => {
+          // TODO:
+        }},
+        'Fall From Grace': { canStart: (input, input2) => {
+          return (input2.pyromancy >= 200);
+          // TODO: Check this
+        }},
 
         // Loops without Max
         'Heal The Sick': { affected: ['rep'], canStart: (input) => (input.rep >= 1), loop: {
