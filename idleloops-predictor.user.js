@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         IdleLoops Predictor Vivianne
+// @name         IdleLoops Predictor Makro
 // @namespace    https://github.com/Eredian/
 // @version      1.7.9
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
