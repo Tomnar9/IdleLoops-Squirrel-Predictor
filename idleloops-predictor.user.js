@@ -603,7 +603,36 @@ const Koviko = {
         }},
         'Face Judgement': { effect: (r) => r.town += 1 },
 
-        // Town 5
+        // Valhalla
+        'Guided Tour': { affected: ['gold'], canStart: (input) => {
+          input.gold >= 10;
+        }, effect: (r) => {
+          r.gold -= 10;
+        }},
+        'Canvass': {},
+        'Donate': { affected: ['gold', 'rep'], effect: (r) => {
+          r.gold -= 20;
+          r.rep += 1;
+        }},
+        'Collect Donations': {},
+        'Tidy Up': {},
+        'Buy Mana Z5': { affected: ['mana', 'gold'], effect: (r) => (r.mana += r.gold * 50, r.gold = 0)},
+        'Sell Artifact': {},
+        'Donate Artifact': {},
+        'Mercantilism': {},
+        'Charm School': {},
+        'Enchant Armor': {},
+        'Wizard College': {},
+        'Restoration': {},
+        'Spatiomancy': {},
+        'Seek Citizenship': {},
+        'Build Housing': {},
+        'Collect Taxes': {},
+        'Oracle': {},
+        'Pegasus': {},
+        'Great Feast': {},
+        'Fight Giants': {},
+        'Seek Blessing': {},
         'Fall From Grace': {},
 
         // Loops without Max
