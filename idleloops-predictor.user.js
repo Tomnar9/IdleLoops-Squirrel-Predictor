@@ -610,16 +610,36 @@ const Koviko = {
           r.gold -= 10;
         }},
         'Canvass': {},
-        'Donate': { affected: ['gold', 'rep'], effect: (r) => {
+        'Donate': { affected: ['gold', 'rep'], canStart: (input) => {
+          input.gold >= 20;
+        }, effect: (r) => {
           r.gold -= 20;
           r.rep += 1;
         }},
-        'Collect Donations': {},
-        'Tidy Up': {},
+        'Collect Donations': { affected: ['gold', 'rep'], canStart: (input) => {
+          input.rep >= 0;
+        }, effect: (r) => {
+          // TODO: Proper lootable first system
+          r.gold += 20;
+          r.rep -= 1;
+        }},
+        'Tidy Up': {affected: ['gold', 'rep'], loop: {
+          // TODO
+        }},
         'Buy Mana Z5': { affected: ['mana', 'gold'], effect: (r) => (r.mana += r.gold * 50, r.gold = 0)},
-        'Sell Artifact': {},
-        'Donate Artifact': {},
-        'Mercantilism': {},
+        'Sell Artifact': { affected: ['gold', 'artifacts'], canStart: (input) => {
+          input.artifacts >= 1;
+        }, effect: (r) => {
+          r.gold += 50;
+          r.artifacts -= 1;
+        }},
+        'Donate Artifact': {affected: ['artifacts'], canStart: (input) => {
+          input.artifacts >= 1;
+        }, effect: (r) => {
+          r.artifacts -= 1;
+          r.favor += 1;
+        }},
+        'Mercantilism': { effect: (r, k) => k.mercantilism += 100 },
         'Charm School': {},
         'Enchant Armor': {},
         'Wizard College': {},
