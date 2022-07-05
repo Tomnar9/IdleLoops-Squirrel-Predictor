@@ -641,12 +641,12 @@ const Koviko = {
         }},
         'Mercantilism': { effect: (r, k) => k.mercantilism += 100 },
         'Charm School': {},
-        'Enchant Armor': { affected: ['armor', 'favor', 'enchantedarmor'], canStart: (input) => {
+        'Enchant Armor': { affected: ['armor', 'favor', 'enchantments'], canStart: (input) => {
           return (input.armor >= 0 && input.favor >= 0);
         }, effect: (r) => {
           r.armor -= 1;
           r.favor -= 1;
-          r.enchantedarmor += 1;
+          r.enchantments += 1;
         }},
         'Wizard College': {
           // TODO: Proper tiled action
@@ -667,7 +667,7 @@ const Koviko = {
         'Great Feast': {
           // TODO: Proper tiled action
         },
-        'Fight Giants': {
+        'Fight Frost Giants': {
           // TODO: Proper tiled action
         },
         'Seek Blessing': { canStart: (input) => {
