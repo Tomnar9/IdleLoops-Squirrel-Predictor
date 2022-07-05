@@ -685,9 +685,7 @@ const Koviko = {
         }, effect: (r, k) => {
           // TODO:
         }},
-        'Fall From Grace': { canStart: (input, input2) => {
-          return (input2.pyromancy >= 200);
-        }, effect: (r) => {
+        'Fall From Grace': { effect: (r) => {
           if (r.rep >= 0) {
             r.rep = -1;
           }
