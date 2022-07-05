@@ -616,7 +616,7 @@ const Koviko = {
           r.gold -= 20;
           r.rep += 1;
         }},
-        'Collect Donations': { affected: ['gold', 'rep'], canStart: (input) => {
+        'Accept Donations': { affected: ['gold', 'rep'], canStart: (input) => {
           return (input.rep >= 0);
         }, effect: (r) => {
           // TODO: Proper lootable first system
