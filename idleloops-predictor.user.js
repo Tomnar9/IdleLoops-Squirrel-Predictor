@@ -677,7 +677,7 @@ const Koviko = {
         'Great Feast': {
           // TODO: Proper tiled action
         },
-        'Fight Frost Giants': {
+        'Fight Frost Giants': { canStart: (input) => (input.pegasus)
           // TODO: Proper tiled action
         },
         'Seek Blessing': { canStart: (input) => {
@@ -687,7 +687,10 @@ const Koviko = {
         }},
         'Fall From Grace': { canStart: (input, input2) => {
           return (input2.pyromancy >= 200);
-          // TODO: Check this
+        }, effect: (r) => {
+          if (r.rep >= 0) {
+            r.rep = -1;
+          }
         }},
 
         // Loops without Max
