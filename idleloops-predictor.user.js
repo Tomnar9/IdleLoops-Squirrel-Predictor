@@ -633,7 +633,7 @@ const Koviko = {
           r.gold += 50;
           r.artifacts -= 1;
         }},
-        'Donate Artifact': { affected: ['artifacts'], canStart: (input) => {
+        'Gift Artifact': { affected: ['artifacts'], canStart: (input) => {
           return (input.artifacts >= 1);
         }, effect: (r) => {
           r.artifacts -= 1;
