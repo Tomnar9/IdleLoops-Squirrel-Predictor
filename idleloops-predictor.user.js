@@ -623,7 +623,7 @@ const Koviko = {
           r.gold += 20;
           r.rep -= 1;
         }},
-        'Tidy Up': {affected: ['gold', 'rep'], loop: {
+        'Tidy Up': { affected: ['gold', 'rep'], loop: {
           cost: (p, a) => segment => g.fibonacci(2 + Math.floor((p.completed + segment) - p.completed / 3 + .0000001)) * 1000000,
           tick: (p, a, s, k) => offset => g.getSkillLevelFromExp(k.practical) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100 * Math.sqrt(1 + p.total / 100)),
           effect: {
@@ -655,9 +655,10 @@ const Koviko = {
           r.favor -= 1;
           r.enchantments += 1;
         }},
-        'Wizard College': {
-          // TODO: Proper tiled action
-        },
+        'Wizard College': { canStart: (input) => {
+          return (input.gold >= 500 && input.favors >= 10);
+          // TODO: Rest
+        }},
         'Restoration': { effect: (r, k) => k.restoration += 100 },
         'Spatiomancy': { effect: (r, k) => k.spatiomancy += 100 },
         'Seek Citizenship': {},
