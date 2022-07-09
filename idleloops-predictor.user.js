@@ -683,9 +683,14 @@ const Koviko = {
           r.favor -= 20;
           r.pegasus = true;
         }},
-        'Great Feast': {
-          // TODO: Proper tiled action
-        },
+        'Great Feast': { affected: ['feast'], canStart: (input) => (input.rep >= 100), loop: {
+          max: () => 1,
+          cost: (p) => segment => 1000000000 * (segment * 5 + 1),
+          tick: (p, a, s, k) => offset => {
+            return g.getSkillLevelFromExp(k.practical) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100);
+          },
+          effect: { loop: (r) => r.feast++ }
+        }},
         'Fight Frost Giants': { canStart: (input) => (input.pegasus)
           // TODO: Proper tiled action
         },
