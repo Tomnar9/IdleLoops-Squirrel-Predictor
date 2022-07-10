@@ -739,11 +739,14 @@ const Koviko = {
           },
           effect: { loop: (r) => r.soul += 100 }
         }},
-        'Purchase Supplies': { affected: ['gold', 'supplies'], canStart: (input) => (input.gold >= 500 && !input.supplies), effect: (r) => {
+        'Purchase Supplies': { affected: ['gold'], canStart: (input) => (input.gold >= 500 && input.supplies === 0), effect: (r) => {
           r.gold -= 500;
-          r.supplies = true;
+          r.supplies = (r.supplies || 0) + 1;
         }},
-        'Journey Forth': { canStart: (input) => (input.supplies) },
+        'Journey Forth': { canStart: (input) => (input.supplies >= 1), effect: (r) => (r.supplies--) },
+
+        // Jungle Path
+        'Explore Jungle': { effect: (r) => (r.herbs++) },
 
         // Loops without Max
         'Heal The Sick': { affected: ['rep'], canStart: (input) => (input.rep >= 1), loop: {
