@@ -737,9 +737,7 @@ const Koviko = {
                 (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) *
                 Math.sqrt(1 + g.dungeons[a.dungeonNum][floor].completed / 200) : 0;
           },
-          effect: { end: (r, k) => {
-            r.souls += 100;
-          }},
+          effect: { loop: (r) => r.soul += 100 }
         }},
 
         // Loops without Max
