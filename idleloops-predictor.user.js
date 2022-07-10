@@ -709,7 +709,9 @@ const Koviko = {
 
         // Startington
         'Meander': {},
-        'Mana Well': { // TODO: Effective time? },
+        'Mana Well': {
+          // TODO: Effective time?
+        },
         'Destroy Pylons': { affected: ['pylons'], effect: (r) => {
           r.pylons += 1;
         }},
