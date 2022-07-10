@@ -713,7 +713,7 @@ const Koviko = {
         'Seek Blessing': { canStart: (input) => {
           return (input.pegasus);
         }, effect: (r, k) => {
-          k.divine+=h.getGuildRankBonus(r.giants||0)*50;
+          k.divine+= (r.giants>62? 10:g.precision3(1 + 0.05 * Math.pow(r.giants||0, 1.05)) ) *50;
         }},
         'Fall From Grace': { effect: (r) => {
           if (r.rep >= 0) {
