@@ -509,7 +509,7 @@ const Koviko = {
           r.gold += r.temp2 <= towns[0].goodLocks ? g.Action.PickLocks.goldCost() : 0;
         }},
         'Buy Glasses': { effect: (r) => (r.gold -= 10, r.glasses = true) },
-        'Buy Mana Z1': { affected: ['mana', 'gold'], effect: (r) => (r.mana += r.gold * 50, r.gold = 0) },
+        'Buy Mana Z1': { affected: ['mana', 'gold'], effect: (r) => (r.mana += r.gold * g.Action.BuyManaZ1.goldCost(), r.gold = 0) },
         'Meet People': {},
         'Train Strength': {},
         'Short Quest': { affected: ['gold'], effect: (r) => {
@@ -566,7 +566,7 @@ const Koviko = {
           r.rep--;
         }},
         'Get Drunk': { affected: ['rep'], canStart: (input) => (input.rep >= -3), effect: (r) => r.rep-- },
-        'Buy Mana Z3': { affected: ['mana', 'gold'], effect: (r) => (r.mana += r.gold * 50, r.gold = 0) },
+        'Buy Mana Z3': { affected: ['mana', 'gold'], effect: (r) => (r.mana += r.gold * g.Action.BuyManaZ3.goldCost(), r.gold = 0) },
         'Sell Potions': { affected: ['gold', 'potions'], effect: (r, k) => (r.gold += r.potions * g.getSkillLevelFromExp(k.alchemy), r.potions = 0) },
         'Read Books': {},
         'Gather Team': { affected: ['gold'], effect: (r) => (r.team = (r.team || 0) + 1, r.gold -= r.team * 100) },
@@ -633,7 +633,7 @@ const Koviko = {
             }
           },
         }},
-        'Buy Mana Z5': { affected: ['mana', 'gold'], effect: (r) => (r.mana += r.gold * 50, r.gold = 0)},
+        'Buy Mana Z5': { affected: ['mana', 'gold'], effect: (r) => (r.mana += r.gold * g.Action.BuyManaZ5.goldCost(), r.gold = 0)},
         'Sell Artifact': { affected: ['gold', 'artifacts'], canStart: (input) => {
           return (input.artifacts >= 1);
         }, effect: (r) => {
@@ -655,9 +655,9 @@ const Koviko = {
           r.favor -= 1;
           r.enchantments += 1;
         }},
-        'Wizard College': { affected: ['gold', 'favors', 'wizard'], 
+        'Wizard College': { affected: ['gold', 'favor', 'wizard'], 
           canStart: (input) => {
-          return (input.gold >= 500 && input.favors >= 10);
+          return (input.gold >= 500 && input.favor >= 10);
         }, loop: {
           cost: (p) => segment => g.precision3(Math.pow(1.2, p.completed + segment)) * 1e7,
           tick: (p, a, s, k) => offset => (g.getSkillLevelFromExp(k.magic) + g.getSkillLevelFromExp(k.practical) + g.getSkillLevelFromExp(k.dark) +
@@ -666,12 +666,12 @@ const Koviko = {
                     effect: { segment: (r, k) => (r.wizard++) }
         }, effect: (r) => {
           r.gold -= 500;
-          r.favors -=10;
+          r.favor -=10;
         }},
         'Restoration': { effect: (r, k) => k.restoration += 100 },
         'Spatiomancy': { effect: (r, k) => k.spatiomancy += 100 },
         'Seek Citizenship': {},
-        'Build Housing': { effect: (r) => r.houses +=1}, // TODO: can start
+        'Build Housing': {effect: (r) => (r.houses = (r.houses ? r.houses+1 : 1))}, // TODO: can start
         'Collect Taxes': { canStart: (input) => (input.houses > 0), effect: (r, k) => {
           r.gold += Math.floor(r.houses * g.getSkillLevelFromExp(k.mercantilism) / 10);
         }},
@@ -841,7 +841,7 @@ const Koviko = {
        */
       const state = {
         resources: { mana: 250, town: 0 },
-        stats: Koviko.globals.statList.reduce((stats, name) => (stats[name] = 0, stats), {}),
+        stats: Koviko.globals.statList.reduce((stats, name) => (stats[name] = getExpOfLevel(buffs.Imbuement2.amt), stats), {}),
         skills: Object.entries(Koviko.globals.skills).reduce((skills, x) => (skills[x[0].toLowerCase()] = x[1].exp, skills), {}),
         progress: {},
         currProgress: {}
