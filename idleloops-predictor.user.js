@@ -654,12 +654,10 @@ const Koviko = {
           r.artifacts -= 1;
           r.favor += 1;
         }},
-        'Mercantilism': { affected: ['rep'],
-          canStart: (input) => (input.rep>0),
-          effect: (r, k) => {
-	    k.mercantilism += 100;
-	    r.rep-=1;
-	}},
+        'Mercantilism': { canStart: (input) => (input.rep >= 0), effect: (r, k) => {
+          k.mercantilism += 100;
+          r.rep--;
+        }},
         'Charm School': {},
         'Enchant Armor': { affected: ['armor', 'favor', 'enchantments'], canStart: (input) => {
           return (input.armor >= 0 && input.favor >= 0);
@@ -766,6 +764,9 @@ const Koviko = {
                                              Math.sqrt(1 + p.total / 1000),
           effect: { segment: (r) => r.hide += 1 },
         }},
+        'Rescue Survivors': {
+
+        },
 
         // Loops without Max
         'Heal The Sick': { affected: ['rep'], canStart: (input) => (input.rep >= 1), loop: {
