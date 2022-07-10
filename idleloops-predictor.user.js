@@ -477,7 +477,7 @@ const Koviko = {
          * @return {number} Combat skill of the team leader
          * @memberof Koviko.Predictor#helpers
          */
-        getSelfCombat: (r, k) => (g.getSkillLevelFromExp(k.combat) + g.getSkillLevelFromExp(k.pyromancy) * 5) * (1 + ((r.armor || 0) * h.getGuildRankBonus(r.crafts || 0)) / 5),
+        getSelfCombat: (r, k) => (g.getSkillLevelFromExp(k.combat) + g.getSkillLevelFromExp(k.pyromancy) * 5 + g.getSkillLevelFromExp(k.restoration)) * (1 + ((r.armor || 0) * h.getGuildRankBonus(r.crafts || 0)) / 5) * (1 + getBuffLevel("Feast") * 0.05),
 
         /**
          * Calculate the combat skill of the entire team
@@ -755,7 +755,7 @@ const Koviko = {
         }},
 
         // Loops without Max
-        'Heal The Sick': { affected: ['rep'], loop: {
+        'Heal The Sick': { affected: ['rep'], canStart: (input) => (input.rep >= 1), loop: {
           cost: (p, a) => segment => g.fibonacci(2 + Math.floor((p.completed + segment) / a.segments + .0000001)) * 5000,
           tick: (p, a, s, k) => offset => g.getSkillLevelFromExp(k.magic) * Math.max(g.getSkillLevelFromExp(k.restoration) / 50, 1) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) * Math.sqrt(1 + p.total / 100),
           effect: { end: (r, k) => k.magic += 10, loop: (r) => r.rep += 3 },
