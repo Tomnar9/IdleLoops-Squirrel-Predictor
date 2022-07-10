@@ -562,7 +562,7 @@ const Koviko = {
         'Explore City': {},
         'Gamble': { affected: ['gold', 'rep'], canStart: (input) => (input.rep >= -5 && input.gold >= 20), effect: (r) => {
           r.temp8 = (r.temp8 || 0) + 1;
-          r.gold += r.temp8 <= towns[2].goodGamble ? 40 : -20;
+          r.gold += (r.temp8 <= towns[2].goodGamble ? Math.floor(60 * Math.pow(1 + getSkillLevel("Thievery") / 60, 0.25)) : 0)-20;
           r.rep--;
         }},
         'Get Drunk': { affected: ['rep'], canStart: (input) => (input.rep >= -3), effect: (r) => r.rep-- },
