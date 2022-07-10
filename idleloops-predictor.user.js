@@ -739,6 +739,11 @@ const Koviko = {
           },
           effect: { loop: (r) => r.soul += 100 }
         }},
+        'Purchase Supplies': { affected: ['gold', 'supplies'], canStart: (input) => (input.gold >= 500 && !input.supplies), effect: (r) => {
+          r.gold -= 500;
+          r.supplies = true;
+        }},
+        'Journey Forth': { canStart: (input) => (input.supplies) },
 
         // Loops without Max
         'Heal The Sick': { affected: ['rep'], canStart: (input) => (input.rep >= 1), loop: {
