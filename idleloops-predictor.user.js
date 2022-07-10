@@ -476,7 +476,7 @@ const Koviko = {
          * @return {number} Armor Multiplier for the Self Combat Calculation
          * @memberof Koviko.Predictor#helpers
          */
-        getArmorLevel: (r, k) => (1 + ((r.armor + 3 * r.enchantments) * h.getGuildRankBonus(r.crafts||0)) / 5),
+        getArmorLevel: (r, k) => (1 + (((r.armor||0) + 3 * (r.enchantments||0)) * h.getGuildRankBonus(r.crafts||0)) / 5),
 
         /**
          * Calculate the combat skill specifically affecting the team leader
