@@ -469,6 +469,14 @@ const Koviko = {
          * @memberof Koviko.Predictor#helpers
          */
         getGuildRankBonus: (guild) => Math.floor(guild / 3 + .00001) >= 14 ? Math.floor(1 + 2.25 + (45 ** 2) / 300) : g.precision3(1 + guild / 20 + (guild ** 2) / 300),
+        /**
+         * Calculate the ArmorLevel specifically affecting the team leader
+         * @param {Koviko.Predictor~Resources} r Accumulated resources
+         * @param {Koviko.Predictor~Skills} k Accumulated skills
+         * @return {number} Armor Multiplier for the Self Combat Calculation
+         * @memberof Koviko.Predictor#helpers
+         */
+        getArmorLevel: (r, k) => (1 + ((r.armor + 3 * r.enchantments) * h.getGuildRankBonus(r.crafts||0)) / 5),
 
         /**
          * Calculate the combat skill specifically affecting the team leader
@@ -477,7 +485,7 @@ const Koviko = {
          * @return {number} Combat skill of the team leader
          * @memberof Koviko.Predictor#helpers
          */
-        getSelfCombat: (r, k) => (g.getSkillLevelFromExp(k.combat) + g.getSkillLevelFromExp(k.pyromancy) * 5 + g.getSkillLevelFromExp(k.restoration)) * (1 + ((r.armor || 0) * h.getGuildRankBonus(r.crafts || 0)) / 5) * (1 + getBuffLevel("Feast") * 0.05),
+        getSelfCombat: (r, k) => (g.getSkillLevelFromExp(k.combat) + g.getSkillLevelFromExp(k.pyromancy) * 5 + g.getSkillLevelFromExp(k.restoration)) * h.getArmorLevel(r,k) * (1 + getBuffLevel("Feast") * 0.05),
 
         /**
          * Calculate the combat skill of the entire team
