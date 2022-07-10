@@ -655,9 +655,9 @@ const Koviko = {
           r.favor -= 1;
           r.enchantments += 1;
         }},
-        'Wizard College': { affected: ['gold', 'favors', 'wizard'], 
+        'Wizard College': { affected: ['gold', 'favor', 'wizard'], 
           canStart: (input) => {
-          return (input.gold >= 500 && input.favors >= 10);
+          return (input.gold >= 500 && input.favor >= 10);
         }, loop: {
           cost: (p) => segment => g.precision3(Math.pow(1.2, p.completed + segment)) * 1e7,
           tick: (p, a, s, k) => offset => (g.getSkillLevelFromExp(k.magic) + g.getSkillLevelFromExp(k.practical) + g.getSkillLevelFromExp(k.dark) +
@@ -666,7 +666,7 @@ const Koviko = {
                     effect: { segment: (r, k) => (r.wizard++) }
         }, effect: (r) => {
           r.gold -= 500;
-          r.favors -=10;
+          r.favor -=10;
         }},
         'Restoration': { effect: (r, k) => k.restoration += 100 },
         'Spatiomancy': { effect: (r, k) => k.spatiomancy += 100 },
