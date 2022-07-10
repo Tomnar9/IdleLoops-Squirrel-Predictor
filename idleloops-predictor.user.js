@@ -671,7 +671,7 @@ const Koviko = {
         'Restoration': { effect: (r, k) => k.restoration += 100 },
         'Spatiomancy': { effect: (r, k) => k.spatiomancy += 100 },
         'Seek Citizenship': {},
-        'Build Housing': { effect: (r) => r.houses +=1}, // TODO: can start
+        'Build Housing': {effect: (r) => (r.houses = (r.houses ? r.houses+1 : 1))}, // TODO: can start
         'Collect Taxes': { canStart: (input) => (input.houses > 0), effect: (r, k) => {
           r.gold += Math.floor(r.houses * g.getSkillLevelFromExp(k.mercantilism) / 10);
         }},
