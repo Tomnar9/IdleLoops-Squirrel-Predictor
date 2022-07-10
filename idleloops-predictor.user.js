@@ -654,7 +654,7 @@ const Koviko = {
           r.artifacts -= 1;
           r.favor += 1;
         }},
-        'Mercantilism': { canStart: (input) => (input.rep >= 0), effect: (r, k) => {
+        'Mercantilism': { canStart: (input) => (input.rep > 0), effect: (r, k) => {
           k.mercantilism += 100;
           r.rep--;
         }},
