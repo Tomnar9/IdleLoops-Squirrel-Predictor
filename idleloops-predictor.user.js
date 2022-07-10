@@ -726,6 +726,21 @@ const Koviko = {
           canStart: (input) => (input.blood >= 1),
           effect: (r) => (r.blood -=1)
         },
+        'The Spire': { affected: ['soul'], loop: {
+          max: (a) => g.dungeons[a.dungeonNum].length,
+          cost: (p, a) => segment => g.precision3(Math.pow(2, Math.floor((p.completed + segment) / a.segments + .0000001)) * 10000000),
+          tick: (p, a, s, k, r) => offset => {
+            const floor = Math.floor(p.completed / a.segments + .0000001);
+
+            return floor in g.dungeons[a.dungeonNum] ? 
+                (h.getSelfCombat(r, k) + g.getSkillLevelFromExp(k.magic)) *
+                (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) *
+                Math.sqrt(1 + g.dungeons[a.dungeonNum][floor].completed / 200) : 0;
+          },
+          effect: { end: (r, k) => {
+            r.souls += 100;
+          }},
+        }},
 
         // Loops without Max
         'Heal The Sick': { affected: ['rep'], canStart: (input) => (input.rep >= 1), loop: {
