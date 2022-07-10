@@ -646,7 +646,12 @@ const Koviko = {
           r.artifacts -= 1;
           r.favor += 1;
         }},
-        'Mercantilism': { effect: (r, k) => k.mercantilism += 100 },
+        'Mercantilism': { affected: ['rep'],
+          canStart: (input) => (input.rep>0),
+          effect: (r, k) => {
+	    k.mercantilism += 100;
+	    r.rep-=1;
+	}},
         'Charm School': {},
         'Enchant Armor': { affected: ['armor', 'favor', 'enchantments'], canStart: (input) => {
           return (input.armor >= 0 && input.favor >= 0);
