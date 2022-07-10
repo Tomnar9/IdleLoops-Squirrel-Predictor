@@ -722,6 +722,10 @@ const Koviko = {
             r.zombie += 1;
           }
         },
+        'Dark Sacrifice': { affected: ['blood'],
+          canStart: (input) => (input.blood >= 1),
+          effect: (r) => (r.blood -=1)
+        },
 
         // Loops without Max
         'Heal The Sick': { affected: ['rep'], canStart: (input) => (input.rep >= 1), loop: {
