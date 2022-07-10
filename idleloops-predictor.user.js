@@ -699,12 +699,12 @@ const Koviko = {
         'Fight Frost Giants': { canStart: (input) => (input.pegasus), loop: {
           cost: (p, a) => segment => precision3(Math.pow(1.3, (p.completed + a.segments)) * 1e7),
           tick: (p, a, s, k, r) => offset => h.getSelfCombat(r, k) * Math.sqrt(1 + p.total / 100) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100),
-          effect: { end: (r, k) => k.combat += 10, segment: (r) => r.gold += 20 },
+          effect: { end: (r, k) => k.combat += 10, segment: (r) => r.giants= (r.giants||0)+1 },
         }},
         'Seek Blessing': { canStart: (input) => {
           return (input.pegasus);
         }, effect: (r, k) => {
-          // TODO:
+          k.divine+=h.getGuildRankBonus(r.giants||0)*50;
         }},
         'Fall From Grace': { effect: (r) => {
           if (r.rep >= 0) {
