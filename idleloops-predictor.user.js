@@ -743,6 +743,7 @@ const Koviko = {
           r.gold -= 500;
           r.supplies = true;
         }},
+        'Journey Forth': { canStart: (input) => (input.supplies) },
 
         // Loops without Max
         'Heal The Sick': { affected: ['rep'], canStart: (input) => (input.rep >= 1), loop: {
