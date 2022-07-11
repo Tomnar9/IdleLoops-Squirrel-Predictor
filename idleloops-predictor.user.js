@@ -993,7 +993,7 @@ const Koviko = {
             }
             
             //Only for Escape (Jungle Path) - only works in the first 60s (=50*60 ticks)
-			if ((listedAction.name=='Escape') && (totalTicks>=(50*60)) {
+			if ((listedAction.name=='Escape') && (totalTicks>=(50*60))) {
 			  isValid=false;
 			}
 			
