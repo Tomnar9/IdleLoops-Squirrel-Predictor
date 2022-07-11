@@ -977,16 +977,7 @@ const Koviko = {
 
 
             // Calculate time spent
-            let temp = (currentMana - state.resources.mana) / Math.pow(1 + getSkillLevel("Chronomancy") / 60, 0.25);
-            if ( state.resources.town === 0 && getBuffLevel("Ritual") > 0) {
-              temp /= (1 + Math.min(getBuffLevel("Ritual"), 20) / 10);
-            }
-            else if ( state.resources.town === 1 && getBuffLevel("Ritual") > 20) {
-              temp /= (1 + Math.min(getBuffLevel("Ritual") - 20, 20) / 20);
-            }
-            else if ( state.resources.town === 2 && getBuffLevel("Ritual") > 40) {
-              temp /= (1 + Math.min(getBuffLevel("Ritual") - 40, 20) / 40);
-            }
+            let temp = (currentMana - state.resources.mana) / getSpeedMult(state.resources.town);
             totalTicks += temp;
 
             // Only for Adventure Guild
