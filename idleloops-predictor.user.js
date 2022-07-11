@@ -726,7 +726,11 @@ const Koviko = {
         // Startington
         'Meander': {},
         'Mana Well': {
-          // TODO: Effective time?
+		  effect: (r,k)=> {
+            r.wellLoot = (r.wellLoot || 0) + 1;
+            r.mana += r.wellLoot <= towns[1].goodWells ? Math.max(5000 - Math.floor(r.totalTicks/5),0) : 0;
+		  }
+          
         },
         'Destroy Pylons': { affected: ['pylons'], effect: (r) => {
           r.pylons += 1;
@@ -777,7 +781,9 @@ const Koviko = {
         'Rescue Survivors': {
 
         },
+        'Escape': { effect: (r) => (r.town=7)},
 
+			
         // Loops without Max
         'Heal The Sick': { affected: ['rep'], canStart: (input) => (input.rep >= 1), loop: {
           cost: (p, a) => segment => g.fibonacci(2 + Math.floor((p.completed + segment) / a.segments + .0000001)) * 5000,
@@ -979,12 +985,18 @@ const Koviko = {
             // Calculate time spent
             let temp = (currentMana - state.resources.mana) / getSpeedMult(state.resources.town);
             totalTicks += temp;
-
+            state.resources.totalTicks=totalTicks;
+			
             // Only for Adventure Guild
             if ( listedAction.name == "Adventure Guild" ) {
               state.resources.mana += state.resources.adventures * 200;
             }
-
+            
+            //Only for Escape (Jungle Path) - only works in the first 60s (=50*60 ticks)
+			if ((listedAction.name=='Escape') && (totalTicks>=(50*60)) {
+			  isValid=false;
+			}
+			
             // Run the effect, now that the mana checks are complete
             if (prediction.effect) {
               prediction.effect(state.resources, state.skills);
