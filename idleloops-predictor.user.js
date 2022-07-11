@@ -469,6 +469,14 @@ const Koviko = {
          * @memberof Koviko.Predictor#helpers
          */
         getGuildRankBonus: (guild) => Math.floor(guild / 3 + .00001) >= 14 ? Math.floor(1 + 2.25 + (45 ** 2) / 300) : g.precision3(1 + guild / 20 + (guild ** 2) / 300),
+        /**
+         * Calculate the ArmorLevel specifically affecting the team leader
+         * @param {Koviko.Predictor~Resources} r Accumulated resources
+         * @param {Koviko.Predictor~Skills} k Accumulated skills
+         * @return {number} Armor Multiplier for the Self Combat Calculation
+         * @memberof Koviko.Predictor#helpers
+         */
+        getArmorLevel: (r, k) => (1 + (((r.armor||0) + 3 * (r.enchantments||0)) * h.getGuildRankBonus(r.crafts||0)) / 5),
 
         /**
          * Calculate the combat skill specifically affecting the team leader
@@ -477,7 +485,7 @@ const Koviko = {
          * @return {number} Combat skill of the team leader
          * @memberof Koviko.Predictor#helpers
          */
-        getSelfCombat: (r, k) => (g.getSkillLevelFromExp(k.combat) + g.getSkillLevelFromExp(k.pyromancy) * 5 + g.getSkillLevelFromExp(k.restoration)) * (1 + ((r.armor || 0) * h.getGuildRankBonus(r.crafts || 0)) / 5) * (1 + getBuffLevel("Feast") * 0.05),
+        getSelfCombat: (r, k) => (g.getSkillLevelFromExp(k.combat) + g.getSkillLevelFromExp(k.pyromancy) * 5 + g.getSkillLevelFromExp(k.restoration)) * h.getArmorLevel(r,k) * (1 + getBuffLevel("Feast") * 0.05),
 
         /**
          * Calculate the combat skill of the entire team
@@ -487,6 +495,9 @@ const Koviko = {
          * @memberof Koviko.Predictor#helpers
          */
         getTeamCombat: (r, k) => h.getSelfCombat(r, k) + g.getSkillLevelFromExp(k.combat) * (r.team || 0) / 2 * h.getGuildRankBonus(r.adventures || 0),
+	
+	getRewardSS: (dNum) => Math.floor(Math.pow(10, dNum) * Math.pow(1 + getSkillLevel("Divine") / 60, 0.25)),
+
       });
 
       // Alias the globals to a shorter variable name
@@ -562,7 +573,7 @@ const Koviko = {
         'Explore City': {},
         'Gamble': { affected: ['gold', 'rep'], canStart: (input) => (input.rep >= -5 && input.gold >= 20), effect: (r) => {
           r.temp8 = (r.temp8 || 0) + 1;
-          r.gold += r.temp8 <= towns[2].goodGamble ? 40 : -20;
+          r.gold += (r.temp8 <= towns[2].goodGamble ? Math.floor(60 * Math.pow(1 + getSkillLevel("Thievery") / 60, 0.25)) : 0)-20;
           r.rep--;
         }},
         'Get Drunk': { affected: ['rep'], canStart: (input) => (input.rep >= -3), effect: (r) => r.rep-- },
@@ -588,7 +599,7 @@ const Koviko = {
         'Explore Cavern': {},
         'Mine Soulstones': { affected: ['soul'], effect: (r) => {
           r.temp10 = (r.temp10 || 0) + 1;
-          r.soul += r.temp10 <= towns[3].goodMineSoulstones ? 1 : 0;
+          r.soul += r.temp10 <= towns[3].goodMineSoulstones ? h.getRewardSS(0) : 0;
         }},
         'Pyromancy': { effect: (r, k) => k.pyromancy += 100 },
         'Looping Potion': { affected: ['herbs', 'lpotions'], effect: (r, k) => {
@@ -627,7 +638,7 @@ const Koviko = {
           cost: (p, a) => segment => g.fibonacci(2 + Math.floor((p.completed + segment) - p.completed / 3 + .0000001)) * 1000000,
           tick: (p, a, s, k) => offset => g.getSkillLevelFromExp(k.practical) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100 * Math.sqrt(1 + p.total / 100)),
           effect: {
-            end: (r) => {
+            loop: (r) => {
               r.gold += 5;
               r.rep += 1;
             }
@@ -646,7 +657,7 @@ const Koviko = {
           r.artifacts -= 1;
           r.favor += 1;
         }},
-        'Mercantilism': { canStart: (input) => (input.rep >= 0), effect: (r, k) => {
+        'Mercantilism': { canStart: (input) => (input.rep > 0), effect: (r, k) => {
           k.mercantilism += 100;
           r.rep--;
         }},
@@ -697,11 +708,12 @@ const Koviko = {
         'Fight Frost Giants': { canStart: (input) => (input.pegasus), loop: {
           cost: (p, a) => segment => precision3(Math.pow(1.3, (p.completed + a.segments)) * 1e7),
           tick: (p, a, s, k, r) => offset => h.getSelfCombat(r, k) * Math.sqrt(1 + p.total / 100) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100),
+          effect: { end: (r, k) => k.combat += 10, segment: (r) => r.giants= (r.giants||0)+1 },
         }},
         'Seek Blessing': { canStart: (input) => {
           return (input.pegasus);
         }, effect: (r, k) => {
-          // TODO:
+          k.divine+= (r.giants>62? 10:g.precision3(1 + 0.05 * Math.pow(r.giants||0, 1.05)) ) *50;
         }},
         'Fall From Grace': { effect: (r) => {
           if (r.rep >= 0) {
@@ -739,7 +751,7 @@ const Koviko = {
                 (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) *
                 Math.sqrt(1 + g.dungeons[a.dungeonNum][floor].completed / 200) : 0;
           },
-          effect: { loop: (r) => r.soul += 100 }
+          effect: { loop: (r) => r.soul += h.getRewardSS(2) }
         }},
         'Purchase Supplies': { affected: ['gold'], canStart: (input) => (input.gold >= 500 && input.supplies === 0), effect: (r) => {
           r.gold -= 500;
@@ -795,7 +807,7 @@ const Koviko = {
 
             return floor in g.dungeons[a.dungeonNum] ? (h.getSelfCombat(r, k) + g.getSkillLevelFromExp(k.magic)) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) * Math.sqrt(1 + g.dungeons[a.dungeonNum][floor].completed / 200) : 0;
           },
-          effect: { end: (r, k) => (k.combat += 5, k.magic += 5), loop: (r) => r.soul++ },
+          effect: { end: (r, k) => (k.combat += 5, k.magic += 5), loop: (r) => r.soul+=h.getRewardSS(0) },
         }},
         'Large Dungeon': { affected: ['soul'], loop: {
           max: (a) => g.dungeons[a.dungeonNum].length,
@@ -805,7 +817,7 @@ const Koviko = {
 
             return floor in g.dungeons[a.dungeonNum] ? (h.getTeamCombat(r, k) + g.getSkillLevelFromExp(k.magic)) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) * Math.sqrt(1 + g.dungeons[a.dungeonNum][floor].completed / 200) : 0;
           },
-          effect: { end: (r, k) => (k.combat += 15, k.magic += 15), loop: (r) => r.soul += 10 }
+          effect: { end: (r, k) => (k.combat += 15, k.magic += 15), loop: (r) => r.soul +=h.getRewardSS(1)  }
         }},
         'Dark Ritual': { affected: ['ritual'], canStart: (input) => (input.rep <= -5), loop: {
           max: () => 1,
