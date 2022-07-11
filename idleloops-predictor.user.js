@@ -772,7 +772,7 @@ const Koviko = {
 
         // Jungle Path
         'Explore Jungle': { effect: (r) => (r.herbs++) },
-        'Fight Jungle Monsters': { affected: ['hide'], canStart: (input) => (input.rep >= 2), loop: {
+        'Fight Jungle Monsters': { affected: ['hide'], loop: {
           cost: (p, a) => segment => g.precision3(Math.pow(1.3, p.completed + segment)) * 1e8,
           tick: (p, a, s, k, r) => offset => h.getSelfCombat(r, k) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) *
                                              Math.sqrt(1 + p.total / 1000),
