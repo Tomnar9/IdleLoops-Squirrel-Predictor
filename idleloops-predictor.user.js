@@ -538,7 +538,8 @@ const Koviko = {
         'Mage Lessons': { effect: (r, k) => k.magic += 100 * (1 + g.getSkillLevelFromExp(k.alchemy) / 100), canStart: (input) => input.rep >= 2 },
         'Buy Supplies': { affected: ['gold'], effect: (r) => (r.gold -= 300 - Math.max((r.supplyDiscount || 0) * 20, 0), r.supplies = (r.supplies || 0) + 1), canStart: (input) => input.gold >= 300 - Math.max((input.supplyDiscount || 0) * 20, 0) },
         'Haggle': { affected: ['rep'], canStart: (input) => (input.rep > 0), effect: (r) => (r.rep--, r.supplyDiscount = (r.supplyDiscount >= 15 ? 15 : (r.supplyDiscount || 0) + 1)) },
-        'Start Journey': { effect: (r) => (r.supplies = (r.supplies || 0) - 1, r.town += 1), canStart: r => r.supplies >= 1},
+        'Start Journey': { effect: (r) => (r.supplies = (r.supplies || 0) - 1, r.town =1), canStart: r => r.supplies >= 1},
+        'Open Rift': { effect: (r,k) => (r.supplies = 0, r.town =5, k.dark+=1000)},
 
         // Forest Path
         'Explore Forest': {},
@@ -567,7 +568,7 @@ const Koviko = {
         'Clear Thicket': {},
         'Talk To Witch': {},
         'Dark Magic': { affected: ['rep'], canStart: (input) => (input.rep <= 0), effect: (r, k) => (r.rep--, k.dark += Math.floor(100 * (1 + buffs.Ritual.amt / 100))) },
-        'Continue On': { effect: (r) => r.town += 1 },
+        'Continue On': { effect: (r) => r.town = 2 },
 
         // Merchanton
         'Explore City': {},
@@ -586,7 +587,7 @@ const Koviko = {
         'Mason': { effect: (r, k) => (r.mason = (r.mason || 0) + 20 * h.getGuildRankBonus(r.crafts || 0), k.crafting += 20 * (1 + h.getTownLevelFromExp(r.mason) / 100)) },
         'Architect': { effect: (r, k) => (r.architect = (r.architect || 0) + 10 * h.getGuildRankBonus(r.crafts || 0), k.crafting += 40 * (1 + h.getTownLevelFromExp(r.architect) / 100)) },
         'Buy Pickaxe': { affected: ['gold'], effect: (r) => (r.gold -= 200, r.pickaxe = true) },
-        'Start Trek': { effect: (r) => r.town += 1 },
+        'Start Trek': { effect: (r) => r.town = 3 },
 
         // Mt. Olympus
         'Climb Mountain': {},
@@ -612,7 +613,7 @@ const Koviko = {
           r.temp11 = (r.temp11 || 0) + 1;
           r.artifacts += r.temp11 <= towns[3].goodArtifacts ? 1 : 0;
         }},
-        'Face Judgement': { effect: (r) => r.town += 1 },
+        'Face Judgement': { effect: (r) => (r.town = r.rep>=50?4:5), canStart: (input) => (input.rep>=50||input.rep<=-50) },
 
         // Valhalla
         'Guided Tour': { affected: ['gold'], canStart: (input) => {
@@ -719,6 +720,7 @@ const Koviko = {
           if (r.rep >= 0) {
             r.rep = -1;
           }
+		  r.town=5;
         }},
 
         // Startington
@@ -757,7 +759,12 @@ const Koviko = {
           r.gold -= 500;
           r.supplies = (r.supplies || 0) + 1;
         }},
-        'Journey Forth': { canStart: (input) => (input.supplies >= 1), effect: (r) => (r.supplies--) },
+        'Journey Forth': { canStart: (input) => (input.supplies >= 1), 
+		  effect: (r) => {
+	        r.supplies--;
+            r.town=6;  
+        }
+        },
 
         // Jungle Path
         'Explore Jungle': { effect: (r) => (r.herbs++) },
