@@ -790,7 +790,7 @@ const Koviko = {
           effect: (r,k) => {
             r.herbs-=10;
             r.hide--;
-            k.gluttony+=5*survivor;
+            k.gluttony+=5*r.survivor;
           }
         },
         'Totem': {affected:['lpotions'],
