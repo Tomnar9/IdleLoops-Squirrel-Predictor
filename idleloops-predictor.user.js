@@ -772,7 +772,7 @@ const Koviko = {
         },
 
         // Jungle Path
-        'Explore Jungle': { effect: (r) => (r.herbs++) },
+        'Explore Jungle': { affected: ['herbs'],effect: (r) => (r.herbs++) },
         'Fight Jungle Monsters': { affected: ['hide'], loop: {
           cost: (p, a) => segment => g.precision3(Math.pow(1.3, p.completed + segment)) * 1e8,
           tick: (p, a, s, k, r) => offset => h.getSelfCombat(r, k) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) *
@@ -780,7 +780,18 @@ const Koviko = {
           effect: { segment: (r) => r.hide += 1 },
         }},
         'Rescue Survivors': {
-
+          loop: {
+            cost: (p, a) => segment => g.fibonacci(2 + Math.floor((p.completed + segment) / a.segments + .0000001)) * 5000,
+            tick: (p, a, s, k) => offset => g.getSkillLevelFromExp(k.magic) * Math.max(g.getSkillLevelFromExp(k.restoration) / 100, 1) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) * Math.sqrt(1 + p.total / 100),
+            effect: { loop: (r) => r.survivor= (r.survivor||0)+1 },
+        }},
+        'Prepare Buffet': { affected:['herbs','hide],
+          canStart: (input) => ((input.herbs>=10) && (input.hide>=1)),
+          effect: (r,k) => {
+            r.herbs-=10;
+            r.hide--;
+            k.gluttony+=5*survivor;
+          }
         },
         'Totem': {affected:['lpotions'],
           canStart: (input)=>(input.lpotions>0),
@@ -856,6 +867,16 @@ const Koviko = {
             return attempt < 1 ? (g.getSkillLevelFromExp(k.magic) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100)) : 0;
           },
           effect: { loop: (r) => r.mind++ },
+        }},
+        'Imbue Body': { affected: ['body'], loop: {
+          max: () => 1,
+          cost: (p) => segment => 100000000 * (segment * 5 + 1),
+          tick: (p, a, s, k) => offset => {
+            let attempt = Math.floor(p.completed / a.segments + .0000001);
+
+            return attempt < 1 ? (g.getSkillLevelFromExp(k.magic) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100)) : 0;
+          },
+          effect: { loop: (r) => r.body++ },
         }},
 
         //Survey Actions
