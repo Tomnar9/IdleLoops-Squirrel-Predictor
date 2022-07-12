@@ -857,6 +857,17 @@ const Koviko = {
           },
           effect: { loop: (r) => r.mind++ },
         }},
+
+        //Survey Actions
+        'SurveyZ0': {}
+        'SurveyZ1': {}
+        'SurveyZ2': {}
+        'SurveyZ3': {}
+        'SurveyZ4': {}
+        'SurveyZ5': {}
+        'SurveyZ6': {}
+        'SurveyZ7': {}
+
       };
 
       /**
