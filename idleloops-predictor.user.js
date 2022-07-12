@@ -606,7 +606,7 @@ const Koviko = {
         'Looping Potion': { affected: ['herbs', 'lpotions'],
           canStart: (input) => (input.herbs>=400),
           effect: (r, k) => (r.herbs -= 400, r.lpotions++, k.alchemy += 100)
-        }},
+        },
         'Check Walls': {},
         'Take Artifacts': { affected: ['artifacts'], effect: (r) => {
           r.temp11 = (r.temp11 || 0) + 1;
@@ -785,7 +785,7 @@ const Koviko = {
             tick: (p, a, s, k) => offset => g.getSkillLevelFromExp(k.magic) * Math.max(g.getSkillLevelFromExp(k.restoration) / 100, 1) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) * Math.sqrt(1 + p.total / 100),
             effect: { loop: (r) => r.survivor= (r.survivor||0)+1 },
         }},
-        'Prepare Buffet': { affected:['herbs','hide],
+        'Prepare Buffet': { affected:['herbs','hide'],
           canStart: (input) => ((input.herbs>=10) && (input.hide>=1)),
           effect: (r,k) => {
             r.herbs-=10;
@@ -880,14 +880,14 @@ const Koviko = {
         }},
 
         //Survey Actions
-        'SurveyZ0': {}
-        'SurveyZ1': {}
-        'SurveyZ2': {}
-        'SurveyZ3': {}
-        'SurveyZ4': {}
-        'SurveyZ5': {}
-        'SurveyZ6': {}
-        'SurveyZ7': {}
+        'SurveyZ0': {},
+        'SurveyZ1': {},
+        'SurveyZ2': {},
+        'SurveyZ3': {},
+        'SurveyZ4': {},
+        'SurveyZ5': {},
+        'SurveyZ6': {},
+        'SurveyZ7': {},
 
       };
 
