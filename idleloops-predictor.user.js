@@ -383,7 +383,7 @@ const Koviko = {
       ul.koviko .herbs{color:#4caf50}
       ul.koviko .hide{color:#663300}
       ul.koviko .potions{color:#00b2ee}
-      ul.koviko .lpoitons{color:#436ef7}
+      ul.koviko .lpotions{color:#436ef7}
       ul.koviko .blood{color:#8b0000}
       ul.koviko .crafts{color:#777777}
       ul.koviko .adventures{color:#191919}
@@ -603,10 +603,9 @@ const Koviko = {
           r.soul += r.temp10 <= towns[3].goodMineSoulstones ? h.getRewardSS(0) : 0;
         }},
         'Pyromancy': { effect: (r, k) => k.pyromancy += 100 },
-        'Looping Potion': { affected: ['herbs', 'lpotions'], effect: (r, k) => {
-          if ( r.herbs >= 200 ) {
-            (r.herbs -= 200, r.lpoitons++, k.alchemy += 100)
-          }
+        'Looping Potion': { affected: ['herbs', 'lpotions'], 
+          canStart: (input) => (input.herbs>=400),		
+          effect: (r, k) => (r.herbs -= 400, r.lpotions++, k.alchemy += 100)        
         }},
         'Check Walls': {},
         'Take Artifacts': { affected: ['artifacts'], effect: (r) => {
@@ -782,6 +781,10 @@ const Koviko = {
         }},
         'Rescue Survivors': {
 
+        },
+        'Totem': {affected:['lpotions'],
+          canStart: (input)=>(input.lpotions>0),
+          effect: (r,k)=>(r.lpotions--,k.wunderkind+=100),
         },
         'Escape': { effect: (r) => (r.town=7)},
 
