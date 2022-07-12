@@ -520,6 +520,7 @@ const Koviko = {
           r.gold += r.temp2 <= towns[0].goodLocks ? g.Action.PickLocks.goldCost() : 0;
         }},
         'Buy Glasses': { effect: (r) => (r.gold -= 10, r.glasses = true) },
+        'Found Glasses': { effect: (r) => (r.glasses = true) },
         'Buy Mana Z1': { affected: ['mana', 'gold'], effect: (r) => (r.mana += r.gold * g.Action.BuyManaZ1.goldCost(), r.gold = 0) },
         'Meet People': {},
         'Train Strength': {},
@@ -540,7 +541,8 @@ const Koviko = {
         'Haggle': { affected: ['rep'], canStart: (input) => (input.rep > 0), effect: (r) => (r.rep--, r.supplyDiscount = (r.supplyDiscount >= 15 ? 15 : (r.supplyDiscount || 0) + 1)) },
         'Start Journey': { effect: (r) => (r.supplies = (r.supplies || 0) - 1, r.town =1), canStart: r => r.supplies >= 1},
         'Open Rift': { effect: (r,k) => (r.supplies = 0, r.town =5, k.dark+=1000)},
-
+		'Hitch Ride':{ effect: (r,k) => ( r.town =2)},
+	
         // Forest Path
         'Explore Forest': {},
         'Wild Mana': { affected: ['mana'], effect: (r) => {
@@ -588,6 +590,7 @@ const Koviko = {
         'Architect': { effect: (r, k) => (r.architect = (r.architect || 0) + 10 * h.getGuildRankBonus(r.crafts || 0), k.crafting += 40 * (1 + h.getTownLevelFromExp(r.architect) / 100)) },
         'Buy Pickaxe': { affected: ['gold'], effect: (r) => (r.gold -= 200, r.pickaxe = true) },
         'Start Trek': { effect: (r) => r.town = 3 },
+        'Underworld': {affected: ['gold'], effect: (r) => (r.town = 7,r.gold-=500),canStart:(input)=>(input.gold>=500) },
 
         // Mt. Olympus
         'Climb Mountain': {},
@@ -613,6 +616,7 @@ const Koviko = {
           r.artifacts += r.temp11 <= towns[3].goodArtifacts ? 1 : 0;
         }},
         'Face Judgement': { effect: (r) => (r.town = r.rep>=50?4:5), canStart: (input) => (input.rep>=50||input.rep<=-50) },
+        'Guru': {affected: ['herbs'], effect: (r) => (r.town = 4,r.herbs-=1000),canStart:(input)=>(input.herbs>=1000) },
 
         // Valhalla
         'Guided Tour': { affected: ['gold'], canStart: (input) => {
@@ -783,7 +787,7 @@ const Koviko = {
           loop: {
             cost: (p, a) => segment => g.fibonacci(2 + Math.floor((p.completed + segment) / a.segments + .0000001)) * 5000,
             tick: (p, a, s, k) => offset => g.getSkillLevelFromExp(k.magic) * Math.max(g.getSkillLevelFromExp(k.restoration) / 100, 1) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) * Math.sqrt(1 + p.total / 100),
-            effect: { loop: (r) => r.survivor= (r.survivor||0)+1 },
+            effect: { loop: (r) => (r.survivor= (r.survivor||0)+1,r.rep+=4) },
         }},
         'Prepare Buffet': { affected:['herbs','hide'],
           canStart: (input) => ((input.herbs>=10) && (input.hide>=1)),
@@ -798,6 +802,7 @@ const Koviko = {
           effect: (r,k)=>(r.lpotions--,k.wunderkind+=100),
         },
         'Escape': { effect: (r) => (r.town=7)},
+        'Open Portal': { effect: (r,k) => (r.town=1,k.restoration+=2500)},
 
 
         // Loops without Max
