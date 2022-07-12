@@ -322,7 +322,7 @@ const Koviko = {
       this.initStyle();
       this.initElements()
       this.initPredictions();
-	  if(typeof GM_getValue !== "undefined" && GM_getValue('timePercision') !== undefined) {
+      if(typeof GM_getValue !== "undefined" && GM_getValue('timePercision') !== undefined) {
           var loadedVal = GM_getValue('timePercision');
           \$('#updateTimePercision').val(loadedVal);
       }
@@ -430,8 +430,8 @@ const Koviko = {
         parent.appendChild(this.totalDisplay);
       }
 
-	  //Adds more to the Options panel
-	  \$('#menu div:nth-child(4) div:first').append("<div id='preditorSettings'><br /><b>Predictor Settings</b><br />Degrees of percision on Time<input id='updateTimePercision' type='number' value='1' min='0' max='10' style='width: 50px;'></div>")
+      //Adds more to the Options panel
+      \$('#menu div:nth-child(4) div:first').append("<div id='preditorSettings'><br /><b>Predictor Settings</b><br />Degrees of percision on Time<input id='updateTimePercision' type='number' value='1' min='0' max='10' style='width: 50px;'></div>")
       \$('#updateTimePercision').focusout(function() {
           if(\$(this).val() > 10) {
               \$(this).val(10);
@@ -495,8 +495,8 @@ const Koviko = {
          * @memberof Koviko.Predictor#helpers
          */
         getTeamCombat: (r, k) => h.getSelfCombat(r, k) + g.getSkillLevelFromExp(k.combat) * (r.team || 0) / 2 * h.getGuildRankBonus(r.adventures || 0),
-	
-	getRewardSS: (dNum) => Math.floor(Math.pow(10, dNum) * Math.pow(1 + getSkillLevel("Divine") / 60, 0.25)),
+
+    getRewardSS: (dNum) => Math.floor(Math.pow(10, dNum) * Math.pow(1 + getSkillLevel("Divine") / 60, 0.25)),
 
       });
 
@@ -603,9 +603,9 @@ const Koviko = {
           r.soul += r.temp10 <= towns[3].goodMineSoulstones ? h.getRewardSS(0) : 0;
         }},
         'Pyromancy': { effect: (r, k) => k.pyromancy += 100 },
-        'Looping Potion': { affected: ['herbs', 'lpotions'], 
-          canStart: (input) => (input.herbs>=400),		
-          effect: (r, k) => (r.herbs -= 400, r.lpotions++, k.alchemy += 100)        
+        'Looping Potion': { affected: ['herbs', 'lpotions'],
+          canStart: (input) => (input.herbs>=400),
+          effect: (r, k) => (r.herbs -= 400, r.lpotions++, k.alchemy += 100)
         }},
         'Check Walls': {},
         'Take Artifacts': { affected: ['artifacts'], effect: (r) => {
@@ -669,7 +669,7 @@ const Koviko = {
           r.favor -= 1;
           r.enchantments += 1;
         }},
-        'Wizard College': { affected: ['gold', 'favor', 'wizard'], 
+        'Wizard College': { affected: ['gold', 'favor', 'wizard'],
           canStart: (input) => {
           return (input.gold >= 500 && input.favor >= 10);
         }, loop: {
@@ -721,17 +721,17 @@ const Koviko = {
           if (r.rep >= 0) {
             r.rep = -1;
           }
-		  r.town=5;
+          r.town=5;
         }},
 
         // Startington
         'Meander': {},
         'Mana Well': {
-		  effect: (r,k)=> {
+          effect: (r,k)=> {
             r.wellLoot = (r.wellLoot || 0) + 1;
             r.mana += r.wellLoot <= towns[1].goodWells ? Math.max(5000 - Math.floor(r.totalTicks/5),0) : 0;
-		  }
-          
+          }
+
         },
         'Destroy Pylons': { affected: ['pylons'], effect: (r) => {
           r.pylons += 1;
@@ -753,7 +753,7 @@ const Koviko = {
           tick: (p, a, s, k, r) => offset => {
             const floor = Math.floor(p.completed / a.segments + .0000001);
 
-            return floor in g.dungeons[a.dungeonNum] ? 
+            return floor in g.dungeons[a.dungeonNum] ?
                 (h.getSelfCombat(r, k) + g.getSkillLevelFromExp(k.magic)) *
                 (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) *
                 Math.sqrt(1 + g.dungeons[a.dungeonNum][floor].completed / 200) : 0;
@@ -764,10 +764,10 @@ const Koviko = {
           r.gold -= 500;
           r.supplies = (r.supplies || 0) + 1;
         }},
-        'Journey Forth': { canStart: (input) => (input.supplies >= 1), 
-		  effect: (r) => {
-	        r.supplies--;
-            r.town=6;  
+        'Journey Forth': { canStart: (input) => (input.supplies >= 1),
+          effect: (r) => {
+            r.supplies--;
+            r.town=6;
         }
         },
 
@@ -788,7 +788,7 @@ const Koviko = {
         },
         'Escape': { effect: (r) => (r.town=7)},
 
-			
+
         // Loops without Max
         'Heal The Sick': { affected: ['rep'], canStart: (input) => (input.rep >= 1), loop: {
           cost: (p, a) => segment => g.fibonacci(2 + Math.floor((p.completed + segment) / a.segments + .0000001)) * 5000,
@@ -925,8 +925,8 @@ const Koviko = {
       /**
        *This is used to see when the loop becomes invalid due to mana cost
        */
-	  //This is the percision of the Time field
-	  let percisionForTime = \$('#updateTimePercision').val();
+      //This is the percision of the Time field
+      let percisionForTime = \$('#updateTimePercision').val();
 
       // Initialize all affected resources
       affected.forEach(x => state.resources[x] || (state.resources[x] = 0));
@@ -991,17 +991,17 @@ const Koviko = {
             let temp = (currentMana - state.resources.mana) / getSpeedMult(state.resources.town);
             totalTicks += temp;
             state.resources.totalTicks=totalTicks;
-			
+
             // Only for Adventure Guild
             if ( listedAction.name == "Adventure Guild" ) {
               state.resources.mana += state.resources.adventures * 200;
             }
-            
+
             //Only for Escape (Jungle Path) - only works in the first 60s (=50*60 ticks)
-			if ((listedAction.name=='Escape') && (totalTicks>=(50*60))) {
-			  isValid=false;
-			}
-			
+            if ((listedAction.name=='Escape') && (totalTicks>=(50*60))) {
+              isValid=false;
+            }
+
             // Run the effect, now that the mana checks are complete
             if (prediction.effect) {
               prediction.effect(state.resources, state.skills);
