@@ -322,7 +322,7 @@ const Koviko = {
       this.initStyle();
       this.initElements()
       this.initPredictions();
-	  if(typeof GM_getValue !== "undefined" && GM_getValue('timePercision') !== undefined) {
+      if(typeof GM_getValue !== "undefined" && GM_getValue('timePercision') !== undefined) {
           var loadedVal = GM_getValue('timePercision');
           \$('#updateTimePercision').val(loadedVal);
       }
@@ -383,7 +383,7 @@ const Koviko = {
       ul.koviko .herbs{color:#4caf50}
       ul.koviko .hide{color:#663300}
       ul.koviko .potions{color:#00b2ee}
-      ul.koviko .lpoitons{color:#436ef7}
+      ul.koviko .lpotions{color:#436ef7}
       ul.koviko .blood{color:#8b0000}
       ul.koviko .crafts{color:#777777}
       ul.koviko .adventures{color:#191919}
@@ -430,8 +430,8 @@ const Koviko = {
         parent.appendChild(this.totalDisplay);
       }
 
-	  //Adds more to the Options panel
-	  \$('#menu div:nth-child(4) div:first').append("<div id='preditorSettings'><br /><b>Predictor Settings</b><br />Degrees of percision on Time<input id='updateTimePercision' type='number' value='1' min='0' max='10' style='width: 50px;'></div>")
+      //Adds more to the Options panel
+      \$('#menu div:nth-child(4) div:first').append("<div id='preditorSettings'><br /><b>Predictor Settings</b><br />Degrees of percision on Time<input id='updateTimePercision' type='number' value='1' min='0' max='10' style='width: 50px;'></div>")
       \$('#updateTimePercision').focusout(function() {
           if(\$(this).val() > 10) {
               \$(this).val(10);
@@ -495,8 +495,8 @@ const Koviko = {
          * @memberof Koviko.Predictor#helpers
          */
         getTeamCombat: (r, k) => h.getSelfCombat(r, k) + g.getSkillLevelFromExp(k.combat) * (r.team || 0) / 2 * h.getGuildRankBonus(r.adventures || 0),
-	
-	getRewardSS: (dNum) => Math.floor(Math.pow(10, dNum) * Math.pow(1 + getSkillLevel("Divine") / 60, 0.25)),
+
+    getRewardSS: (dNum) => Math.floor(Math.pow(10, dNum) * Math.pow(1 + getSkillLevel("Divine") / 60, 0.25)),
 
       });
 
@@ -520,6 +520,7 @@ const Koviko = {
           r.gold += r.temp2 <= towns[0].goodLocks ? g.Action.PickLocks.goldCost() : 0;
         }},
         'Buy Glasses': { effect: (r) => (r.gold -= 10, r.glasses = true) },
+        'Found Glasses': { effect: (r) => (r.glasses = true) },
         'Buy Mana Z1': { affected: ['mana', 'gold'], effect: (r) => (r.mana += r.gold * g.Action.BuyManaZ1.goldCost(), r.gold = 0) },
         'Meet People': {},
         'Train Strength': {},
@@ -538,8 +539,10 @@ const Koviko = {
         'Mage Lessons': { effect: (r, k) => k.magic += 100 * (1 + g.getSkillLevelFromExp(k.alchemy) / 100), canStart: (input) => input.rep >= 2 },
         'Buy Supplies': { affected: ['gold'], effect: (r) => (r.gold -= 300 - Math.max((r.supplyDiscount || 0) * 20, 0), r.supplies = (r.supplies || 0) + 1), canStart: (input) => input.gold >= 300 - Math.max((input.supplyDiscount || 0) * 20, 0) },
         'Haggle': { affected: ['rep'], canStart: (input) => (input.rep > 0), effect: (r) => (r.rep--, r.supplyDiscount = (r.supplyDiscount >= 15 ? 15 : (r.supplyDiscount || 0) + 1)) },
-        'Start Journey': { effect: (r) => (r.supplies = (r.supplies || 0) - 1, r.town += 1), canStart: r => r.supplies >= 1},
-
+        'Start Journey': { effect: (r) => (r.supplies = (r.supplies || 0) - 1, r.town =1), canStart: r => r.supplies >= 1},
+        'Open Rift': { effect: (r,k) => (r.supplies = 0, r.town =5, k.dark+=1000)},
+		'Hitch Ride':{ effect: (r,k) => ( r.town =2)},
+	
         // Forest Path
         'Explore Forest': {},
         'Wild Mana': { affected: ['mana'], effect: (r) => {
@@ -567,7 +570,7 @@ const Koviko = {
         'Clear Thicket': {},
         'Talk To Witch': {},
         'Dark Magic': { affected: ['rep'], canStart: (input) => (input.rep <= 0), effect: (r, k) => (r.rep--, k.dark += Math.floor(100 * (1 + buffs.Ritual.amt / 100))) },
-        'Continue On': { effect: (r) => r.town += 1 },
+        'Continue On': { effect: (r) => r.town = 2 },
 
         // Merchanton
         'Explore City': {},
@@ -586,7 +589,8 @@ const Koviko = {
         'Mason': { effect: (r, k) => (r.mason = (r.mason || 0) + 20 * h.getGuildRankBonus(r.crafts || 0), k.crafting += 20 * (1 + h.getTownLevelFromExp(r.mason) / 100)) },
         'Architect': { effect: (r, k) => (r.architect = (r.architect || 0) + 10 * h.getGuildRankBonus(r.crafts || 0), k.crafting += 40 * (1 + h.getTownLevelFromExp(r.architect) / 100)) },
         'Buy Pickaxe': { affected: ['gold'], effect: (r) => (r.gold -= 200, r.pickaxe = true) },
-        'Start Trek': { effect: (r) => r.town += 1 },
+        'Start Trek': { effect: (r) => r.town = 3 },
+        'Underworld': {affected: ['gold'], effect: (r) => (r.town = 7,r.gold-=500),canStart:(input)=>(input.gold>=500) },
 
         // Mt. Olympus
         'Climb Mountain': {},
@@ -602,17 +606,17 @@ const Koviko = {
           r.soul += r.temp10 <= towns[3].goodMineSoulstones ? h.getRewardSS(0) : 0;
         }},
         'Pyromancy': { effect: (r, k) => k.pyromancy += 100 },
-        'Looping Potion': { affected: ['herbs', 'lpotions'], effect: (r, k) => {
-          if ( r.herbs >= 200 ) {
-            (r.herbs -= 200, r.lpoitons++, k.alchemy += 100)
-          }
-        }},
+        'Looping Potion': { affected: ['herbs', 'lpotions'],
+          canStart: (input) => (input.herbs>=400),
+          effect: (r, k) => (r.herbs -= 400, r.lpotions++, k.alchemy += 100)
+        },
         'Check Walls': {},
         'Take Artifacts': { affected: ['artifacts'], effect: (r) => {
           r.temp11 = (r.temp11 || 0) + 1;
           r.artifacts += r.temp11 <= towns[3].goodArtifacts ? 1 : 0;
         }},
-        'Face Judgement': { effect: (r) => r.town += 1 },
+        'Face Judgement': { effect: (r) => (r.town = r.rep>=50?4:5), canStart: (input) => (input.rep>=50||input.rep<=-50) },
+        'Guru': {affected: ['herbs'], effect: (r) => (r.town = 4,r.herbs-=1000),canStart:(input)=>(input.herbs>=1000) },
 
         // Valhalla
         'Guided Tour': { affected: ['gold'], canStart: (input) => {
@@ -669,7 +673,7 @@ const Koviko = {
           r.favor -= 1;
           r.enchantments += 1;
         }},
-        'Wizard College': { affected: ['gold', 'favor', 'wizard'], 
+        'Wizard College': { affected: ['gold', 'favor', 'wizard'],
           canStart: (input) => {
           return (input.gold >= 500 && input.favor >= 10);
         }, loop: {
@@ -685,7 +689,9 @@ const Koviko = {
         'Restoration': { effect: (r, k) => k.restoration += 100 },
         'Spatiomancy': { effect: (r, k) => k.spatiomancy += 100 },
         'Seek Citizenship': {},
-        'Build Housing': {effect: (r) => (r.houses = (r.houses ? r.houses+1 : 1))}, // TODO: can start
+        'Build Housing': {canStart: (input) => {
+          return (input.houses||0) < Math.floor(h.getGuildRankBonus(input.crafts || 0) * (1 + Math.min(g.getSkillLevelFromExp(skills.Spatiomancy.exp),500) * .01));
+        }, effect: (r) => (r.houses = (r.houses ? r.houses+1 : 1))},
         'Collect Taxes': { canStart: (input) => (input.houses > 0), effect: (r, k) => {
           r.gold += Math.floor(r.houses * g.getSkillLevelFromExp(k.mercantilism) / 10);
         }},
@@ -719,12 +725,17 @@ const Koviko = {
           if (r.rep >= 0) {
             r.rep = -1;
           }
+          r.town=5;
         }},
 
         // Startington
         'Meander': {},
         'Mana Well': {
-          // TODO: Effective time?
+          effect: (r,k)=> {
+            r.wellLoot = (r.wellLoot || 0) + 1;
+            r.mana += r.wellLoot <= towns[1].goodWells ? Math.max(5000 - Math.floor(r.totalTicks/5),0) : 0;
+          }
+
         },
         'Destroy Pylons': { affected: ['pylons'], effect: (r) => {
           r.pylons += 1;
@@ -746,7 +757,7 @@ const Koviko = {
           tick: (p, a, s, k, r) => offset => {
             const floor = Math.floor(p.completed / a.segments + .0000001);
 
-            return floor in g.dungeons[a.dungeonNum] ? 
+            return floor in g.dungeons[a.dungeonNum] ?
                 (h.getSelfCombat(r, k) + g.getSkillLevelFromExp(k.magic)) *
                 (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) *
                 Math.sqrt(1 + g.dungeons[a.dungeonNum][floor].completed / 200) : 0;
@@ -757,19 +768,42 @@ const Koviko = {
           r.gold -= 500;
           r.supplies = (r.supplies || 0) + 1;
         }},
-        'Journey Forth': { canStart: (input) => (input.supplies >= 1), effect: (r) => (r.supplies--) },
+        'Journey Forth': { canStart: (input) => (input.supplies >= 1),
+          effect: (r) => {
+            r.supplies--;
+            r.town=6;
+        }
+        },
 
         // Jungle Path
-        'Explore Jungle': { effect: (r) => (r.herbs++) },
-        'Fight Jungle Monsters': { affected: ['hide'], canStart: (input) => (input.rep >= 2), loop: {
+        'Explore Jungle': { affected: ['herbs'],effect: (r) => (r.herbs++) },
+        'Fight Jungle Monsters': { affected: ['hide'], loop: {
           cost: (p, a) => segment => g.precision3(Math.pow(1.3, p.completed + segment)) * 1e8,
           tick: (p, a, s, k, r) => offset => h.getSelfCombat(r, k) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) *
                                              Math.sqrt(1 + p.total / 1000),
           effect: { segment: (r) => r.hide += 1 },
         }},
         'Rescue Survivors': {
-
+          loop: {
+            cost: (p, a) => segment => g.fibonacci(2 + Math.floor((p.completed + segment) / a.segments + .0000001)) * 5000,
+            tick: (p, a, s, k) => offset => g.getSkillLevelFromExp(k.magic) * Math.max(g.getSkillLevelFromExp(k.restoration) / 100, 1) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) * Math.sqrt(1 + p.total / 100),
+            effect: { loop: (r) => (r.survivor= (r.survivor||0)+1,r.rep+=4) },
+        }},
+        'Prepare Buffet': { affected:['herbs','hide'],
+          canStart: (input) => ((input.herbs>=10) && (input.hide>=1)),
+          effect: (r,k) => {
+            r.herbs-=10;
+            r.hide--;
+            k.gluttony+=5*r.survivor;
+          }
         },
+        'Totem': {affected:['lpotions'],
+          canStart: (input)=>(input.lpotions>0),
+          effect: (r,k)=>(r.lpotions--,k.wunderkind+=100),
+        },
+        'Escape': { effect: (r) => (r.town=7)},
+        'Open Portal': { effect: (r,k) => (r.town=1,k.restoration+=2500)},
+
 
         // Loops without Max
         'Heal The Sick': { affected: ['rep'], canStart: (input) => (input.rep >= 1), loop: {
@@ -839,6 +873,27 @@ const Koviko = {
           },
           effect: { loop: (r) => r.mind++ },
         }},
+        'Imbue Body': { affected: ['body'], loop: {
+          max: () => 1,
+          cost: (p) => segment => 100000000 * (segment * 5 + 1),
+          tick: (p, a, s, k) => offset => {
+            let attempt = Math.floor(p.completed / a.segments + .0000001);
+
+            return attempt < 1 ? (g.getSkillLevelFromExp(k.magic) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100)) : 0;
+          },
+          effect: { loop: (r) => r.body++ },
+        }},
+
+        //Survey Actions
+        'SurveyZ0': {},
+        'SurveyZ1': {},
+        'SurveyZ2': {},
+        'SurveyZ3': {},
+        'SurveyZ4': {},
+        'SurveyZ5': {},
+        'SurveyZ6': {},
+        'SurveyZ7': {},
+
       };
 
       /**
@@ -907,8 +962,8 @@ const Koviko = {
       /**
        *This is used to see when the loop becomes invalid due to mana cost
        */
-	  //This is the percision of the Time field
-	  let percisionForTime = \$('#updateTimePercision').val();
+      //This is the percision of the Time field
+      let percisionForTime = \$('#updateTimePercision').val();
 
       // Initialize all affected resources
       affected.forEach(x => state.resources[x] || (state.resources[x] = 0));
@@ -970,21 +1025,18 @@ const Koviko = {
 
 
             // Calculate time spent
-            let temp = (currentMana - state.resources.mana) / Math.pow(1 + getSkillLevel("Chronomancy") / 60, 0.25);
-            if ( state.resources.town === 0 && getBuffLevel("Ritual") > 0) {
-              temp /= (1 + Math.min(getBuffLevel("Ritual"), 20) / 10);
-            }
-            else if ( state.resources.town === 1 && getBuffLevel("Ritual") > 20) {
-              temp /= (1 + Math.min(getBuffLevel("Ritual") - 20, 20) / 20);
-            }
-            else if ( state.resources.town === 2 && getBuffLevel("Ritual") > 40) {
-              temp /= (1 + Math.min(getBuffLevel("Ritual") - 40, 20) / 40);
-            }
+            let temp = (currentMana - state.resources.mana) / getSpeedMult(state.resources.town);
             totalTicks += temp;
+            state.resources.totalTicks=totalTicks;
 
             // Only for Adventure Guild
             if ( listedAction.name == "Adventure Guild" ) {
               state.resources.mana += state.resources.adventures * 200;
+            }
+
+            //Only for Escape (Jungle Path) - only works in the first 60s (=50*60 ticks)
+            if ((listedAction.name=='Escape') && (totalTicks>=(50*60))) {
+              isValid=false;
             }
 
             // Run the effect, now that the mana checks are complete
