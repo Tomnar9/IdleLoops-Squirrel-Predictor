@@ -322,11 +322,18 @@ const Koviko = {
       this.initStyle();
       this.initElements()
       this.initPredictions();
-      if(typeof GM_getValue !== "undefined" && GM_getValue('timePercision') !== undefined) {
-          var loadedVal = GM_getValue('timePercision');
-          \$('#updateTimePercision').val(loadedVal);
+      if(typeof localStorage !== "undefined") { 
+        if (localStorage.getItem('timePrecision') !== undefined) {
+          var loadedVal = localStorage.getItem('timePrecision');
+          \$('#updateTimePrecision').val(loadedVal);
+        }
+        if (localStorage.getItem("actionWidth")!=="undefined") {
+          let tmpVal=localStorage.getItem("actionWidth");
+          document.getElementById("actionsColumn").style.width=tmpVal+"px";
+          document.getElementById("nextActionsListContainer").style.width=(tmpVal-120)+"px";
+          \$('#actionWidth').val(tmpVal);
+        }
       }
-
       // Prepare \`updateNextActions\` to be hooked
       if (!view._updateNextActions) {
         view._updateNextActions = view.updateNextActions;
@@ -367,7 +374,7 @@ const Koviko = {
       let css = \`
       .nextActionContainer{width:auto!important;padding:0 4px}
       #nextActionsList{height:100%!important; overflow-y:scroll;}
-      #curActionsListContainer{width:24%!important; z-index: 100;}
+      #curActionsListContainer{width:120px!important; z-index: 100;}
       #nextActionsList:hover{margin-left:-40%;padding-left:40%}
       #actionList>div:nth-child(2){left: 53px !important}
       .nextActionContainer:nth-child(1n+9) .showthis {bottom: 5px; top: unset;}
@@ -394,6 +401,7 @@ const Koviko = {
       .travelContainer, .actionContainer {position:relative;}
       \`;
       document.getElementById("actionsColumn").style.width="500px";
+      document.getElementById("nextActionsListContainer").style.width="380px";
 
       // Create the <style> element if it doesn't already exist
       if (!style || style.tagName.toLowerCase() !== 'style') {
@@ -431,15 +439,23 @@ const Koviko = {
       }
 
       //Adds more to the Options panel
-      \$('#menu div:nth-child(4) div:first').append("<div id='preditorSettings'><br /><b>Predictor Settings</b><br />Degrees of percision on Time<input id='updateTimePercision' type='number' value='1' min='0' max='10' style='width: 50px;'></div>")
-      \$('#updateTimePercision').focusout(function() {
+      \$('#menu div:nth-child(4) .showthisH').append("<div id='preditorSettings'><br /><b>Predictor Settings</b></div>")
+      \$('#preditorSettings').append("<br /><label>Degrees of precision on Time</label><input id='updateTimePrecision' type='number' value='1' min='0' max='10' style='width: 50px;'>");
+      \$('#updateTimePrecision').focusout(function() {
           if(\$(this).val() > 10) {
               \$(this).val(10);
           }
           if(\$(this).val() < 1) {
               \$(this).val(1);
           }
-          GM_setValue('timePercision', \$(this).val());
+          localStorage.setItem('timePrecision', \$(this).val());
+      });
+      \$('#preditorSettings').append("<br /><label>Width of the Action List</label><input id='actionWidth' type='number' value='500' min='100' max='4000' style='width: 50px; float:right'>");
+      \$('#actionWidth').focusout(function() {
+          let tmpVal=\$(this).val();
+          localStorage.setItem('actionWidth',tmpVal );       
+          document.getElementById("actionsColumn").style.width=tmpVal+"px";
+          document.getElementById("nextActionsListContainer").style.width=(tmpVal-120)+"px";
       });
     }
 
@@ -922,7 +938,7 @@ const Koviko = {
        */
       const state = {
         resources: { mana: 250, town: 0 },
-        stats: Koviko.globals.statList.reduce((stats, name) => (stats[name] = getExpOfLevel(buffs.Imbuement2.amt), stats), {}),
+        stats: Koviko.globals.statList.reduce((stats, name) => (stats[name] = getExpOfLevel(buffs.Imbuement2.amt*(Koviko.globals.skills.wunderkind>=1?2:1)), stats), {}),
         skills: Object.entries(Koviko.globals.skills).reduce((skills, x) => (skills[x[0].toLowerCase()] = x[1].exp, skills), {}),
         progress: {},
         currProgress: {}
@@ -962,8 +978,8 @@ const Koviko = {
       /**
        *This is used to see when the loop becomes invalid due to mana cost
        */
-      //This is the percision of the Time field
-      let percisionForTime = \$('#updateTimePercision').val();
+      //This is the precision of the Time field
+      let precisionForTime = \$('#updateTimePrecision').val();
 
       // Initialize all affected resources
       affected.forEach(x => state.resources[x] || (state.resources[x] = 0));
@@ -1071,8 +1087,8 @@ const Koviko = {
       var h = Math.floor(totalTicks / 3600);
       var m = Math.floor(totalTicks % 3600 / 60);
       var s = Math.floor(totalTicks % 3600 % 60);
-      var ms = Math.floor(totalTicks % 1 * Math.pow(10,percisionForTime));
-      while(ms.toString().length < percisionForTime) { ms = "0" + ms; }
+      var ms = Math.floor(totalTicks % 1 * Math.pow(10,precisionForTime));
+      while(ms.toString().length < precisionForTime) { ms = "0" + ms; }
 
       let totalTime = ('0' + h).slice(-2) + ":" + ('0' + m).slice(-2) + ":" + ('0' + s).slice(-2) + "." + ms;
       container && (this.totalDisplay.innerHTML = intToString(total) + " | " + totalTime);
