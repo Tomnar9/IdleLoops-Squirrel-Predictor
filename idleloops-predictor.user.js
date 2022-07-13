@@ -323,9 +323,9 @@ const Koviko = {
       this.initElements()
       this.initPredictions();
       if(typeof localStorage !== "undefined") { 
-        if (localStorage.getItem('timePercision') !== undefined) {
-          var loadedVal = localStorage.getItem('timePercision');
-          \$('#updateTimePercision').val(loadedVal);
+        if (localStorage.getItem('timePrecision') !== undefined) {
+          var loadedVal = localStorage.getItem('timePrecision');
+          \$('#updateTimePrecision').val(loadedVal);
         }
         if (localStorage.getItem("actionWidth")!=="undefined") {
           let tmpVal=localStorage.getItem("actionWidth");
@@ -440,15 +440,15 @@ const Koviko = {
 
       //Adds more to the Options panel
       \$('#menu div:nth-child(4) .showthisH').append("<div id='preditorSettings'><br /><b>Predictor Settings</b></div>")
-      \$('#preditorSettings').append("<br /><label>Degrees of percision on Time</label><input id='updateTimePercision' type='number' value='1' min='0' max='10' style='width: 50px;'>");
-      \$('#updateTimePercision').focusout(function() {
+      \$('#preditorSettings').append("<br /><label>Degrees of precision on Time</label><input id='updateTimePrecision' type='number' value='1' min='0' max='10' style='width: 50px;'>");
+      \$('#updateTimePrecision').focusout(function() {
           if(\$(this).val() > 10) {
               \$(this).val(10);
           }
           if(\$(this).val() < 1) {
               \$(this).val(1);
           }
-          localStorage.setItem('timePercision', \$(this).val());
+          localStorage.setItem('timePrecision', \$(this).val());
       });
       \$('#preditorSettings').append("<br /><label>Width of the Action List</label><input id='actionWidth' type='number' value='500' min='100' max='4000' style='width: 50px; float:right'>");
       \$('#actionWidth').focusout(function() {
@@ -978,8 +978,8 @@ const Koviko = {
       /**
        *This is used to see when the loop becomes invalid due to mana cost
        */
-      //This is the percision of the Time field
-      let percisionForTime = \$('#updateTimePercision').val();
+      //This is the precision of the Time field
+      let precisionForTime = \$('#updateTimePrecision').val();
 
       // Initialize all affected resources
       affected.forEach(x => state.resources[x] || (state.resources[x] = 0));
@@ -1087,8 +1087,8 @@ const Koviko = {
       var h = Math.floor(totalTicks / 3600);
       var m = Math.floor(totalTicks % 3600 / 60);
       var s = Math.floor(totalTicks % 3600 % 60);
-      var ms = Math.floor(totalTicks % 1 * Math.pow(10,percisionForTime));
-      while(ms.toString().length < percisionForTime) { ms = "0" + ms; }
+      var ms = Math.floor(totalTicks % 1 * Math.pow(10,precisionForTime));
+      while(ms.toString().length < precisionForTime) { ms = "0" + ms; }
 
       let totalTime = ('0' + h).slice(-2) + ":" + ('0' + m).slice(-2) + ":" + ('0' + s).slice(-2) + "." + ms;
       container && (this.totalDisplay.innerHTML = intToString(total) + " | " + totalTime);
