@@ -322,11 +322,16 @@ const Koviko = {
       this.initStyle();
       this.initElements()
       this.initPredictions();
-      if(typeof GM_getValue !== "undefined" && GM_getValue('timePercision') !== undefined) {
-          var loadedVal = GM_getValue('timePercision');
+      if(typeof localStorage !== "undefined") { 
+        if (localStorage.getItem('timePercision') !== undefined) {
+          var loadedVal = localStorage.getItem('timePercision');
           \$('#updateTimePercision').val(loadedVal);
+        }
+        if (localStorage.getItem("actionWidth")!=="undefined") {
+          document.getElementById("actionsColumn").style.width=localStorage.getItem("actionWidth")+"px";
+          \$('#actionWidth').val(localStorage.getItem("actionWidth"));
+        }
       }
-
       // Prepare \`updateNextActions\` to be hooked
       if (!view._updateNextActions) {
         view._updateNextActions = view.updateNextActions;
@@ -431,7 +436,8 @@ const Koviko = {
       }
 
       //Adds more to the Options panel
-      \$('#menu div:nth-child(4) div:first').append("<div id='preditorSettings'><br /><b>Predictor Settings</b><br />Degrees of percision on Time<input id='updateTimePercision' type='number' value='1' min='0' max='10' style='width: 50px;'></div>")
+      \$('#menu div:nth-child(4) .showthisH').append("<div id='preditorSettings'><br /><b>Predictor Settings</b></div>")
+      \$('#preditorSettings').append("<br /><label>Degrees of percision on Time</label><input id='updateTimePercision' type='number' value='1' min='0' max='10' style='width: 50px;'>");
       \$('#updateTimePercision').focusout(function() {
           if(\$(this).val() > 10) {
               \$(this).val(10);
@@ -439,7 +445,12 @@ const Koviko = {
           if(\$(this).val() < 1) {
               \$(this).val(1);
           }
-          GM_setValue('timePercision', \$(this).val());
+          localStorage.setItem('timePercision', \$(this).val());
+      });
+      \$('#preditorSettings').append("<br /><label>Width of the Action List</label><input id='actionWidth' type='number' value='500' min='100' max='4000' style='width: 50px; float:right'>");
+      \$('#actionWidth').focusout(function() {
+          localStorage.setItem('actionWidth', \$(this).val());
+          document.getElementById("actionsColumn").style.width=(\$(this).val())+"px";
       });
     }
 
