@@ -328,8 +328,10 @@ const Koviko = {
           \$('#updateTimePercision').val(loadedVal);
         }
         if (localStorage.getItem("actionWidth")!=="undefined") {
-          document.getElementById("actionsColumn").style.width=localStorage.getItem("actionWidth")+"px";
-          \$('#actionWidth').val(localStorage.getItem("actionWidth"));
+          let tmpVal=localStorage.getItem("actionWidth");
+          document.getElementById("actionsColumn").style.width=tmpVal+"px";
+          document.getElementById("nextActionsListContainer").style.width=(tmpVal-120)+"px";
+          \$('#actionWidth').val(tmpVal);
         }
       }
       // Prepare \`updateNextActions\` to be hooked
@@ -372,7 +374,7 @@ const Koviko = {
       let css = \`
       .nextActionContainer{width:auto!important;padding:0 4px}
       #nextActionsList{height:100%!important; overflow-y:scroll;}
-      #curActionsListContainer{width:24%!important; z-index: 100;}
+      #curActionsListContainer{width:120px!important; z-index: 100;}
       #nextActionsList:hover{margin-left:-40%;padding-left:40%}
       #actionList>div:nth-child(2){left: 53px !important}
       .nextActionContainer:nth-child(1n+9) .showthis {bottom: 5px; top: unset;}
@@ -399,6 +401,7 @@ const Koviko = {
       .travelContainer, .actionContainer {position:relative;}
       \`;
       document.getElementById("actionsColumn").style.width="500px";
+      document.getElementById("nextActionsListContainer").style.width="380px";
 
       // Create the <style> element if it doesn't already exist
       if (!style || style.tagName.toLowerCase() !== 'style') {
@@ -449,8 +452,10 @@ const Koviko = {
       });
       \$('#preditorSettings').append("<br /><label>Width of the Action List</label><input id='actionWidth' type='number' value='500' min='100' max='4000' style='width: 50px; float:right'>");
       \$('#actionWidth').focusout(function() {
-          localStorage.setItem('actionWidth', \$(this).val());
-          document.getElementById("actionsColumn").style.width=(\$(this).val())+"px";
+          let tmpVal=\$(this).val();
+          localStorage.setItem('actionWidth',tmpVal );       
+          document.getElementById("actionsColumn").style.width=tmpVal+"px";
+          document.getElementById("nextActionsListContainer").style.width=(tmpVal-120)+"px";
       });
     }
 
