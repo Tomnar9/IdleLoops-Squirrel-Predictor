@@ -501,7 +501,7 @@ const Koviko = {
          * @return {number} Combat skill of the team leader
          * @memberof Koviko.Predictor#helpers
          */
-        getSelfCombat: (r, k) => (g.getSkillLevelFromExp(k.combat) + g.getSkillLevelFromExp(k.pyromancy) * 5 + g.getSkillLevelFromExp(k.restoration)) * h.getArmorLevel(r,k) * (1 + getBuffLevel("Feast") * 0.05),
+        getSelfCombat: (r, k) => (g.getSkillLevelFromExp(k.combat) + g.getSkillLevelFromExp(k.pyromancy) * 5) * h.getArmorLevel(r,k) * (1 + getBuffLevel("Feast") * 0.05),
 
         /**
          * Calculate the combat skill of the entire team
@@ -510,7 +510,7 @@ const Koviko = {
          * @return {number} Combat skill of the team members
          * @memberof Koviko.Predictor#helpers
          */
-        getTeamCombat: (r, k) => h.getSelfCombat(r, k) + g.getSkillLevelFromExp(k.combat) * (r.team || 0) / 2 * h.getGuildRankBonus(r.adventures || 0),
+        getTeamCombat: (r, k) => (h.getSelfCombat(r,k) + (g.getSkillLevelFromExp(k.dark) * (r.zombie||0) / 2) + (g.getSkillLevelFromExp(k.combat) + g.getSkillLevelFromExp(k.restoration) * 2) * ((r.team || 0) / 2) * h.getGuildRankBonus(r.adventures || 0)),
 
     getRewardSS: (dNum) => Math.floor(Math.pow(10, dNum) * Math.pow(1 + getSkillLevel("Divine") / 60, 0.25)),
 
