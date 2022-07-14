@@ -693,7 +693,7 @@ const Koviko = {
           canStart: (input) => {
           return (input.gold >= 500 && input.favor >= 10);
         }, loop: {
-          cost: (p) => segment => g.precision3(Math.pow(1.2, p.completed + segment)) * 1e7,
+          cost: (p) => segment => g.precision3(Math.pow(1.3, p.completed + segment)) * 1e7,
           tick: (p, a, s, k) => offset => (g.getSkillLevelFromExp(k.magic) + g.getSkillLevelFromExp(k.practical) + g.getSkillLevelFromExp(k.dark) +
                                           g.getSkillLevelFromExp(k.chronomancy) + g.getSkillLevelFromExp(k.pyromancy) + g.getSkillLevelFromExp(k.restoration) + g.getSkillLevelFromExp(k.spatiomancy)) *
                                           (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) * Math.sqrt(1 + p.total / 1000),
