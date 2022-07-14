@@ -944,6 +944,11 @@ const Koviko = {
         currProgress: {}
       };
 
+      //Once you Surveyed everything you get free Glasses
+      if(getExploreProgress() >= 100) {
+        stats.resources.glasses=true;
+      }
+
       /**
        * Snapshots of accumulated stats and accumulated skills
        * @var {Object}
