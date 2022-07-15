@@ -501,7 +501,7 @@ const Koviko = {
          * @return {number} Combat skill of the team leader
          * @memberof Koviko.Predictor#helpers
          */
-        getSelfCombat: (r, k) => (g.getSkillLevelFromExp(k.combat) + g.getSkillLevelFromExp(k.pyromancy) * 5 + g.getSkillLevelFromExp(k.restoration)) * h.getArmorLevel(r,k) * (1 + getBuffLevel("Feast") * 0.05),
+        getSelfCombat: (r, k) => (g.getSkillLevelFromExp(k.combat) + g.getSkillLevelFromExp(k.pyromancy) * 5) * h.getArmorLevel(r,k) * (1 + getBuffLevel("Feast") * 0.05),
 
         /**
          * Calculate the combat skill of the entire team
@@ -510,7 +510,7 @@ const Koviko = {
          * @return {number} Combat skill of the team members
          * @memberof Koviko.Predictor#helpers
          */
-        getTeamCombat: (r, k) => h.getSelfCombat(r, k) + g.getSkillLevelFromExp(k.combat) * (r.team || 0) / 2 * h.getGuildRankBonus(r.adventures || 0),
+        getTeamCombat: (r, k) => (h.getSelfCombat(r,k) + (g.getSkillLevelFromExp(k.dark) * (r.zombie||0) / 2) + (g.getSkillLevelFromExp(k.combat) + g.getSkillLevelFromExp(k.restoration) * 2) * ((r.team || 0) / 2) * h.getGuildRankBonus(r.adventures || 0)),
 
     getRewardSS: (dNum) => Math.floor(Math.pow(10, dNum) * Math.pow(1 + getSkillLevel("Divine") / 60, 0.25)),
 
@@ -655,8 +655,8 @@ const Koviko = {
           r.rep -= 1;
         }},
         'Tidy Up': { affected: ['gold', 'rep'], loop: {
-          cost: (p, a) => segment => g.fibonacci(2 + Math.floor((p.completed + segment) - p.completed / 3 + .0000001)) * 1000000,
-          tick: (p, a, s, k) => offset => g.getSkillLevelFromExp(k.practical) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100 * Math.sqrt(1 + p.total / 100)),
+          cost: (p, a) => segment => g.fibonacci(Math.floor((p.completed + segment) - p.completed / 3 + .0000001)) * 1000000,
+          tick: (p, a, s, k) => offset => g.getSkillLevelFromExp(k.practical) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) * Math.sqrt(1 + p.total / 100),
           effect: {
             loop: (r) => {
               r.gold += 5;
@@ -693,7 +693,7 @@ const Koviko = {
           canStart: (input) => {
           return (input.gold >= 500 && input.favor >= 10);
         }, loop: {
-          cost: (p) => segment => g.precision3(Math.pow(1.2, p.completed + segment)) * 1e7,
+          cost: (p) => segment => g.precision3(Math.pow(1.3, p.completed + segment)) * 1e7,
           tick: (p, a, s, k) => offset => (g.getSkillLevelFromExp(k.magic) + g.getSkillLevelFromExp(k.practical) + g.getSkillLevelFromExp(k.dark) +
                                           g.getSkillLevelFromExp(k.chronomancy) + g.getSkillLevelFromExp(k.pyromancy) + g.getSkillLevelFromExp(k.restoration) + g.getSkillLevelFromExp(k.spatiomancy)) *
                                           (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) * Math.sqrt(1 + p.total / 1000),
@@ -943,6 +943,11 @@ const Koviko = {
         progress: {},
         currProgress: {}
       };
+
+      //Once you Surveyed everything you get free Glasses
+      if(getExploreProgress() >= 100) {
+        stats.resources.glasses=true;
+      }
 
       /**
        * Snapshots of accumulated stats and accumulated skills
