@@ -820,6 +820,24 @@ const Koviko = {
         'Escape': { effect: (r) => (r.town=7)},
         'Open Portal': { effect: (r,k) => (r.town=1,k.restoration+=2500)},
 
+        // Commerceville
+        'Excursion': { affected: ['gold'], cost: (p, a) => {
+          return (p.thieves >= 0 ? 2 : 10);
+        }, effect: (r, k) => {
+          r.gold -= (p.thieves >= 0 ? 2 : 10);
+        }},
+        'Thieves Guild': { affected: ['gold', 'thieves'], canStart: (input) => {
+          return input.rep < 0;
+        }, loop: {
+          cost: (p) => segment => g.precision3(Math.pow(1.3, p.completed + segment)) * 5e8,
+          tick: (p, a, s, k, r) => offset => (g.getSkillLevelFromExp(k.practical) + g.getSkillLevelFromExp(k.thievery)) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) * Math.sqrt(1 + p.total / 1000),
+          effect: { segment: (r) => (r.gold += 10, r.thieves++) }
+        }},
+        'Pick Pockets': { canStart: (input) => (input.thieves > 0), cost: (p, a) => {
+          return Math.floor(1 * Math.pow(1 + g.getSkillLevelFromExp(p.thievery) / 60, 0.25));
+        }, effect: (r, k) => {
+          r.gold += Math.floor(Math.floor(1 * Math.pow(1 + g.getSkillLevelFromExp(p.thievery) / 60, 0.25)) * g.getGuildRankBonus(r.thievery));
+        }},
 
         // Loops without Max
         'Heal The Sick': { affected: ['rep'], canStart: (input) => (input.rep >= 1), loop: {
