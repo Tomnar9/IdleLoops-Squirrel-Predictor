@@ -1224,7 +1224,7 @@ const Koviko = {
               tooltip += 'SPIRE';
               break;
             case "Fight Jungle Monsters":
-              tooltip += 'JUNGM';
+              tooltip += 'J MON';
               break;
             case "Rescue Survivors":
               tooltip += 'SURV';
