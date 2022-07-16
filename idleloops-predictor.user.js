@@ -535,8 +535,8 @@ const Koviko = {
           r.temp2 = (r.temp2 || 0) + 1;
           r.gold += r.temp2 <= towns[0].goodLocks ? g.Action.PickLocks.goldCost() : 0;
         }},
-        'Buy Glasses': { effect: (r) => (r.gold -= 10, r.glasses = true) },
-        'Found Glasses': { effect: (r) => (r.glasses = true) },
+        'Buy Glasses': { affected: ['gold', 'glassess'], effect: (r) => (r.gold -= 10, r.glasses = true) },
+        'Found Glasses': { affected: ['glassess'], effect: (r) => (r.glasses = true) },
         'Buy Mana Z1': { affected: ['mana', 'gold'], effect: (r) => (r.mana += r.gold * g.Action.BuyManaZ1.goldCost(), r.gold = 0) },
         'Meet People': {},
         'Train Strength': {},
