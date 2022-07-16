@@ -975,7 +975,7 @@ const Koviko = {
       const snapshots = {
         stats: new Koviko.Snapshot(state.stats),
         skills: new Koviko.Snapshot(state.skills),
-        currProgress: new Koviko.Snapshot({"Fight Monsters": 0, "Heal The Sick": 0, "Small Dungeon": 0, "Large Dungeon": 0, "Hunt Trolls": 0})
+        currProgress: new Koviko.Snapshot({"Fight Monsters": 0, "Heal The Sick": 0, "Small Dungeon": 0, "Large Dungeon": 0, "Hunt Trolls": 0, "Tidy Up":0,"Fight Frost Giants":0, "The Spire":0, "Fight Jungle Monsters":0,"Rescue Survivors":0 })
       };
 
       /**
@@ -1213,6 +1213,21 @@ const Koviko = {
               break;
             case "Hunt Trolls":
               tooltip += 'TROL';
+              break;
+            case "Tidy Up":
+              tooltip += 'TIDY';
+              break;
+            case "Fight Frost Giants":
+              tooltip += 'FROST';
+              break;
+            case "The Spire":
+              tooltip += 'SPIRE';
+              break;
+            case "Fight Jungle Monsters":
+              tooltip += 'JUNGM';
+              break;
+            case "Rescue Survivors":
+              tooltip += 'SURV';
               break;
             default:
               tooltip += i.toUpperCase();
