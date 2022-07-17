@@ -201,9 +201,22 @@ const Koviko = {
      * @param {Koviko.Predictor~Stats} s Accumulated stat experience
      * @memberof Koviko.Prediction
      */
-    exp(a, s) {
-      Koviko.globals.statList.forEach(i => i in a.stats && i in s && (s[i] += a.stats[i] * a.expMult * (this.baseManaCost(a) / this.ticks()) * Koviko.globals.getTotalBonusXP(i)));
+    exp(a, s, t) {
+      Koviko.globals.statList.forEach(i => {
+        if (i in a.stats && i in s) {
+          let expToAdd=a.stats[i] * a.expMult * (this.baseManaCost(a) / this.ticks()) * this.getTotalBonusXP(i,t);
+          s[i] += expToAdd;
+          let talentGain = expToAdd*(getSkillBonus("Wunderkind") + getBuffLevel("Aspirant") * 0.01) / 100;
+          t[i] += talentGain;
+        }
+      });
     }
+
+    getTotalBonusXP(statName,t) {
+      const soulstoneBonus = stats[statName].soulstone ? calcSoulstoneMult(stats[statName].soulstone) : 1;
+      return soulstoneBonus * (1 + Math.pow(getLevelFromTalent(t[statName]), 0.4) / 3);
+    }
+  
   },
 
   /** A collection of attributes and a comparison of those attributes from one snapshot to the next. */
@@ -990,6 +1003,7 @@ const Koviko = {
       const state = {
         resources: { mana: 250, town: 0 },
         stats: Koviko.globals.statList.reduce((stats, name) => (stats[name] = getExpOfLevel(buffs.Imbuement2.amt*(Koviko.globals.skills.Wunderkind.exp>=100?2:1)), stats), {}),
+        talents:  Koviko.globals.statList.reduce((talents, name) => (talents[name] = stats[name].talent, talents), {}),
         skills: Object.entries(Koviko.globals.skills).reduce((skills, x) => (skills[x[0].toLowerCase()] = x[1].exp, skills), {}),
         progress: {},
         currProgress: {}
@@ -1288,7 +1302,7 @@ const Koviko = {
      */
     tick(prediction, state) {
       // Apply the accumulated stat experience
-      prediction.exp(prediction.action, state.stats);
+      prediction.exp(prediction.action, state.stats,state.talents);
 
       // Handle the loop if it exists
       if (prediction.loop) {
