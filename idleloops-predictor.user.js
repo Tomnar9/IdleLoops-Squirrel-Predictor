@@ -157,6 +157,8 @@ const Koviko = {
       this.loop = params.loop || null;
 
       this.canStart = params.canStart || true;
+
+      this.manaCost = params.manaCost || false;
     }
 
     /**
@@ -165,9 +167,24 @@ const Koviko = {
      * @param {Koviko.Predictor~Stats} s Accumulated stat experience
      * @memberof Koviko.Prediction
      */
-    updateTicks(a, s) {
+    updateTicks(a, s, state) {
+      let baseMana=this.baseManaCost(a,state);
       let cost = Koviko.globals.statList.reduce((cost, i) => cost + (i in a.stats && i in s ? a.stats[i] / (1 + Koviko.globals.getLevelFromExp(s[i]) / 100) : 0), 0);
-      return (this._ticks = Math.ceil(a.manaCost() * cost - .000001));
+      this._baseManaCost=baseMana;
+      return (this._ticks = Math.ceil(baseMana * cost - .000001));
+    }
+
+    //returns the base mana cost of the action referenced, taking the context
+    baseManaCost(a,state=false) {
+      if (this.manaCost) {
+        if (state) {
+          return this.manaCost(state.resources,state.skills);
+        } else {
+          return this._baseManaCost;
+        }
+      } else {
+        return a.manaCost();
+      }
     }
 
     /**
@@ -185,7 +202,7 @@ const Koviko = {
      * @memberof Koviko.Prediction
      */
     exp(a, s) {
-      Koviko.globals.statList.forEach(i => i in a.stats && i in s && (s[i] += a.stats[i] * a.expMult * (a.manaCost() / this.ticks()) * Koviko.globals.getTotalBonusXP(i)));
+      Koviko.globals.statList.forEach(i => i in a.stats && i in s && (s[i] += a.stats[i] * a.expMult * (this.baseManaCost(a) / this.ticks()) * Koviko.globals.getTotalBonusXP(i)));
     }
   },
 
@@ -773,14 +790,14 @@ const Koviko = {
           canStart: (input) => (input.blood >= 1),
           effect: (r) => (r.blood -=1)
         },
-        'The Spire': { affected: ['soul'], loop: {
+        'The Spire': { affected: ['soul'], manaCost: (r,k) => (100000 * Math.pow(0.9,(r.pylons||0))), loop: {
           max: (a) => g.dungeons[a.dungeonNum].length,
           cost: (p, a) => segment => g.precision3(Math.pow(2, Math.floor((p.completed + segment) / a.segments + .0000001)) * 10000000),
           tick: (p, a, s, k, r) => offset => {
             const floor = Math.floor(p.completed / a.segments + .0000001);
 
             return floor in g.dungeons[a.dungeonNum] ?
-                (h.getSelfCombat(r, k) + g.getSkillLevelFromExp(k.magic)) *
+                h.getTeamCombat(r, k) *
                 (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) *
                 Math.sqrt(1 + g.dungeons[a.dungeonNum][floor].completed / 200) : 0;
           },
@@ -1297,7 +1314,7 @@ const Koviko = {
          * Progress of the tick
          * @var {number}
          */
-        let additionalProgress = tickProgress(segment) * (prediction.action.manaCost() / prediction.ticks());
+        let additionalProgress = tickProgress(segment) * (prediction.baseManaCost(prediction.action) / prediction.ticks());
 
         // Accumulate the progress from the tick
         progress += additionalProgress;
@@ -1344,7 +1361,7 @@ const Koviko = {
      */
     predict(prediction, state) {
       // Update the amount of ticks necessary to complete the action, but only once at the start of the action
-      prediction.updateTicks(prediction.action, state.stats);
+      prediction.updateTicks(prediction.action, state.stats, state);
 
       // Perform all ticks in succession
       for (let ticks = 0; ticks < prediction.ticks(); ticks++) {
