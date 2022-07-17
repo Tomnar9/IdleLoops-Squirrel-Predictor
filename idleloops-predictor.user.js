@@ -537,6 +537,13 @@ const Koviko = {
         }},
         'Buy Glasses': { affected: ['gold', 'glassess'], effect: (r) => (r.gold -= 10, r.glasses = true) },
         'Buy Mana Z1': { affected: ['mana', 'gold'], effect: (r) => (r.mana += r.gold * g.Action.BuyManaZ1.goldCost(), r.gold = 0) },
+        'Buy Mana Challenge': { affected: ['mana', 'gold'], canStart: (input) => (input.manaBought<5000), effect: (r) => {
+          let spendGold = Math.min(r.gold, 200);
+          let buyMana = Math.min(spendGold * g.Action.BuyManaChallenge.goldCost()), 5000-r.manaBought);
+          r.mana+=buyMana;
+          r.manaBought= (r.manaBought||0)+buyMana;
+          r.gold-=spendGold); 
+        }},
         'Meet People': {},
         'Train Strength': {},
         'Short Quest': { affected: ['gold'], effect: (r) => {
