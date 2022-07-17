@@ -1147,7 +1147,9 @@ const Koviko = {
       while(ms.toString().length < precisionForTime) { ms = "0" + ms; }
 
       let totalTime = ('0' + h).slice(-2) + ":" + ('0' + m).slice(-2) + ":" + ('0' + s).slice(-2) + "." + ms;
-      container && (this.totalDisplay.innerHTML = intToString(total) + " | " + totalTime);
+      let dungeonEquilibrium = Math.min(total / 200000,1);
+      let soulStonesPerMinute = dungeonEquilibrium*state.resources.soul / totalTicks * 60;
+      container && (this.totalDisplay.innerHTML = intToString(total) + " | " + totalTime + " | " + soulStonesPerMinute.toFixed(2) + " SS/min");
 
       // Log useful debugging data
       if (isDebug) {
