@@ -502,6 +502,16 @@ const Koviko = {
          * @memberof Koviko.Predictor#helpers
          */
         getGuildRankBonus: (guild) => Math.floor(guild / 3 + .00001) >= 14 ? Math.floor(1 + 2.25 + (45 ** 2) / 300) : g.precision3(1 + guild / 20 + (guild ** 2) / 300),
+
+        /**
+         * Calculate the bonus given by "Wizard College"
+         * @param {Koviko.Predictor~Resources} r Accumulated resources
+         * @param {Koviko.Predictor~Skills} k Accumulated skills
+         * @return {number} Bonus Multiplier of the Wizard College
+         * @memberof Koviko.Predictor#helpers
+         */
+        getWizardRankBonus: (r) => ((r.wizard >= 63) ? 5 : precision3(1 + 0.02 * Math.pow((r.wizard||0), 1.05))),
+
         /**
          * Calculate the ArmorLevel specifically affecting the team leader
          * @param {Koviko.Predictor~Resources} r Accumulated resources
@@ -529,7 +539,7 @@ const Koviko = {
          */
         getTeamCombat: (r, k) => (h.getSelfCombat(r,k) + (g.getSkillLevelFromExp(k.dark) * (r.zombie||0) / 2) + (g.getSkillLevelFromExp(k.combat) + g.getSkillLevelFromExp(k.restoration) * 2) * ((r.team || 0) / 2) * h.getGuildRankBonus(r.adventures || 0)),
 
-    getRewardSS: (dNum) => Math.floor(Math.pow(10, dNum) * Math.pow(1 + getSkillLevel("Divine") / 60, 0.25)),
+        getRewardSS: (dNum) => Math.floor(Math.pow(10, dNum) * Math.pow(1 + getSkillLevel("Divine") / 60, 0.25)),
 
       });
 
@@ -725,8 +735,8 @@ const Koviko = {
           r.gold -= 500;
           r.favor -=10;
         }},
-        'Restoration': { effect: (r, k) => k.restoration += 100 },
-        'Spatiomancy': { effect: (r, k) => k.spatiomancy += 100 },
+        'Restoration': { effect: (r, k) => k.restoration += 100, manaCost:(r,k)=>(15000 / h.getWizardRankBonus(r)) },
+        'Spatiomancy': { effect: (r, k) => k.spatiomancy += 100, manaCost:(r,k)=>(15000 / h.getWizardRankBonus(r)) },
         'Seek Citizenship': {},
         'Build Housing': {canStart: (input) => {
           return (input.houses||0) < Math.floor(h.getGuildRankBonus(input.crafts || 0) * (1 + Math.min(g.getSkillLevelFromExp(skills.Spatiomancy.exp),500) * .01));
