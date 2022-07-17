@@ -536,7 +536,6 @@ const Koviko = {
           r.gold += r.temp2 <= towns[0].goodLocks ? g.Action.PickLocks.goldCost() : 0;
         }},
         'Buy Glasses': { affected: ['gold', 'glassess'], effect: (r) => (r.gold -= 10, r.glasses = true) },
-        'Found Glasses': { affected: ['glassess'], effect: (r) => (r.glasses = true) },
         'Buy Mana Z1': { affected: ['mana', 'gold'], effect: (r) => (r.mana += r.gold * g.Action.BuyManaZ1.goldCost(), r.gold = 0) },
         'Meet People': {},
         'Train Strength': {},
@@ -962,9 +961,9 @@ const Koviko = {
         currProgress: {}
       };
 
-      //Once you Surveyed everything you get free Glasses
+      //Once you Surveyed everything you get free Glasses [Found Glasses]
       if(getExploreProgress() >= 100) {
-        stats.resources.glasses=true;
+        state.resources.glasses=true;
       }
 
       /**
@@ -976,7 +975,7 @@ const Koviko = {
       const snapshots = {
         stats: new Koviko.Snapshot(state.stats),
         skills: new Koviko.Snapshot(state.skills),
-        currProgress: new Koviko.Snapshot({"Fight Monsters": 0, "Heal The Sick": 0, "Small Dungeon": 0, "Large Dungeon": 0, "Hunt Trolls": 0})
+        currProgress: new Koviko.Snapshot({"Fight Monsters": 0, "Heal The Sick": 0, "Small Dungeon": 0, "Large Dungeon": 0, "Hunt Trolls": 0, "Tidy Up":0,"Fight Frost Giants":0, "The Spire":0, "Fight Jungle Monsters":0,"Rescue Survivors":0 })
       };
 
       /**
@@ -1214,6 +1213,21 @@ const Koviko = {
               break;
             case "Hunt Trolls":
               tooltip += 'TROL';
+              break;
+            case "Tidy Up":
+              tooltip += 'TIDY';
+              break;
+            case "Fight Frost Giants":
+              tooltip += 'FROST';
+              break;
+            case "The Spire":
+              tooltip += 'SPIRE';
+              break;
+            case "Fight Jungle Monsters":
+              tooltip += 'J MON';
+              break;
+            case "Rescue Survivors":
+              tooltip += 'SURV';
               break;
             default:
               tooltip += i.toUpperCase();
