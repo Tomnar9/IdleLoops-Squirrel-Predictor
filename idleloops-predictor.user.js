@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IdleLoops Predictor Makro
 // @namespace    https://github.com/MakroCZ/
-// @version      1.8.4
+// @version      1.8.5
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://omsi6.github.io/loops/
@@ -403,7 +403,7 @@ const Koviko = {
       // Build the CSS
       let css = \`
       .nextActionContainer { width: auto!important; padding: 0 4px; display: grid!important; grid-template: "a b . c" / auto auto 1fr auto }
-      .nextActionContainer > div:first-child { width: 50px; }
+      .nextActionContainer > div:first-child { width: 70px; }
       .nextActionContainer > div:nth-child(2) { width: 120px; text-align: right; grid-area: c }
       .koviko.valid { grid-area: b; }
       #nextActionsList{height:100%!important; overflow-y:scroll;}
