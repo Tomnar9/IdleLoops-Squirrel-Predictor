@@ -866,7 +866,7 @@ const Koviko = {
           canStart: (input)=>(input.lpotions>0),
           effect: (r,k)=>(r.lpotions--,k.wunderkind+=100),
         },
-        'Escape': { effect: (r) => (r.town=7)},
+        'Escape': {canStart: (input) => (input.totalTicks<=50*60), effect: (r) => (r.town=7)},
         'Open Portal': { effect: (r,k) => (r.town=1,k.restoration+=2500)},
 
         // Commerceville
@@ -1142,11 +1142,6 @@ const Koviko = {
             // Only for Adventure Guild
             if ( listedAction.name == "Adventure Guild" ) {
               state.resources.mana += state.resources.adventures * 200;
-            }
-
-            //Only for Escape (Jungle Path) - only works in the first 60s (=50*60 ticks)
-            if ((listedAction.name=='Escape') && (totalTicks>=(50*60))) {
-              isValid=false;
             }
 
             // Run the effect, now that the mana checks are complete
