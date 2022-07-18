@@ -870,10 +870,10 @@ const Koviko = {
         'Open Portal': { effect: (r,k) => (r.town=1,k.restoration+=2500)},
 
         // Commerceville
-        'Excursion': { affected: ['gold'], cost: (p, a) => {
-          return (p.thieves >= 0 ? 2 : 10);
+        'Excursion': { affected: ['gold'], canStart: (input) => {
+          return (input.thieves >= 0 ? 2 : 10);
         }, effect: (r, k) => {
-          r.gold -= (p.thieves >= 0 ? 2 : 10);
+          r.gold -= (r.thieves >= 0 ? 2 : 10);
         }},
         'Thieves Guild': { affected: ['gold', 'thieves'], canStart: (input) => {
           return input.rep < 0;
