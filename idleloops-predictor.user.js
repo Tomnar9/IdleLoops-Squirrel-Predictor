@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IdleLoops Predictor Makro
 // @namespace    https://github.com/MakroCZ/
-// @version      1.8.6
+// @version      1.8.7
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://omsi6.github.io/loops/
@@ -879,18 +879,18 @@ const Koviko = {
           return input.rep < 0;
         }, loop: {
           cost: (p) => segment => g.precision3(Math.pow(1.3, p.completed + segment)) * 5e8,
-          tick: (p, a, s, k, r) => offset => (g.getSkillLevelFromExp(k.practical) + g.getSkillLevelFromExp(k.thievery)) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) * Math.sqrt(1 + p.total / 1000),
+          tick: (p, a, s, k, r) => offset => (g.getSkillLevelFromExp(k.practical) + g.getSkillLevelFromExp(k.thieves)) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) * Math.sqrt(1 + p.total / 1000),
           effect: { segment: (r) => (r.gold += 10, r.thieves++) }
         }},
         'Pick Pockets': { canStart: (input) => (input.thieves > 0), cost: (p, a) => {
-          return Math.floor(1 * Math.pow(1 + g.getSkillLevelFromExp(p.thievery) / 60, 0.25));
+          return Math.floor(1 * Math.pow(1 + g.getSkillLevelFromExp(p.thieves) / 60, 0.25));
         }, effect: (r, k) => {
-          r.gold += Math.floor(Math.floor(1 * Math.pow(1 + g.getSkillLevelFromExp(r.thievery) / 60, 0.25)) * h.getGuildRankBonus(r.thievery));
+          r.gold += Math.floor(Math.floor(1 * Math.pow(1 + g.getSkillLevelFromExp(r.thieves) / 60, 0.25)) * h.getGuildRankBonus(r.thieves));
         }},
         'Rob Warehouse': { canStart: (input) => (input.thieves > 0), cost: (p, a) => {
-          return Math.floor(1 * Math.pow(1 + g.getSkillLevelFromExp(p.thievery) / 60, 0.25));
+          return Math.floor(1 * Math.pow(1 + g.getSkillLevelFromExp(p.thieves) / 60, 0.25));
         }, effect: (r, k) => {
-          r.gold += Math.floor(Math.floor(10 * Math.pow(1 + g.getSkillLevelFromExp(r.thievery) / 60, 0.25)) * h.getGuildRankBonus(r.thievery));
+          r.gold += Math.floor(Math.floor(10 * Math.pow(1 + g.getSkillLevelFromExp(r.thieves) / 60, 0.25)) * h.getGuildRankBonus(r.thieves));
         }},
         'Invest': {affected:['gold'],canStart: (input)=>(input.gold>0),effect: (r,k)=> {
            k.mercantilism+=100;
