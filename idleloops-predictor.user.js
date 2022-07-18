@@ -798,7 +798,7 @@ const Koviko = {
         'Mana Well': {
           effect: (r,k)=> {
             r.wellLoot = (r.wellLoot || 0) + 1;
-            r.mana += r.wellLoot <= towns[1].goodWells ? Math.max(5000 - Math.floor(r.totalTicks/5),0) : 0;
+            r.mana += r.wellLoot <= towns[5].goodWells ? Math.max(5000 - Math.floor(r.totalTicks/5),0) : 0;
           }
 
         },
