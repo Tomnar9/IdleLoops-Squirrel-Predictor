@@ -882,14 +882,10 @@ const Koviko = {
           tick: (p, a, s, k, r) => offset => (g.getSkillLevelFromExp(k.practical) + g.getSkillLevelFromExp(k.thieves)) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100) * Math.sqrt(1 + p.total / 1000),
           effect: { segment: (r) => (r.gold += 10, r.thieves++) }
         }},
-        'Pick Pockets': { canStart: (input) => (input.thieves > 0), cost: (p, a) => {
-          return Math.floor(1 * Math.pow(1 + g.getSkillLevelFromExp(p.thieves) / 60, 0.25));
-        }, effect: (r, k) => {
+        'Pick Pockets': { canStart: (input) => (input.thieves > 0), effect: (r, k) => {
           r.gold += Math.floor(Math.floor(1 * Math.pow(1 + g.getSkillLevelFromExp(r.thieves) / 60, 0.25)) * h.getGuildRankBonus(r.thieves));
         }},
-        'Rob Warehouse': { canStart: (input) => (input.thieves > 0), cost: (p, a) => {
-          return Math.floor(1 * Math.pow(1 + g.getSkillLevelFromExp(p.thieves) / 60, 0.25));
-        }, effect: (r, k) => {
+        'Rob Warehouse': { canStart: (input) => (input.thieves > 0), effect: (r, k) => {
           r.gold += Math.floor(Math.floor(10 * Math.pow(1 + g.getSkillLevelFromExp(r.thieves) / 60, 0.25)) * h.getGuildRankBonus(r.thieves));
         }},
         'Invest': {affected:['gold'],canStart: (input)=>(input.gold>0),effect: (r,k)=> {
