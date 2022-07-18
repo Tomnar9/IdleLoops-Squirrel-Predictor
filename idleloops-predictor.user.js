@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IdleLoops Predictor Makro
 // @namespace    https://github.com/MakroCZ/
-// @version      1.8.5
+// @version      1.8.6
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://omsi6.github.io/loops/
@@ -886,6 +886,11 @@ const Koviko = {
           return Math.floor(1 * Math.pow(1 + g.getSkillLevelFromExp(p.thievery) / 60, 0.25));
         }, effect: (r, k) => {
           r.gold += Math.floor(Math.floor(1 * Math.pow(1 + g.getSkillLevelFromExp(r.thievery) / 60, 0.25)) * h.getGuildRankBonus(r.thievery));
+        }},
+        'Rob Warehouse': { canStart: (input) => (input.thieves > 0), cost: (p, a) => {
+          return Math.floor(1 * Math.pow(1 + g.getSkillLevelFromExp(p.thievery) / 60, 0.25));
+        }, effect: (r, k) => {
+          r.gold += Math.floor(Math.floor(10 * Math.pow(1 + g.getSkillLevelFromExp(r.thievery) / 60, 0.25)) * h.getGuildRankBonus(r.thievery));
         }},
         'Invest': {affected:['gold'],canStart: (input)=>(input.gold>0),effect: (r,k)=> {
            k.mercantilism+=100;
