@@ -885,7 +885,7 @@ const Koviko = {
         'Pick Pockets': { canStart: (input) => (input.thieves > 0), cost: (p, a) => {
           return Math.floor(1 * Math.pow(1 + g.getSkillLevelFromExp(p.thievery) / 60, 0.25));
         }, effect: (r, k) => {
-          r.gold += Math.floor(Math.floor(1 * Math.pow(1 + g.getSkillLevelFromExp(p.thievery) / 60, 0.25)) * g.getGuildRankBonus(r.thievery));
+          r.gold += Math.floor(Math.floor(1 * Math.pow(1 + g.getSkillLevelFromExp(r.thievery) / 60, 0.25)) * g.getGuildRankBonus(r.thievery));
         }},
         'Invest': {affected:['gold'],canStart: (input)=>(input.gold>0),effect: (r,k)=> {
            k.mercantilism+=100;
