@@ -996,6 +996,7 @@ const Koviko = {
         'SurveyZ5': {},
         'SurveyZ6': {},
         'SurveyZ7': {},
+        'SurveyZ8': {},
 
       };
 
