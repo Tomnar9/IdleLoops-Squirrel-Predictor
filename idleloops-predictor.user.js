@@ -402,7 +402,10 @@ const Koviko = {
 
       // Build the CSS
       let css = \`
-      .nextActionContainer{width:auto!important;padding:0 4px}
+      .nextActionContainer { width: auto!important; padding: 0 4px; display: grid!important; grid-template: "a b . c" / auto auto 1fr auto }
+      .nextActionContainer > div:first-child { width: 50px; }
+      .nextActionContainer > div:nth-child(2) { width: 120px; text-align: right; grid-area: c }
+      .koviko.valid { grid-area: b; }
       #nextActionsList{height:100%!important; overflow-y:scroll;}
       #curActionsListContainer{width:120px!important; z-index: 100;}
       #nextActionsList:hover{margin-left:-40%;padding-left:40%}
