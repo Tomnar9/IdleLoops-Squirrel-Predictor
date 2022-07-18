@@ -430,6 +430,7 @@ const Koviko = {
       ul.koviko .ritual{color:#ff1493}
       ul.koviko .artifacts{color:#ffd700}
       ul.koviko .mind{color:#006400}
+      ul.koviko .stone{color:#ff0000}
       .actionOptions .showthis {width:max-content;bottom:100%;max-width:400px;margin-bottom:5px;}
       .travelContainer, .actionContainer {position:relative;}
       \`;
@@ -906,7 +907,71 @@ const Koviko = {
         }},
 
         //Valley of the Gods
-         
+
+        //Tower Actions (ALL ZONES)
+        'RuinsZ1': {},
+        'RuinsZ3': {},
+        'RuinsZ5': {},
+        'RuinsZ6': {},
+
+        'HaulZ1': {affected: ['stone'],canStart: (input)=>((input.stone||0)<1 && stonesUsed[1] < 250), effect: (r) => {
+          let t=towns[1]; //Area of the Action
+          if (t.goodStonesZ1>0) {
+            r.stone=1;
+            return;
+          }
+          if (t.totalStonesZ1<=(t.checkedStonesZ1+(r.stoneCheckedZ1||0))) {
+            return; //No more stones to check..
+          }
+          r.stoneCheckedZ1=(r.stoneCheckedZ1||0)+1;
+          if (((t.checkedStonesZ1+r.stoneCheckedZ1)%1000)==0) {
+            r.stone=1;
+          } 
+        }},
+        'HaulZ3': {affected: ['stone'],canStart: (input)=>((input.stone||0)<1 && stonesUsed[3] < 250), effect: (r) => {
+          let t=towns[3]; //Area of the Action
+          if (t.goodStonesZ3>0) {
+            r.stone=1;
+            return;
+          }
+          if (t.totalStonesZ3<=(t.checkedStonesZ3+(r.stoneCheckedZ3||0))) {
+            return; //No more stones to check..
+          }
+          r.stoneCheckedZ3=(r.stoneCheckedZ3||0)+1;
+          if (((t.checkedStonesZ3+r.stoneCheckedZ3)%1000)==0) {
+            r.stone=1;
+          } 
+        }},
+        'HaulZ5': {affected: ['stone'],canStart: (input)=>((input.stone||0)<1 && stonesUsed[5] < 250), effect: (r) => {
+          let t=towns[5]; //Area of the Action
+          if (t.goodStonesZ5>0) {
+            r.stone=1;
+            return;
+          }
+          if (t.totalStonesZ5<=(t.checkedStonesZ5+(r.stoneCheckedZ5||0))) {
+            return; //No more stones to check..
+          }
+          r.stoneCheckedZ5=(r.stoneCheckedZ5||0)+1;
+          if (((t.checkedStonesZ5+r.stoneCheckedZ5)%1000)==0) {
+            r.stone=1;
+          } 
+        }},
+        'HaulZ6': {affected: ['stone'],canStart: (input)=>((input.stone||0)<1 && stonesUsed[6] < 250), effect: (r) => {
+          let t=towns[6]; //Area of the Action
+          if (t.goodStonesZ6>0) {
+            r.stone=1;
+            return;
+          }
+          if (t.totalStonesZ6<=(t.checkedStonesZ3+(r.stoneCheckedZ6||0))) {
+            return; //No more stones to check..
+          }
+          r.stoneCheckedZ6=(r.stoneCheckedZ6||0)+1;
+          if (((t.checkedStonesZ6+r.stoneCheckedZ6)%1000)==0) {
+            r.stone=1;
+          } 
+        }},
+
+        'Build Tower': {affected: ['stone'],canStart: (input)=>((input.stone||0)==1)},
 
         // Loops without Max
         'Heal The Sick': { affected: ['rep'], canStart: (input) => (input.rep >= 1), loop: {
@@ -977,6 +1042,16 @@ const Koviko = {
           effect: { loop: (r) => r.mind++ },
         }},
         'Imbue Body': { affected: ['body'], loop: {
+          max: () => 1,
+          cost: (p) => segment => 100000000 * (segment * 5 + 1),
+          tick: (p, a, s, k) => offset => {
+            let attempt = Math.floor(p.completed / a.segments + .0000001);
+
+            return attempt < 1 ? (g.getSkillLevelFromExp(k.magic) * h.getStatProgress(p, a, s, offset)) : 0;
+          },
+          effect: { loop: (r) => r.body++ },
+        }},
+        'Imbue Soul': { affected: ['body'], loop: {
           max: () => 1,
           cost: (p) => segment => 100000000 * (segment * 5 + 1),
           tick: (p, a, s, k) => offset => {
