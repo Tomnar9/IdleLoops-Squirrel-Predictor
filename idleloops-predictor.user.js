@@ -808,7 +808,10 @@ const Koviko = {
 
         },
         'Destroy Pylons': { affected: ['pylons'], effect: (r) => {
-          r.pylons += 1;
+          r.pylonLoot = (r.pylonLoot || 0) + 1;
+          if (r.pylonLoot<=towns[5].goodPylons) {
+            r.pylons += 1;
+          }
         }},
         'Raise Zombie': { affected: ['blood', 'zombie'],
           canStart: (input) => (input.blood >= 1),
