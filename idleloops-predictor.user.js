@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IdleLoops Predictor Makro
 // @namespace    https://github.com/MakroCZ/
-// @version      1.8.8
+// @version      1.8.9
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://omsi6.github.io/loops/
@@ -1255,7 +1255,7 @@ const Koviko = {
       while(ms.toString().length < precisionForTime) { ms = "0" + ms; }
 
       let totalTime = ('0' + h).slice(-2) + ":" + ('0' + m).slice(-2) + ":" + ('0' + s).slice(-2) + "." + ms;
-      let dungeonEquilibrium = Math.min(total / 200000,1);
+      let dungeonEquilibrium = Math.min(Math.sqrt(total / 200000),1);
       let soulStonesPerMinute = dungeonEquilibrium*state.resources.soul / totalTicks * 60;
       container && (this.totalDisplay.innerHTML = intToString(total) + " | " + totalTime + " | " + soulStonesPerMinute.toFixed(2) + " SS/min");
 
