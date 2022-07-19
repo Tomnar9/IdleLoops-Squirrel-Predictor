@@ -1040,6 +1040,16 @@ const Koviko = {
           effect: { loop: (r) => (r.heroism=(r.heroism||0)+1) }
         }},
 
+        'Dead Trial': { affected: ['zombie'], loop: {
+          max: (a) => trialFloors[a.trialNum],
+          cost: (p, a) => segment => precision3(Math.pow(a.floorScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.baseScaling),
+          tick: (p, a, s, k, r) => offset => {
+            const floor = Math.floor(p.completed / a.segments + .0000001);
+            return floor in trials[a.trialNum] ? (g.getSkillLevelFromExp(k.dark) * r.zombie / 2) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
+          },
+          effect: { loop: (r) => (r.zombie++) }
+        }},
+
         'Dark Ritual': { affected: ['ritual'], canStart: (input) => (input.rep <= -5), loop: {
           max: () => 1,
           cost: (p) => segment => 1000000 * (segment * 2 + 1),
