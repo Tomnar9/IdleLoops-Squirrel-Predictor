@@ -897,6 +897,10 @@ const Koviko = {
            k.mercantilism+=100;
            r.gold=0;
         }},
+        'Seminar': {affected:['gold'],canStart: (input)=>(input.gold>=1000),effect: (r,k)=> {
+           k.leadership+=200;
+           r.gold-=1000;
+        }},
         'Collect Interest': {affected:['gold'],effect: (r,k)=> {
            k.mercantilism+=50;
            r.gold+=Math.floor(goldInvested * .001);
