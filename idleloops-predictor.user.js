@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IdleLoops Predictor Makro
 // @namespace    https://github.com/MakroCZ/
-// @version      1.8.9
+// @version      1.9.0
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://omsi6.github.io/loops/
@@ -529,6 +529,10 @@ const Koviko = {
          */
         getWizardRankBonus: (r) => ((r.wizard >= 63) ? 5 : precision3(1 + 0.02 * Math.pow((r.wizard||0), 1.05))),
 
+        getSkillBonusInc: (exp) => (Math.pow(1 + g.getSkillLevelFromExp(exp) / 60, 0.25)),
+
+        getSkillBonusDec: (exp) => (1 / (1 + g.getSkillLevelFromExp(exp) / 100)),
+
         /**
          * Calculate the ArmorLevel specifically affecting the team leader
          * @param {Koviko.Predictor~Resources} r Accumulated resources
@@ -547,14 +551,11 @@ const Koviko = {
          */
         getSelfCombat: (r, k) => (g.getSkillLevelFromExp(k.combat) + g.getSkillLevelFromExp(k.pyromancy) * 5) * h.getArmorLevel(r,k) * (1 + getBuffLevel("Feast") * 0.05),
 
-        /**
-         * Calculate the combat skill of the entire team
-         * @param {Koviko.Predictor~Resources} r Accumulated resources
-         * @param {Koviko.Predictor~Skills} k Accumulated skills
-         * @return {number} Combat skill of the team members
-         * @memberof Koviko.Predictor#helpers
-         */
-        getTeamCombat: (r, k) => (h.getSelfCombat(r,k) + (g.getSkillLevelFromExp(k.dark) * (r.zombie||0) / 2) + (g.getSkillLevelFromExp(k.combat) + g.getSkillLevelFromExp(k.restoration) * 2) * ((r.team || 0) / 2) * h.getGuildRankBonus(r.adventures || 0)),
+        getZombieStrength: (r, k) => (g.getSkillLevelFromExp(k.dark) * (r.zombie||0) / 2 * Math.min(getBuffLevel("Ritual") / 100, 1)),
+
+        getTeamStrength: (r, k) => ((g.getSkillLevelFromExp(k.combat) + g.getSkillLevelFromExp(k.restoration) * 2) * ((r.team||0) / 2) * h.getGuildRankBonus(r.adventures || 0) * h.getSkillBonusInc(k.leadership)),
+
+        getTeamCombat: (r, k) => (h.getSelfCombat(r, k) + h.getZombieStrength(r, k) + h.getTeamStrength(r, k)),
 
         getRewardSS: (dNum) => Math.floor(Math.pow(10, dNum) * Math.pow(1 + getSkillLevel("Divine") / 60, 0.25)),
 
