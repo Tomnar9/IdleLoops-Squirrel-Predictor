@@ -850,11 +850,11 @@ const Koviko = {
 
         // Jungle Path
         'Explore Jungle': { affected: ['herbs'],effect: (r) => (r.herbs++) },
-        'Fight Jungle Monsters': { affected: ['hide'], loop: {
+        'Fight Jungle Monsters': { affected: ['blood'], loop: {
           cost: (p, a) => segment => g.precision3(Math.pow(1.3, p.completed + segment)) * 1e8,
           tick: (p, a, s, k, r) => offset => h.getSelfCombat(r, k) * h.getStatProgress(p, a, s, offset) *
                                              Math.sqrt(1 + p.total / 1000),
-          effect: { segment: (r) => r.hide += 1 },
+          effect: { segment: (r) => r.blood=(r.blood||0)+1 },
         }},
         'Rescue Survivors': {
           loop: {
@@ -862,11 +862,11 @@ const Koviko = {
             tick: (p, a, s, k) => offset => g.getSkillLevelFromExp(k.magic) * Math.max(g.getSkillLevelFromExp(k.restoration) / 100, 1) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
             effect: { loop: (r) => (r.survivor= (r.survivor||0)+1,r.rep+=4) },
         }},
-        'Prepare Buffet': { affected:['herbs','hide'],
-          canStart: (input) => ((input.herbs>=10) && (input.hide>=1)),
+        'Prepare Buffet': { affected:['herbs','blood'],
+          canStart: (input) => ((input.herbs>=10) && (input.blood>=1)),
           effect: (r,k) => {
             r.herbs-=10;
-            r.hide--;
+            r.blood--;
             k.gluttony+=5*r.survivor;
           }
         },
