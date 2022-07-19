@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IdleLoops Predictor Makro
 // @namespace    https://github.com/MakroCZ/
-// @version      1.9.1
+// @version      1.9.2
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://omsi6.github.io/loops/
@@ -509,7 +509,7 @@ const Koviko = {
          * @return {number} Current level of town attribute
          * @memberof Koviko.Predictor#helpers
          */
-        getTownLevelFromExp: (exp) => Math.floor((Math.sqrt(8 * exp / 100 + 1) - 1) / 2),
+        getTownLevelFromExp: (exp) => Math.min(Math.floor((Math.sqrt(8 * exp / 100 + 1) - 1) / 2),100),
 
         /**
          * Get the current guild rank's bonus, noting that there is a max of 15 ranks, base zero.
@@ -652,9 +652,9 @@ const Koviko = {
         'Read Books': {},
         'Gather Team': { affected: ['gold'], effect: (r) => (r.team = (r.team || 0) + 1, r.gold -= r.team * 100) },
         'Craft Armor': { affected: ['hide'], canStart: (input) => (input.hide >= 2), effect: (r) => (r.hide -= 2, r.armor = (r.armor || 0) + 1) },
-        'Apprentice': { effect: (r, k) => (r.apprentice = (r.apprentice || 0) + 30 * h.getGuildRankBonus(r.crafts || 0), k.crafting += 10 * (1 + h.getTownLevelFromExp(r.apprentice) / 100)) },
-        'Mason': { effect: (r, k) => (r.mason = (r.mason || 0) + 20 * h.getGuildRankBonus(r.crafts || 0), k.crafting += 20 * (1 + h.getTownLevelFromExp(r.mason) / 100)) },
-        'Architect': { effect: (r, k) => (r.architect = (r.architect || 0) + 10 * h.getGuildRankBonus(r.crafts || 0), k.crafting += 40 * (1 + h.getTownLevelFromExp(r.architect) / 100)) },
+        'Apprentice': { effect: (r, k) => Math.min((r.apprentice = (r.apprentice || towns[2].expApprentice) + 30 * h.getGuildRankBonus(r.crafts || 0),505000), k.crafting += 10 * (1 + h.getTownLevelFromExp(r.apprentice) / 100)) },
+        'Mason': { effect: (r, k) => (r.mason = Math.min((r.mason || towns[2].expMason) + 20 * h.getGuildRankBonus(r.crafts || 0),505000), k.crafting += 20 * (1 + h.getTownLevelFromExp(r.mason) / 100)) },
+        'Architect': { effect: (r, k) => Math.min((r.architect = (r.architect || towns[2].expArchitect) + 10 * h.getGuildRankBonus(r.crafts || 0),505000), k.crafting += 40 * (1 + h.getTownLevelFromExp(r.architect) / 100)) },
         'Buy Pickaxe': { affected: ['gold'], effect: (r) => (r.gold -= 200, r.pickaxe = true) },
         'Start Trek': { effect: (r) => r.town = 3 },
         'Underworld': {affected: ['gold'], effect: (r) => (r.town = 7,r.gold-=500),canStart:(input)=>(input.gold>=500) },
