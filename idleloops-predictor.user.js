@@ -701,8 +701,10 @@ const Koviko = {
         'Accept Donations': { affected: ['gold', 'rep'], canStart: (input) => {
           return (input.rep >= 0);
         }, effect: (r) => {
-          // TODO: Proper lootable first system
-          r.gold += 20;
+          r.donateLoot = (r.donateLoot || 0) + 1;
+          if (r.donateLoot<=towns[4].goodDonations) {
+            r.gold += 20;
+          }
           r.rep -= 1;
         }},
         'Tidy Up': { affected: ['gold', 'rep'], loop: {
