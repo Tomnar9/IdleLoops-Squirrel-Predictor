@@ -431,6 +431,7 @@ const Koviko = {
       ul.koviko .artifacts{color:#ffd700}
       ul.koviko .mind{color:#006400}
       ul.koviko .stone{color:#ff0000}
+      ul.koviko .heroism{color:#ff0000}
       \`;
       document.getElementById("actionsColumn").style.width="500px";
       document.getElementById("nextActionsListContainer").style.width="380px";
@@ -1024,11 +1025,21 @@ const Koviko = {
           cost: (p, a) => segment => g.precision3(Math.pow(3, Math.floor((p.completed + segment) / a.segments + .0000001)) * 5e5),
           tick: (p, a, s, k, r) => offset => {
             let floor = Math.floor(p.completed / a.segments + .0000001);
-
             return floor in g.dungeons[a.dungeonNum] ? (h.getTeamCombat(r, k) + g.getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + g.dungeons[a.dungeonNum][floor].completed / 200) : 0;
           },
           effect: { end: (r, k) => (k.combat += 15, k.magic += 15), loop: (r) => r.soul +=h.getRewardSS(1)  }
         }},
+
+        'Heroes Trial': { affected: ['heroism'], loop: {
+          max: (a) => trialFloors[a.trialNum],
+          cost: (p, a) => segment => precision3(Math.pow(a.floorScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.baseScaling),
+          tick: (p, a, s, k, r) => offset => {
+            const floor = Math.floor(p.completed / a.segments + .0000001);
+            return floor in trials[a.trialNum] ? h.getTeamCombat(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
+          },
+          effect: { loop: (r) => (r.heroism=(r.heroism||0)+1) }
+        }},
+
         'Dark Ritual': { affected: ['ritual'], canStart: (input) => (input.rep <= -5), loop: {
           max: () => 1,
           cost: (p) => segment => 1000000 * (segment * 2 + 1),
