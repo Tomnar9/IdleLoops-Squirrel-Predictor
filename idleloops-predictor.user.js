@@ -412,7 +412,7 @@ const Koviko = {
       #nextActionsList:hover{margin-left:-40%;padding-left:40%}
       #actionList>div:nth-child(2){left: 53px !important}
       .nextActionContainer:nth-child(1n+9) .showthis {bottom: 5px; top: unset;}
-      span.koviko{font-weight:bold;color:#8293ff}
+      span.koviko{font-weight:bold;color:#8293ff;padding-left:50px;}
       div.koviko{top:-5px;left:auto;right:100%}
       ul.koviko{list-style:none;margin:0;padding:0;pointer-events:none;display:inline;}
       ul.koviko li{display:inline-block;margin: 0 2px;font-weight:bold;font-size:90%}
@@ -468,7 +468,6 @@ const Koviko = {
       if (!this.totalDisplay) {
         this.totalDisplay = document.createElement('span');
         this.totalDisplay.className = 'koviko';
-        this.totalDisplay.style = 'padding-left:50px;'
         parent.appendChild(this.totalDisplay);
       }
 
@@ -1295,6 +1294,13 @@ const Koviko = {
       let dungeonEquilibrium = Math.min(Math.sqrt(total / 200000),1);
       let soulStonesPerMinute = dungeonEquilibrium*state.resources.soul / totalTicks * 60;
       container && (this.totalDisplay.innerHTML = intToString(total) + " | " + totalTime + " | " + soulStonesPerMinute.toFixed(2) + " SS/min");
+
+      if (this.resourcePerMinute>soulStonesPerMinute) {
+        this.totalDisplay.style='color: #FF0000';
+      } else {
+        this.totalDisplay.style='color: 8293ff'
+      }
+     this.resourcePerMinute=soulStonesPerMinute;
 
       // Log useful debugging data
       if (isDebug) {
