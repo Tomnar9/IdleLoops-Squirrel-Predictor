@@ -1046,7 +1046,7 @@ const Koviko = {
           cost: (p, a) => segment => precision3(Math.pow(a.floorScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.baseScaling),
           tick: (p, a, s, k, r) => offset => {
             const floor = Math.floor(p.completed / a.segments + .0000001);
-            return floor in trials[a.trialNum] ? (g.getSkillLevelFromExp(k.dark) * r.zombie / 2) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
+            return floor in trials[a.trialNum] ? h.getZombieStrength(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
           },
           effect: { loop: (r) => (r.zombie++) }
         }},
