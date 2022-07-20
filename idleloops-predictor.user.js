@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IdleLoops Predictor Makro
 // @namespace    https://github.com/MakroCZ/
-// @version      1.9.3
+// @version      1.9.4
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://omsi6.github.io/loops/
@@ -879,22 +879,29 @@ const Koviko = {
 
         // Commerceville
         'Excursion': { affected: ['gold'], canStart: (input) => {
-          return (input.thieves >= 0 ? 2 : 10);
+          return input.gold>=(((input.guild==='explorer')||(input.guild==='thieves')) >= 0 ? 2 : 10);
         }, effect: (r, k) => {
-          r.gold -= (r.thieves >= 0 ? 2 : 10);
+          r.gold -= (((r.guild==='explorer')||(r.guild==='thieves')) ? 2 : 10);
         }},
+        'Explorers Guild': {effect: (r,k) => (r.explorer=1,r.guild='explorer')},
         'Thieves Guild': { affected: ['gold', 'thieves'], canStart: (input) => {
           return input.rep < 0;
         }, loop: {
-          cost: (p) => segment => g.precision3(Math.pow(1.3, p.completed + segment)) * 5e8,
-          tick: (p, a, s, k, r) => offset => (g.getSkillLevelFromExp(k.practical) + g.getSkillLevelFromExp(k.thieves)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000),
-          effect: { segment: (r) => (r.gold += 10, r.thieves++) }
+          cost: (p) => segment => g.precision3(Math.pow(1.2, p.completed + segment)) * 5e8,
+          tick: (p, a, s, k, r) => offset => (g.getSkillLevelFromExp(k.practical) + g.getSkillLevelFromExp(k.thievery)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000),
+          effect: { end: (r, k) => (r.guild='thieves'), segment: (r) => (r.gold += 10, r.thieves=( r.thieves||0)+1) }
         }},
-        'Pick Pockets': { canStart: (input) => (input.thieves > 0), effect: (r, k) => {
-          r.gold += Math.floor(Math.floor(1 * Math.pow(1 + g.getSkillLevelFromExp(r.thieves) / 60, 0.25)) * h.getGuildRankBonus(r.thieves));
+        'Pick Pockets': { canStart: (input) => (input.guild==='thieves'), effect: (r, k) => {
+          r.gold += Math.floor(Math.floor(1 * h.getSkillBonusInc(k.thievery)) * h.getGuildRankBonus(r.thieves));
+          k.thievery+=10 * (1 + towns[7].getLevel("PickPockets") / 100);
         }},
-        'Rob Warehouse': { canStart: (input) => (input.thieves > 0), effect: (r, k) => {
-          r.gold += Math.floor(Math.floor(10 * Math.pow(1 + g.getSkillLevelFromExp(r.thieves) / 60, 0.25)) * h.getGuildRankBonus(r.thieves));
+        'Rob Warehouse': { canStart: (input) => (input.guild==='thieves'), effect: (r, k) => {
+          r.gold += Math.floor(Math.floor(10 * h.getSkillBonusInc(k.thievery)) * h.getGuildRankBonus(r.thieves));
+          k.thievery+=20 * (1 + towns[7].getLevel("RobWarehouse") / 100);
+        }},
+        'Insurance Fraud': { canStart: (input) => (input.guild==='thieves'), effect: (r, k) => {
+          r.gold += Math.floor(Math.floor(100 * h.getSkillBonusInc(k.thievery)) * h.getGuildRankBonus(r.thieves));
+          k.thievery+=40 * (1 + towns[7].getLevel("InsuranceFraud") / 100);
         }},
         'Invest': {affected:['gold'],canStart: (input)=>(input.gold>0),effect: (r,k)=> {
            k.mercantilism+=100;
@@ -997,12 +1004,12 @@ const Koviko = {
         'Adventure Guild': { affected: ['gold', 'adventures'], loop: {
           cost: (p) => segment => g.precision3(Math.pow(1.2, p.completed + segment)) * 5e6,
           tick: (p, a, s, k, r) => offset => (h.getSelfCombat(r, k) + g.getSkillLevelFromExp(k.magic) / 2) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000),
-          effect: { segment: (r) => (r.mana += 200, r.adventures++) }
+          effect: {end: (r) => (r.guild='adventure'), segment: (r) => (r.mana += 200, r.adventures++) }
         }},
         'Crafting Guild': { affected: ['gold', 'crafts'], loop: {
           cost: (p) => segment => g.precision3(Math.pow(1.2, p.completed + segment)) * 2e6,
           tick: (p, a, s, k) => offset => (g.getSkillLevelFromExp(k.magic) / 2 + g.getSkillLevelFromExp(k.crafting)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000),
-          effect: { segment: (r, k) => (r.gold += 10, r.crafts++, k.crafting += 50) }
+          effect: {end: (r) => (r.guild='crafting'), segment: (r, k) => (r.gold += 10, r.crafts++, k.crafting += 50) }
         }},
         'Hunt Trolls': { affected: ['blood'], loop: {
           cost: (p, a) => segment => g.precision3(Math.pow(2, Math.floor((p.completed + segment) / a.segments+.0000001)) * 1e6),
@@ -1130,7 +1137,7 @@ const Koviko = {
        * @var {Koviko.Predictor~State}
        */
       const state = {
-        resources: { mana: 250, town: 0 },
+        resources: { mana: 250, town: 0, guild: "" },
         stats: Koviko.globals.statList.reduce((stats, name) => (stats[name] = getExpOfLevel(buffs.Imbuement2.amt*(Koviko.globals.skills.Wunderkind.exp>=100?2:1)), stats), {}),
         talents:  Koviko.globals.statList.reduce((talents, name) => (talents[name] = stats[name].talent, talents), {}),
         skills: Object.entries(Koviko.globals.skills).reduce((skills, x) => (skills[x[0].toLowerCase()] = x[1].exp, skills), {}),
