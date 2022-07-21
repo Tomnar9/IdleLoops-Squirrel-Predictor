@@ -550,9 +550,9 @@ const Koviko = {
          */
         getSelfCombat: (r, k) => (g.getSkillLevelFromExp(k.combat) + g.getSkillLevelFromExp(k.pyromancy) * 5) * h.getArmorLevel(r,k) * (1 + getBuffLevel("Feast") * 0.05),
 
-        getZombieStrength: (r, k) => (g.getSkillLevelFromExp(k.dark) * (r.zombie||0) / 2 * Math.min(getBuffLevel("Ritual") / 100, 1)),
+        getZombieStrength: (r, k) => (g.getSkillLevelFromExp(k.dark) * (r.zombie||0) / 2 * Math.max(getBuffLevel("Ritual") / 100, 1)),
 
-        getTeamStrength: (r, k) => ((g.getSkillLevelFromExp(k.combat) + g.getSkillLevelFromExp(k.restoration) * 2) * ((r.team||0) / 2) * h.getGuildRankBonus(r.adventures || 0) * h.getSkillBonusInc(k.leadership)),
+        getTeamStrength: (r, k) => ((g.getSkillLevelFromExp(k.combat) + g.getSkillLevelFromExp(k.restoration) * 4) * ((r.team||0) / 2) * h.getGuildRankBonus(r.adventures || 0) * h.getSkillBonusInc(k.leadership)),
 
         getTeamCombat: (r, k) => (h.getSelfCombat(r, k) + h.getZombieStrength(r, k) + h.getTeamStrength(r, k)),
 
