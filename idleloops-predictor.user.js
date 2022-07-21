@@ -580,7 +580,7 @@ const Koviko = {
           r.temp2 = (r.temp2 || 0) + 1;
           r.gold += r.temp2 <= towns[0].goodLocks ? g.Action.PickLocks.goldCost() : 0;
         }},
-        'Buy Glasses': { affected: ['gold', 'glassess'], effect: (r) => (r.gold -= 10, r.glasses = true) },
+        'Buy Glasses': { affected: ['gold', 'glassess'], canStart: (r)=>(r.gold>=10),effect: (r) => (r.gold -= 10, r.glasses = true) },
         'Buy Mana Z1': { affected: ['mana', 'gold'], effect: (r) => (r.mana += r.gold * g.Action.BuyManaZ1.goldCost(), r.gold = 0) },
         'Buy Mana Challenge': { affected: ['mana', 'gold'], canStart: (input) => ((input.manaBought||0)<totalMerchantMana), effect: (r) => {
           let spendGold = Math.min(r.gold, 300);
@@ -987,7 +987,7 @@ const Koviko = {
           } 
         }},
 
-        'Build Tower': {affected: ['stone'],canStart: (input)=>((input.stone||0)==1)},
+        'Build Tower': {affected: ['stone'],canStart: (input)=>((input.stone||0)==1),effect:(r,k)=>(r.stone=0)},
 
         // Loops without Max
         'Heal The Sick': { affected: ['rep'], canStart: (input) => (input.rep >= 1), loop: {
