@@ -2,7 +2,7 @@
 // @name         IdleLoops Predictor Makro
 // @namespace    https://github.com/MakroCZ/
 // @downloadURL  https://raw.githubusercontent.com/MakroCZ/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      1.9.4
+// @version      1.9.5
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://omsi6.github.io/loops/
@@ -551,9 +551,9 @@ const Koviko = {
          */
         getSelfCombat: (r, k) => (g.getSkillLevelFromExp(k.combat) + g.getSkillLevelFromExp(k.pyromancy) * 5) * h.getArmorLevel(r,k) * (1 + getBuffLevel("Feast") * 0.05),
 
-        getZombieStrength: (r, k) => (g.getSkillLevelFromExp(k.dark) * (r.zombie||0) / 2 * Math.max(getBuffLevel("Ritual") / 100, 1)),
+        getZombieStrength: (r, k) => (g.getSkillLevelFromExp(k.dark) * (r.zombie||0) / 2 * Math.max(getBuffLevel("Ritual") / 100, 1)) * (1 + getBuffLevel("Feast") * 0.05),
 
-        getTeamStrength: (r, k) => ((g.getSkillLevelFromExp(k.combat) + g.getSkillLevelFromExp(k.restoration) * 4) * ((r.team||0) / 2) * h.getGuildRankBonus(r.adventures || 0) * h.getSkillBonusInc(k.leadership)),
+        getTeamStrength: (r, k) => ((g.getSkillLevelFromExp(k.combat) + g.getSkillLevelFromExp(k.restoration) * 4) * ((r.team||0) / 2) * h.getGuildRankBonus(r.adventures || 0) * h.getSkillBonusInc(k.leadership))  * (1 + getBuffLevel("Feast") * 0.05),
 
         getTeamCombat: (r, k) => (h.getSelfCombat(r, k) + h.getZombieStrength(r, k) + h.getTeamStrength(r, k)),
 
