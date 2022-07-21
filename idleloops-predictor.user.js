@@ -193,7 +193,7 @@ const Koviko = {
      * @memberof Koviko.Prediction
      */
     ticks() {
-      return this._ticks || this.updateTicks();
+      return this._ticks || 0;
     }
 
     /**
@@ -1232,8 +1232,13 @@ const Koviko = {
             // Save the mana prior to the prediction
             currentMana = state.resources.mana;
 
-            // Run the prediction
-            this.predict(prediction, state);
+            // Skip EXP calculations for the last element, when no longer necessary (only costs 1 mana)
+            if ((i==actions.length-1) && (prediction.ticks()==1) &&(!prediction.loop)) {
+              state.resources.mana--;
+            } else {
+              // Run the prediction
+              this.predict(prediction, state);
+            }
 
             // Check if the amount of mana used was too much
             isValid = isValid && state.resources.mana >= 0;
