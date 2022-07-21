@@ -1220,6 +1220,8 @@ const Koviko = {
             };
           }
 
+          state.resources.actionTicks=0;
+
           // Predict each loop in sequence
           for (let loop = 0; loop < listedAction.loops; loop++) {
             let canStart = typeof(prediction.canStart) === "function" ? prediction.canStart(state.resources) : prediction.canStart;
@@ -1249,6 +1251,7 @@ const Koviko = {
             let temp = (currentMana - state.resources.mana) / getSpeedMult(state.resources.town);
             totalTicks += temp;
             state.resources.totalTicks=totalTicks;
+            state.resources.actionTicks+=temp;
 
             // Only for Adventure Guild
             if ( listedAction.name == "Adventure Guild" ) {
@@ -1376,6 +1379,9 @@ const Koviko = {
           tooltip += '</b></td><td>' + intToString(level.end, 1) + '</td><td>(+' + intToString(level.end - level.start, 1) + ')</td></tr>';
         }
       }
+
+      //Timer 
+      tooltip+= '<tr><td><b>TIME</b></td><td>' + precision3(resources.totalTicks/50, 1) + '</td><td>(+' + precision3(resources.actionTicks/50, 1) + ')</td></tr>';
 
       for (let i in currProgress) {
         if (currProgress[i].delta) {
