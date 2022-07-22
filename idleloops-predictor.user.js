@@ -2,7 +2,7 @@
 // @name         IdleLoops Predictor Makro
 // @namespace    https://github.com/MakroCZ/
 // @downloadURL  https://raw.githubusercontent.com/MakroCZ/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      1.9.6
+// @version      1.9.7
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://omsi6.github.io/loops/
@@ -434,6 +434,7 @@ const Koviko = {
       ul.koviko .mind{color:#006400}
       ul.koviko .stone{color:#ff0000}
       ul.koviko .heroism{color:#ff0000}
+      ul.koviko .power{color:#0000ff}
       \`;
       document.getElementById("actionsColumn").style.width="500px";
       document.getElementById("nextActionsListContainer").style.width="380px";
@@ -1015,7 +1016,7 @@ const Koviko = {
           effect: { loop: (r) => (r.power++), end: (r,k) => (k.combat+=500*getBuffLevel("Heroism") * 0.02)}
         }},
 
-        'Restore Time' : {affected: ['power','rep'], canStart (input)=>(input.power>=8), effect: (r)=> (r.rep+=9999999)},
+        'Restore Time' : {affected: ['power','rep'], canStart: (input)=>(input.power>=8), effect: (r)=> (r.rep+=9999999)},
 
         // Loops without Max
         'Heal The Sick': { affected: ['rep'], canStart: (input) => (input.rep >= 1), loop: {
