@@ -2,7 +2,7 @@
 // @name         IdleLoops Predictor Makro
 // @namespace    https://github.com/MakroCZ/
 // @downloadURL  https://raw.githubusercontent.com/MakroCZ/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      1.9.5
+// @version      1.9.6
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://omsi6.github.io/loops/
@@ -700,7 +700,7 @@ const Koviko = {
           r.rep += 1;
         }},
         'Accept Donations': { affected: ['gold', 'rep'], canStart: (input) => {
-          return (input.rep >= 0);
+          return (input.rep > 0);
         }, effect: (r) => {
           r.donateLoot = (r.donateLoot || 0) + 1;
           if (r.donateLoot<=towns[4].goodDonations) {
@@ -990,6 +990,33 @@ const Koviko = {
 
         'Build Tower': {affected: ['stone'],canStart: (input)=>((input.stone||0)==1),effect:(r,k)=>(r.stone=0)},
 
+        'Gods Trial': { affected: ['power'], loop: {
+          max: (a) => trialFloors[a.trialNum],
+          cost: (p, a) => segment => precision3(Math.pow(a.floorScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.baseScaling),
+          tick: (p, a, s, k, r) => offset => {
+            const floor = Math.floor(p.completed / a.segments + .0000001);
+            return floor in trials[a.trialNum] ? h.getTeamCombat(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
+          },
+          effect: { loop: (r) => {
+            r.godFloor=(r.godFloor||0)+1;
+            if (r.godFloor>=100) {
+              r.power=1;
+            }
+          }, end: (r,k) => (k.combat+=250*getBuffLevel("Heroism") * 0.02,k.pyromancy+=50*getBuffLevel("Heroism") * 0.02,k.restoration+=50*getBuffLevel("Heroism") * 0.02)}
+        }},
+
+        'Challenge Gods': { affected: ['power'], loop: {
+          max: (a) => trialFloors[a.trialNum],
+          cost: (p, a) => segment => precision3(Math.pow(a.floorScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.baseScaling),
+          tick: (p, a, s, k, r) => offset => {
+            const floor = Math.floor(p.completed / a.segments + .0000001);
+            return floor in trials[a.trialNum] ? h.getSelfCombat(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
+          },
+          effect: { loop: (r) => (r.power++), end: (r,k) => (k.combat+=500*getBuffLevel("Heroism") * 0.02)}
+        }},
+
+        'Restore Time' : {affected: ['power','rep'], canStart (input)=>(input.power>=8), effect: (r)=> (r.rep+=9999999)},
+
         // Loops without Max
         'Heal The Sick': { affected: ['rep'], canStart: (input) => (input.rep >= 1), loop: {
           cost: (p, a) => segment => g.fibonacci(2 + Math.floor((p.completed + segment) / a.segments + .0000001)) * 5000,
@@ -1056,6 +1083,16 @@ const Koviko = {
             return floor in trials[a.trialNum] ? h.getZombieStrength(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
           },
           effect: { loop: (r) => (r.zombie++) }
+        }},
+
+        'Secret Trial': { affected: ['zombie'], loop: {
+          max: (a) => trialFloors[a.trialNum],
+          cost: (p, a) => segment => precision3(Math.pow(a.floorScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.baseScaling),
+          tick: (p, a, s, k, r) => offset => {
+            const floor = Math.floor(p.completed / a.segments + .0000001);
+            return floor in trials[a.trialNum] ? h.getTeamCombat(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
+          },
+          effect: {}
         }},
 
         'Dark Ritual': { affected: ['ritual'], canStart: (input) => (input.rep <= -5), loop: {
