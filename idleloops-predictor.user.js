@@ -2,7 +2,7 @@
 // @name         IdleLoops Predictor Makro
 // @namespace    https://github.com/MakroCZ/
 // @downloadURL  https://raw.githubusercontent.com/MakroCZ/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      1.9.7
+// @version      1.9.8
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://omsi6.github.io/loops/
@@ -435,6 +435,8 @@ const Koviko = {
       ul.koviko .stone{color:#ff0000}
       ul.koviko .heroism{color:#ff0000}
       ul.koviko .power{color:#0000ff}
+      ul.koviko .map{color:#2ea9bd}
+      ul.koviko .completedMap{color:#45e5ff}
       \`;
       document.getElementById("actionsColumn").style.width="500px";
       document.getElementById("nextActionsListContainer").style.width="380px";
@@ -884,7 +886,13 @@ const Koviko = {
         }, effect: (r, k) => {
           r.gold -= (((r.guild==='explorer')||(r.guild==='thieves')) ? 2 : 10);
         }},
-        'Explorers Guild': {effect: (r,k) => (r.explorer=1,r.guild='explorer')},
+        'Explorers Guild': {affected:['map','completedMap'], effect: (r,k) => {
+          r.completedMap=0;
+          r.guild='explorer';
+          if (r.map==0) {
+            r.map=30;
+          }
+        }},
         'Thieves Guild': { affected: ['gold', 'thieves'], canStart: (input) => {
           return input.rep < 0;
         }, loop: {
@@ -1138,15 +1146,16 @@ const Koviko = {
         }},
 
         //Survey Actions
-        'SurveyZ0': {},
-        'SurveyZ1': {},
-        'SurveyZ2': {},
-        'SurveyZ3': {},
-        'SurveyZ4': {},
-        'SurveyZ5': {},
-        'SurveyZ6': {},
-        'SurveyZ7': {},
-        'SurveyZ8': {},
+        'SurveyZ0': {affected:['map','completedMap'],canStart:(input)=>(input.map>0),effect:(r)=>(r.map--,r.completedMap++)},
+        'SurveyZ1': {affected:['map','completedMap'],canStart:(input)=>(input.map>0),effect:(r)=>(r.map--,r.completedMap++)},
+        'SurveyZ2': {affected:['map','completedMap'],canStart:(input)=>(input.map>0),effect:(r)=>(r.map--,r.completedMap++)},
+        'SurveyZ3': {affected:['map','completedMap'],canStart:(input)=>(input.map>0),effect:(r)=>(r.map--,r.completedMap++)},
+        'SurveyZ4': {affected:['map','completedMap'],canStart:(input)=>(input.map>0),effect:(r)=>(r.map--,r.completedMap++)},
+        'SurveyZ5': {affected:['map','completedMap'],canStart:(input)=>(input.map>0),effect:(r)=>(r.map--,r.completedMap++)},
+        'SurveyZ6': {affected:['map','completedMap'],canStart:(input)=>(input.map>0),effect:(r)=>(r.map--,r.completedMap++)},
+        'SurveyZ7': {affected:['map','completedMap'],canStart:(input)=>(input.map>0),effect:(r)=>(r.map--,r.completedMap++)},
+        'SurveyZ8': {affected:['map','completedMap'],canStart:(input)=>(input.map>0),effect:(r)=>(r.map--,r.completedMap++)},
+        'Map': {affected:['gold','map'],canStart:(input)=>(input.gold>=15),effect:(r)=>(r.map++,r.gold-=15)},
 
       };
 
