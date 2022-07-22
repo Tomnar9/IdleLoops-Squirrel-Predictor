@@ -1006,7 +1006,7 @@ const Koviko = {
           }, end: (r,k) => (k.combat+=250*getBuffLevel("Heroism") * 0.02,k.pyromancy+=50*getBuffLevel("Heroism") * 0.02,k.restoration+=50*getBuffLevel("Heroism") * 0.02)}
         }},
 
-        'Challenge Gods': { affected: ['power'], loop: {
+        'Challenge Gods': { affected: ['power'],canStart: (input)=>(input.power>0), loop: {
           max: (a) => trialFloors[a.trialNum],
           cost: (p, a) => segment => precision3(Math.pow(a.floorScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.baseScaling),
           tick: (p, a, s, k, r) => offset => {
