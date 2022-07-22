@@ -1197,7 +1197,8 @@ const Koviko = {
       const snapshots = {
         stats: new Koviko.Snapshot(state.stats),
         skills: new Koviko.Snapshot(state.skills),
-        currProgress: new Koviko.Snapshot({"Fight Monsters": 0, "Heal The Sick": 0, "Small Dungeon": 0, "Large Dungeon": 0, "Hunt Trolls": 0, "Tidy Up":0,"Fight Frost Giants":0, "The Spire":0, "Fight Jungle Monsters":0,"Rescue Survivors":0 })
+        currProgress: new Koviko.Snapshot({"Fight Monsters": 0, "Heal The Sick": 0, "Small Dungeon": 0, "Large Dungeon": 0, "Hunt Trolls": 0, "Tidy Up":0,"Fight Frost Giants":0, "The Spire":0, "Fight Jungle Monsters":0,"Rescue Survivors":0,"Heroes Trial":0,
+          "Dead Trial":0, "Secret Trial":0, "Gods Trial":0, "Challenge Gods":0})
       };
 
       /**
@@ -1417,15 +1418,39 @@ const Koviko = {
             case "practical":
               tooltip += 'PRACT';
               break;
+            case "restoration":
+              tooltip += 'RESTO';
+              break;
+            case "spatiomancy":
+              tooltip += 'SPACE';
+              break;
+            case "mercantilism":
+              tooltip += 'MERC';
+              break;
+            case "divine":
+              tooltip += 'DIVI';
+              break;
+            case "commune":
+              tooltip += 'COMU';
+              break;
+            case "wunderkind":
+              tooltip += 'WUNDER';
+              break;
+            case "gluttony":
+              tooltip += 'GLUTT';
+              break;
+            case "thievery":
+              tooltip += 'THIEF';
+              break;
+            case "leadership":
+              tooltip += 'LEAD';
+              break;
             default:
               tooltip += i.toUpperCase();
           }
           tooltip += '</b></td><td>' + intToString(level.end, 1) + '</td><td>(+' + intToString(level.end - level.start, 1) + ')</td></tr>';
         }
       }
-
-      //Timer 
-      tooltip+= '<tr><td><b>TIME</b></td><td>' + precision3(resources.totalTicks/50, 1) + '</td><td>(+' + precision3(resources.actionTicks/50, 1) + ')</td></tr>';
 
       for (let i in currProgress) {
         if (currProgress[i].delta) {
@@ -1466,12 +1491,29 @@ const Koviko = {
             case "Rescue Survivors":
               tooltip += 'SURV';
               break;
+            case "Secret Trial":
+              tooltip += 'SECRET';
+              break;
+            case "Heroes Trial":
+              tooltip += 'HERO';
+              break;
+            case "Dead Trial":
+              tooltip += 'DEAD';
+              break;
+            case "Gods Trial":
+              tooltip += 'GODS';
+              break;
+            case "Challenge Gods":
+              tooltip += 'CHAL';
+              break;
             default:
               tooltip += i.toUpperCase();
           }
           tooltip += '</b></td><td>' + intToString(level.end, 1) + '</td><td>(+' + intToString(level.end - level.start, 1) + ')</td></tr>';
         }
       }
+      //Timer 
+      tooltip+= '<tr><td><b>TIME</b></td><td>' + precision3(resources.totalTicks/50, 1) + '</td><td>(+' + precision3(resources.actionTicks/50, 1) + ')</td></tr>';
 
       var Affec = affected.map(name => {
         if ( resources[name] != 0 ) return ('<li class='+name+'>'+resources[name].toLocaleString('en', {useGrouping:true})+'</li>');
