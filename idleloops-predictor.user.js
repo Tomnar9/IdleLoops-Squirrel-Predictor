@@ -672,7 +672,7 @@ const Koviko = {
         'Decipher Runes': {},
         'Chronomancy': { effect: (r, k) => k.chronomancy += 100 },
         'Explore Cavern': {},
-        'Mine Soulstones': { affected: ['soul'], effect: (r) => {
+        'Mine Soulstones': { affected: ['soul'], canStart: (input) => input.pickaxe, effect: (r) => {
           r.temp10 = (r.temp10 || 0) + 1;
           r.soul += r.temp10 <= towns[3].goodMineSoulstones ? h.getRewardSS(0) : 0;
         }},
