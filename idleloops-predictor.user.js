@@ -655,7 +655,7 @@ const Koviko = {
         'Sell Potions': { affected: ['gold', 'potions'], effect: (r, k) => (r.gold += r.potions * g.getSkillLevelFromExp(k.alchemy), r.potions = 0) },
         'Read Books': {canStart: (input) => input.glasses},
         'Gather Team': { affected: ['team','gold'], canStart: (input) => ((input.guild=='adventure')&&(input.gold>=(input.team+1) * 100)), effect: (r) => (r.team = (r.team || 0) + 1, r.gold -= r.team * 100) },
-        'Craft Armor': { affected: ['hide'], canStart: (input) => ((input.hide >= 2)&&(input.guild=='crafting')), effect: (r) => (r.hide -= 2, r.armor = (r.armor || 0) + 1) },
+        'Craft Armor': { affected: ['hide'], canStart: (input) => (input.hide >= 2), effect: (r) => (r.hide -= 2, r.armor = (r.armor || 0) + 1) },
         'Apprentice': {canStart: (input) => (input.guild=='crafting'), effect: (r, k) => Math.min((r.apprentice = (r.apprentice || towns[2].expApprentice) + 30 * h.getGuildRankBonus(r.crafts || 0),505000), k.crafting += 10 * (1 + h.getTownLevelFromExp(r.apprentice) / 100)) },
         'Mason': {canStart: (input) => (input.guild=='crafting'), effect: (r, k) => (r.mason = Math.min((r.mason || towns[2].expMason) + 20 * h.getGuildRankBonus(r.crafts || 0),505000), k.crafting += 20 * (1 + h.getTownLevelFromExp(r.mason) / 100)) },
         'Architect': {canStart: (input) => (input.guild=='crafting'), effect: (r, k) => Math.min((r.architect = (r.architect || towns[2].expArchitect) + 10 * h.getGuildRankBonus(r.crafts || 0),505000), k.crafting += 40 * (1 + h.getTownLevelFromExp(r.architect) / 100)) },
