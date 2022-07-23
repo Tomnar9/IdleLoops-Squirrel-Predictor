@@ -654,11 +654,11 @@ const Koviko = {
         'Buy Mana Z3': { affected: ['mana', 'gold'], effect: (r) => (r.mana += r.gold * g.Action.BuyManaZ3.goldCost(), r.gold = 0) },
         'Sell Potions': { affected: ['gold', 'potions'], effect: (r, k) => (r.gold += r.potions * g.getSkillLevelFromExp(k.alchemy), r.potions = 0) },
         'Read Books': {canStart: (input) => input.glasses},
-        'Gather Team': { affected: ['gold'], effect: (r) => (r.team = (r.team || 0) + 1, r.gold -= r.team * 100) },
-        'Craft Armor': { affected: ['hide'], canStart: (input) => (input.hide >= 2), effect: (r) => (r.hide -= 2, r.armor = (r.armor || 0) + 1) },
-        'Apprentice': { effect: (r, k) => Math.min((r.apprentice = (r.apprentice || towns[2].expApprentice) + 30 * h.getGuildRankBonus(r.crafts || 0),505000), k.crafting += 10 * (1 + h.getTownLevelFromExp(r.apprentice) / 100)) },
-        'Mason': { effect: (r, k) => (r.mason = Math.min((r.mason || towns[2].expMason) + 20 * h.getGuildRankBonus(r.crafts || 0),505000), k.crafting += 20 * (1 + h.getTownLevelFromExp(r.mason) / 100)) },
-        'Architect': { effect: (r, k) => Math.min((r.architect = (r.architect || towns[2].expArchitect) + 10 * h.getGuildRankBonus(r.crafts || 0),505000), k.crafting += 40 * (1 + h.getTownLevelFromExp(r.architect) / 100)) },
+        'Gather Team': { affected: ['team','gold'], canStart: (input) => ((input.guild=='adventure')&&(input.gold>=(input.team+1) * 100)), effect: (r) => (r.team = (r.team || 0) + 1, r.gold -= r.team * 100) },
+        'Craft Armor': { affected: ['hide'], canStart: (input) => ((input.hide >= 2)&&(input.guild=='crafting')), effect: (r) => (r.hide -= 2, r.armor = (r.armor || 0) + 1) },
+        'Apprentice': {canStart: (input) => (input.guild=='crafting'), effect: (r, k) => Math.min((r.apprentice = (r.apprentice || towns[2].expApprentice) + 30 * h.getGuildRankBonus(r.crafts || 0),505000), k.crafting += 10 * (1 + h.getTownLevelFromExp(r.apprentice) / 100)) },
+        'Mason': {canStart: (input) => (input.guild=='crafting'), effect: (r, k) => (r.mason = Math.min((r.mason || towns[2].expMason) + 20 * h.getGuildRankBonus(r.crafts || 0),505000), k.crafting += 20 * (1 + h.getTownLevelFromExp(r.mason) / 100)) },
+        'Architect': {canStart: (input) => (input.guild=='crafting'), effect: (r, k) => Math.min((r.architect = (r.architect || towns[2].expArchitect) + 10 * h.getGuildRankBonus(r.crafts || 0),505000), k.crafting += 40 * (1 + h.getTownLevelFromExp(r.architect) / 100)) },
         'Buy Pickaxe': { affected: ['gold'], canStart: (input) =>(input.gold>=200) , effect: (r) => (r.gold -= 200, r.pickaxe = true) },
         'Start Trek': { effect: (r) => r.town = 3 },
         'Underworld': {affected: ['gold'], effect: (r) => (r.town = 7,r.gold-=500),canStart:(input)=>(input.gold>=500) },
@@ -886,7 +886,7 @@ const Koviko = {
         }, effect: (r, k) => {
           r.gold -= (((r.guild==='explorer')||(r.guild==='thieves')) ? 2 : 10);
         }},
-        'Explorers Guild': {affected:['map','completedMap'], effect: (r,k) => {
+        'Explorers Guild': {affected:['map','completedMap'], canStart: (input) => (input.guild==''), effect: (r,k) => {
           r.completedMap=0;
           r.guild='explorer';
           if (r.map==0) {
@@ -894,7 +894,7 @@ const Koviko = {
           }
         }},
         'Thieves Guild': { affected: ['gold', 'thieves'], canStart: (input) => {
-          return input.rep < 0;
+          return ((input.rep < 0) && (input.guild==''));
         }, loop: {
           cost: (p) => segment => g.precision3(Math.pow(1.2, p.completed + segment)) * 5e8,
           tick: (p, a, s, k, r) => offset => (g.getSkillLevelFromExp(k.practical) + g.getSkillLevelFromExp(k.thievery)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000),
@@ -1038,12 +1038,12 @@ const Koviko = {
           tick: (p, a, s, k, r) => offset => h.getSelfCombat(r, k) * Math.sqrt(1 + p.total / 100) * h.getStatProgress(p, a, s, offset),
           effect: { end: (r, k) => k.combat += 10*getBuffLevel("Heroism") * 0.02, segment: (r) => r.gold += 20 },
         }},
-        'Adventure Guild': { affected: ['gold', 'adventures'], loop: {
+        'Adventure Guild': { affected: ['gold', 'adventures'], canStart: (input) => (input.guild==''), loop: {
           cost: (p) => segment => g.precision3(Math.pow(1.2, p.completed + segment)) * 5e6,
           tick: (p, a, s, k, r) => offset => (h.getSelfCombat(r, k) + g.getSkillLevelFromExp(k.magic) / 2) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000),
           effect: {end: (r) => (r.guild='adventure'), segment: (r) => (r.mana += 200, r.adventures++) }
         }},
-        'Crafting Guild': { affected: ['gold', 'crafts'], loop: {
+        'Crafting Guild': { affected: ['gold', 'crafts'], canStart: (input) => (input.guild==''), loop: {
           cost: (p) => segment => g.precision3(Math.pow(1.2, p.completed + segment)) * 2e6,
           tick: (p, a, s, k) => offset => (g.getSkillLevelFromExp(k.magic) / 2 + g.getSkillLevelFromExp(k.crafting)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000),
           effect: {end: (r) => (r.guild='crafting'), segment: (r, k) => (r.gold += 10, r.crafts++, k.crafting += 50) }
@@ -1065,7 +1065,7 @@ const Koviko = {
           },
           effect: { end: (r, k) => (k.combat += 5*getBuffLevel("Heroism") * 0.02, k.magic += 5), loop: (r) => r.soul+=h.getRewardSS(0) },
         }},
-        'Large Dungeon': { affected: ['soul'], loop: {
+        'Large Dungeon': { affected: ['team','soul'], canStart: (input) => (input.team>0), loop: {
           max: (a) => g.dungeons[a.dungeonNum].length,
           cost: (p, a) => segment => g.precision3(Math.pow(3, Math.floor((p.completed + segment) / a.segments + .0000001)) * 5e5),
           tick: (p, a, s, k, r) => offset => {
