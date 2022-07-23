@@ -930,6 +930,7 @@ const Koviko = {
         }},
         'Leave City': {canStart: (input)=>(input.key>0),effect: (r,k)=> {
            r.key=0;
+           r.town=8;
         }},
 
         //Valley of the Gods
@@ -1254,7 +1255,7 @@ const Koviko = {
           let div = container ? container.children[i] : null;
 
           /** @var {boolean} */
-          let isValid = true;
+          let isValid = (prediction.action.townNum==state.town);
 
           /** @var {number} */
           let currentMana;
