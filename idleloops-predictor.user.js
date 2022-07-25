@@ -2,7 +2,7 @@
 // @name         IdleLoops Predictor Makro
 // @namespace    https://github.com/MakroCZ/
 // @downloadURL  https://raw.githubusercontent.com/MakroCZ/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      1.9.9
+// @version      2.0.0
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://omsi6.github.io/loops/
@@ -437,6 +437,7 @@ const Koviko = {
       ul.koviko .power{color:#0000ff}
       ul.koviko .map{color:#2ea9bd}
       ul.koviko .completedMap{color:#45e5ff}
+      ul.koviko .heart{color:#ca0b0b}
       \`;
       document.getElementById("actionsColumn").style.width="500px";
       document.getElementById("nextActionsListContainer").style.width="380px";
@@ -568,6 +569,25 @@ const Koviko = {
       // Alias the globals to a shorter variable name
       const g = Koviko.globals;
       const h = this.helpers;
+
+      //assassin base
+      const assassinBase={ affected: ['heart','rep'], loop: {
+          max: () => 1,
+          cost: (p) => segment => 50000000,
+          tick: (p, a, s, k, r) => offset => {
+            if ((p.completed / a.segments + .0000001)>=1) {
+              return 0;
+            }
+            let baseSkill = Math.sqrt(g.getSkillLevelFromExp(k.practical)) + g.getSkillLevelFromExp(k.thievery) + g.getSkillLevelFromExp(k.assassin);
+            let loopStat = (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 1000);
+            let completions = Math.sqrt(1 + p.total / 100);
+            let reputationPenalty = (Math.abs(r.rep)|| 1);
+            let killStreak = (r.heart || 1);
+            return baseSkill * loopStat * completions / reputationPenalty / killStreak;
+          },
+          effect: { loop: (r) => r.heart++, end: (r,k) => ( r.rep+=Math.min((r.town + 1) * -250 + g.getSkillLevelFromExp(k.assassin), 0))},
+        }};
+
 
       /**
        * Prediction parameters
@@ -900,6 +920,12 @@ const Koviko = {
           tick: (p, a, s, k, r) => offset => (g.getSkillLevelFromExp(k.practical) + g.getSkillLevelFromExp(k.thievery)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000),
           effect: { end: (r, k) => (r.guild='thieves'), segment: (r) => (r.gold += 10, r.thieves=( r.thieves||0)+1) }
         }},
+        'Guild Assassin': {affected:['heart'], canStart: (input) => (input.guild==''), effect: (r,k) => {
+          k.Assassin+=100*r.heart;
+          r.heart=0;
+          r.guild='assassin';
+        }},
+
         'Pick Pockets': { canStart: (input) => (input.guild==='thieves'), effect: (r, k) => {
           r.gold += Math.floor(Math.floor(1 * h.getSkillBonusInc(k.thievery)) * h.getGuildRankBonus(r.thieves));
           k.thievery+=10 * (1 + towns[7].getLevel("PickPockets") / 100);
@@ -1157,6 +1183,16 @@ const Koviko = {
         'SurveyZ7': {affected:['map','completedMap'],canStart:(input)=>(input.map>0),effect:(r)=>(r.map--,r.completedMap++)},
         'SurveyZ8': {affected:['map','completedMap'],canStart:(input)=>(input.map>0),effect:(r)=>(r.map--,r.completedMap++)},
         'Map': {affected:['gold','map'],canStart:(input)=>(input.gold>=15),effect:(r)=>(r.map++,r.gold-=15)},
+
+        //assasin Actions;
+        'AssassinZ0': assassinBase,
+        'AssassinZ1': assassinBase,
+        'AssassinZ2': assassinBase,
+        'AssassinZ3': assassinBase,
+        'AssassinZ4': assassinBase,
+        'AssassinZ5': assassinBase,
+        'AssassinZ6': assassinBase,
+        'AssassinZ7': assassinBase,
 
       };
 
