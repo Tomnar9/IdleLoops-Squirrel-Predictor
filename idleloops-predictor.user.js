@@ -2,7 +2,7 @@
 // @name         IdleLoops Predictor Makro
 // @namespace    https://github.com/MakroCZ/
 // @downloadURL  https://raw.githubusercontent.com/MakroCZ/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      2.0.0
+// @version      2.0.1
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://omsi6.github.io/loops/
@@ -354,15 +354,21 @@ const Koviko = {
       this.initElements()
       this.initPredictions();
       if(typeof localStorage !== "undefined") { 
-        if (localStorage.getItem('timePrecision') !== undefined) {
+        if (localStorage.getItem('timePrecision') !== null) {
           var loadedVal = localStorage.getItem('timePrecision');
           \$('#updateTimePrecision').val(loadedVal);
         }
-        if (localStorage.getItem("actionWidth")!=="undefined") {
+        if (localStorage.getItem("actionWidth")!==null) {
           let tmpVal=localStorage.getItem("actionWidth");
           document.getElementById("actionsColumn").style.width=tmpVal+"px";
           document.getElementById("nextActionsListContainer").style.width=(tmpVal-120)+"px";
           \$('#actionWidth').val(tmpVal);
+        }
+        if (localStorage.getItem('trackedStat') !== null) {
+          var loadedVal = localStorage.getItem('trackedStat');
+          \$('#trackedStat').val(loadedVal);
+        } else {
+          \$('#trackedStat').val('soul');
         }
       }
       // Prepare \`updateNextActions\` to be hooked
@@ -413,7 +419,7 @@ const Koviko = {
       #nextActionsList:hover{margin-left:-40%;padding-left:40%}
       #actionList>div:nth-child(2){left: 53px !important}
       .nextActionContainer:nth-child(1n+9) .showthis {bottom: 5px; top: unset;}
-      span.koviko{font-weight:bold;color:#8293ff;padding-left:50px;}
+      span.koviko{font-weight:bold;color:#8293ff;}
       div.koviko{top:-5px;left:auto;right:100%}
       ul.koviko{list-style:none;margin:0;padding:0;pointer-events:none;display:inline;}
       ul.koviko li{display:inline-block;margin: 0 2px;font-weight:bold;font-size:90%}
@@ -473,7 +479,12 @@ const Koviko = {
       if (!this.totalDisplay) {
         this.totalDisplay = document.createElement('span');
         this.totalDisplay.className = 'koviko';
+        this.totalDisplay.style='padding-left: 50px';
         parent.appendChild(this.totalDisplay);
+
+        this.statisticDisplay =document.createElement('span');
+        this.statisticDisplay.className = 'koviko';
+        parent.appendChild(this.statisticDisplay);
       }
 
       //Adds more to the Options panel
@@ -494,6 +505,16 @@ const Koviko = {
           localStorage.setItem('actionWidth',tmpVal );       
           document.getElementById("actionsColumn").style.width=tmpVal+"px";
           document.getElementById("nextActionsListContainer").style.width=(tmpVal-120)+"px";
+      });
+      \$('#preditorSettings').append("<br /><br /><label>Tracked Statistic</label><select id='trackedStat' style='float:right'>");
+      \$('#trackedStat').append("<option value=soul>Soulstones</option>");
+      for (let i in skillList) {
+        \$('#trackedStat').append("<option value="+skillList[i].toLowerCase()+">"+skillList[i]+"</option>");
+      }
+      \$('#preditorSettings').append("</select>");
+      \$('#trackedStat').focusout(function() {
+        let tmpVal=\$(this).val();
+        localStorage.setItem('trackedStat',tmpVal );
       });
     }
 
@@ -1272,6 +1293,10 @@ const Koviko = {
       //This is the precision of the Time field
       let precisionForTime = \$('#updateTimePrecision').val();
 
+      //Statistik parammeters
+      let statisticType=\$('#trackedStat').val();
+      let statisticStart=state.skills[statisticType];
+
       // Initialize all affected resources
       affected.forEach(x => state.resources[x] || (state.resources[x] = 0));
 
@@ -1385,16 +1410,27 @@ const Koviko = {
       while(ms.toString().length < precisionForTime) { ms = "0" + ms; }
 
       let totalTime = ('0' + h).slice(-2) + ":" + ('0' + m).slice(-2) + ":" + ('0' + s).slice(-2) + "." + ms;
-      let dungeonEquilibrium = Math.min(Math.sqrt(total / 200000),1);
-      let soulStonesPerMinute = dungeonEquilibrium*state.resources.soul / totalTicks * 60;
-      container && (this.totalDisplay.innerHTML = intToString(total) + " | " + totalTime + " | " + soulStonesPerMinute.toFixed(2) + " SS/min");
 
-      if (this.resourcePerMinute>soulStonesPerMinute) {
-        this.totalDisplay.style='color: #FF0000';
+      let newStatisticValue=0;
+      let legend="";
+
+      if (statisticType=="soul") {       
+        let dungeonEquilibrium = Math.min(Math.sqrt(total / 200000),1);
+        newStatisticValue = dungeonEquilibrium*state.resources.soul / totalTicks * 60;
+        legend="SS";
       } else {
-        this.totalDisplay.style='color: 8293ff'
+         newStatisticValue=(state.skills[statisticType]-statisticStart)/ totalTicks * 60;
+         legend=this.getShortSkill(statisticType);
       }
-     this.resourcePerMinute=soulStonesPerMinute;
+
+      container && (this.totalDisplay.innerHTML = intToString(total) + " | " + totalTime + " | " );
+      container && (this.statisticDisplay.innerHTML = newStatisticValue.toLocaleString('en', {useGrouping:true}) +" "+legend+ "/min");
+      if (this.resourcePerMinute>newStatisticValue) {
+        this.statisticDisplay.style='color: #FF0000';
+      } else {
+        this.statisticDisplay.style='color: #8293ff'
+      }
+     this.resourcePerMinute=newStatisticValue;
 
       // Log useful debugging data
       if (isDebug) {
@@ -1404,6 +1440,43 @@ const Koviko = {
           state: state,
           total: total
         });
+      }
+    }
+
+    getShortSkill(name) {
+      switch(name) {
+        case "chronomancy":
+          return 'CHRO';
+        case "crafting":
+          return 'CRAFT';
+        case "pyromancy":
+          return 'PYRO';
+        case "alchemy":
+          return 'ALCH';
+        case "combat":
+          return 'COMB';
+        case "practical":
+          return 'PRACT';
+        case "restoration":
+          return 'RESTO';
+        case "spatiomancy":
+          return 'SPACE';
+        case "mercantilism":
+          return 'MERC';
+        case "divine":
+          return 'DIVI';
+        case "commune":
+          return 'COMU';
+        case "wunderkind":
+          return 'WUNDER';
+        case "gluttony":
+          return 'GLUTT';
+        case "thievery":
+          return 'THIEF';
+        case "leadership":
+          return 'LEAD';
+        default:
+          return name.toUpperCase();
       }
     }
 
@@ -1445,55 +1518,7 @@ const Koviko = {
           };
 
           tooltip += '<tr><td><b>'
-          switch(i) {
-            case "chronomancy":
-              tooltip += 'CHRO';
-              break;
-            case "crafting":
-              tooltip += 'CRAFT';
-              break;
-            case "pyromancy":
-              tooltip += 'PYRO';
-              break;
-            case "alchemy":
-              tooltip += 'ALCH';
-              break;
-            case "combat":
-              tooltip += 'COMB';
-              break;
-            case "practical":
-              tooltip += 'PRACT';
-              break;
-            case "restoration":
-              tooltip += 'RESTO';
-              break;
-            case "spatiomancy":
-              tooltip += 'SPACE';
-              break;
-            case "mercantilism":
-              tooltip += 'MERC';
-              break;
-            case "divine":
-              tooltip += 'DIVI';
-              break;
-            case "commune":
-              tooltip += 'COMU';
-              break;
-            case "wunderkind":
-              tooltip += 'WUNDER';
-              break;
-            case "gluttony":
-              tooltip += 'GLUTT';
-              break;
-            case "thievery":
-              tooltip += 'THIEF';
-              break;
-            case "leadership":
-              tooltip += 'LEAD';
-              break;
-            default:
-              tooltip += i.toUpperCase();
-          }
+          tooltip+=this.getShortSkill(i);
           tooltip += '</b></td><td>' + intToString(level.end, 1) + '</td><td>(+' + intToString(level.end - level.start, 1) + ')</td></tr>';
         }
       }
