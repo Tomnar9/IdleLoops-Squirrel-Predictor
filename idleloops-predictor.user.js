@@ -918,7 +918,7 @@ const Koviko = {
         }, loop: {
           cost: (p) => segment => g.precision3(Math.pow(1.2, p.completed + segment)) * 5e8,
           tick: (p, a, s, k, r) => offset => (g.getSkillLevelFromExp(k.practical) + g.getSkillLevelFromExp(k.thievery)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000),
-          effect: { end: (r, k) => (r.guild='thieves'), segment: (r) => (r.gold += 10, r.thieves=( r.thieves||0)+1) }
+          effect: { end: (r, k) => (r.guild='thieves',k.practical+=50,k.thievery+=50), segment: (r,k) => (r.gold += 10, r.thieves=( r.thieves||0)+1,k.practical+=50,k.thievery+=50) }
         }},
         'Guild Assassin': {affected:['heart'], canStart: (input) => (input.guild==''), effect: (r,k) => {
           k.Assassin+=100*r.heart;
