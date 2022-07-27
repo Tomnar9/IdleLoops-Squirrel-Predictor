@@ -507,9 +507,12 @@ const Koviko = {
           document.getElementById("nextActionsListContainer").style.width=(tmpVal-120)+"px";
       });
       \$('#preditorSettings').append("<br /><br /><label>Tracked Statistic</label><select id='trackedStat' style='float:right'>");
-      \$('#trackedStat').append("<option value=soul>Soulstones</option>");
+      \$('#trackedStat').append("<option value=soul>(R) Soulstones</option>");
       for (let i in skillList) {
-        \$('#trackedStat').append("<option value="+skillList[i].toLowerCase()+">"+skillList[i]+"</option>");
+        \$('#trackedStat').append("<option value="+skillList[i].toLowerCase()+">(S) "+skillList[i]+"</option>");
+      }
+      for (let i in statList) {
+        \$('#trackedStat').append("<option value="+statList[i]+">(T) "+_txt('stats>'+statList[i]+'>long_form')+"</option>");
       }
       \$('#preditorSettings').append("</select>");
       \$('#trackedStat').focusout(function() {
@@ -1295,8 +1298,12 @@ const Koviko = {
 
       //Statistik parammeters
       let statisticType=\$('#trackedStat').val();
-      let statisticStart=state.skills[statisticType];
-
+      let statisticStart=0;
+      if (state.talents[statisticType]>=0 ) {
+        statisticStart=state.talents[statisticType];
+      } else {
+        statisticStart=state.skills[statisticType];
+      }
       // Initialize all affected resources
       affected.forEach(x => state.resources[x] || (state.resources[x] = 0));
 
@@ -1416,8 +1423,11 @@ const Koviko = {
 
       if (statisticType=="soul") {       
         let dungeonEquilibrium = Math.min(Math.sqrt(total / 200000),1);
-        newStatisticValue = dungeonEquilibrium*state.resources.soul / totalTicks * 60;
+        newStatisticValue = dungeonEquilibrium*(state.resources.soul||0) / totalTicks * 60;
         legend="SS";
+      } else if (state.talents[statisticType]>=0) {
+         newStatisticValue=(state.talents[statisticType]-statisticStart)/ totalTicks * 60;
+         legend=_txt('stats>'+statisticType+'>short_form');
       } else {
          newStatisticValue=(state.skills[statisticType]-statisticStart)/ totalTicks * 60;
          legend=this.getShortSkill(statisticType);
