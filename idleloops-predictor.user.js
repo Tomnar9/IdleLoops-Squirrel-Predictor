@@ -2,7 +2,7 @@
 // @name         IdleLoops Predictor Makro
 // @namespace    https://github.com/MakroCZ/
 // @downloadURL  https://raw.githubusercontent.com/MakroCZ/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      2.0.1
+// @version      2.0.2
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://omsi6.github.io/loops/
@@ -425,6 +425,7 @@ const Koviko = {
       ul.koviko li{display:inline-block;margin: 0 2px;font-weight:bold;font-size:90%}
       ul.koviko.invalid li{color:#c00!important}
       ul.koviko .mana{color:#8293ff}
+      ul.koviko .manaBought{color:#6371ca}
       ul.koviko .gold{color:#d09249}
       ul.koviko .rep{color:#b06f37}
       ul.koviko .soul{color:#9d67cd}
@@ -630,9 +631,9 @@ const Koviko = {
         }},
         'Buy Glasses': { affected: ['gold', 'glassess'], canStart: (r)=>(r.gold>=10),effect: (r) => (r.gold -= 10, r.glasses = true) },
         'Buy Mana Z1': { affected: ['mana', 'gold'], effect: (r) => (r.mana += r.gold * g.Action.BuyManaZ1.goldCost(), r.gold = 0) },
-        'Buy Mana Challenge': { affected: ['mana', 'gold'], canStart: (input) => ((input.manaBought||0)<totalMerchantMana), effect: (r) => {
+        'Buy Mana Challenge': { affected: ['mana', 'gold','manaBought'], canStart: (input) => ((input.manaBought||0)<7500), effect: (r) => {
           let spendGold = Math.min(r.gold, 300);
-          let buyMana = Math.min(spendGold * g.Action.BuyManaChallenge.goldCost(), totalMerchantMana-(r.manaBought||0));
+          let buyMana = Math.min(spendGold * g.Action.BuyManaChallenge.goldCost(), 7500-(r.manaBought||0));
           r.mana+=buyMana;
           r.manaBought= (r.manaBought||0)+buyMana;
           r.gold-=spendGold; 
