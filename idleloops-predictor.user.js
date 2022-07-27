@@ -650,7 +650,7 @@ const Koviko = {
           r.rep += r.temp4 <= towns[0].goodLQuests ? 1 : 0;
         }},
         'Throw Party': { affected: ['rep'], effect: (r) => r.rep -= 2 },
-        'Warrior Lessons': { effect: (r, k) => k.combat += 100*getBuffLevel("Heroism") * 0.02, canStart: (input) => input.rep >= 2 },
+        'Warrior Lessons': { effect: (r, k) => k.combat += 100*(1+getBuffLevel("Heroism") * 0.02), canStart: (input) => input.rep >= 2 },
         'Mage Lessons': { effect: (r, k) => k.magic += 100 * (1 + g.getSkillLevelFromExp(k.alchemy) / 100), canStart: (input) => input.rep >= 2 },
         'Buy Supplies': { affected: ['gold'], effect: (r) => (r.gold -= 300 - Math.max((r.supplyDiscount || 0) * 20, 0), r.supplies = (r.supplies || 0) + 1), canStart: (input) => input.gold >= 300 - Math.max((input.supplyDiscount || 0) * 20, 0) },
         'Haggle': { affected: ['rep'], canStart: (input) => (input.rep > 0), effect: (r) => (r.rep--, r.supplyDiscount = (r.supplyDiscount >= 15 ? 15 : (r.supplyDiscount || 0) + 1)) },
@@ -720,7 +720,7 @@ const Koviko = {
           r.temp10 = (r.temp10 || 0) + 1;
           r.soul += r.temp10 <= towns[3].goodMineSoulstones ? h.getRewardSS(0) : 0;
         }},
-        'Pyromancy': { effect: (r, k) => k.pyromancy += 100*getBuffLevel("Heroism") * 0.02 },
+        'Pyromancy': { effect: (r, k) => k.pyromancy += 100*(1+getBuffLevel("Heroism") * 0.02) },
         'Looping Potion': { affected: ['herbs', 'lpotions'],
           canStart: (input) => (input.herbs>=400),
           effect: (r, k) => (r.herbs -= 400, r.lpotions++, k.alchemy += 100)
@@ -803,7 +803,7 @@ const Koviko = {
           r.gold -= 500;
           r.favor -=10;
         }},
-        'Restoration': { effect: (r, k) => k.restoration += 100*getBuffLevel("Heroism") * 0.02, manaCost:(r,k)=>(15000 / h.getWizardRankBonus(r)) },
+        'Restoration': { effect: (r, k) => k.restoration += 100*(1+getBuffLevel("Heroism") * 0.02), manaCost:(r,k)=>(15000 / h.getWizardRankBonus(r)) },
         'Spatiomancy': { effect: (r, k) => k.spatiomancy += 100, manaCost:(r,k)=>(20000 / h.getWizardRankBonus(r)) },
         'Seek Citizenship': {},
         'Build Housing': {canStart: (input) => {
@@ -831,7 +831,7 @@ const Koviko = {
         'Fight Frost Giants': { canStart: (input) => (input.pegasus), loop: {
           cost: (p, a) => segment => precision3(Math.pow(1.3, (p.completed + a.segments)) * 1e7),
           tick: (p, a, s, k, r) => offset => h.getSelfCombat(r, k) * Math.sqrt(1 + p.total / 100) * h.getStatProgress(p, a, s, offset),
-          effect: { end: (r, k) => (k.combat += 1500*getBuffLevel("Heroism") * 0.02), segment: (r) => r.giants= (r.giants||0)+1 },
+          effect: { end: (r, k) => (k.combat += 1500*(1+getBuffLevel("Heroism") * 0.02)), segment: (r) => r.giants= (r.giants||0)+1 },
         }},
         'Seek Blessing': { canStart: (input) => {
           return (input.pegasus);
@@ -901,7 +901,7 @@ const Koviko = {
           cost: (p, a) => segment => g.precision3(Math.pow(1.3, p.completed + segment)) * 1e8,
           tick: (p, a, s, k, r) => offset => h.getSelfCombat(r, k) * h.getStatProgress(p, a, s, offset) *
                                              Math.sqrt(1 + p.total / 1000),
-          effect: { segment: (r) => r.blood=(r.blood||0)+1 , loop: (r,k)=> (k.combat+=2000*getBuffLevel("Heroism") * 0.02)},
+          effect: { segment: (r) => r.blood=(r.blood||0)+1 , loop: (r,k)=> (k.combat+=2000*(1+getBuffLevel("Heroism") * 0.02))},
         }},
         'Rescue Survivors': {
           loop: {
@@ -922,7 +922,7 @@ const Koviko = {
           effect: (r,k)=>(r.lpotions--,k.wunderkind+=100),
         },
         'Escape': {canStart: (input) => (input.totalTicks<=50*60), effect: (r) => (r.town=7)},
-        'Open Portal': { effect: (r,k) => (r.town=1,k.restoration+=2500*getBuffLevel("Heroism") * 0.02)},
+        'Open Portal': { effect: (r,k) => (r.town=1,k.restoration+=2500*(1+getBuffLevel("Heroism") * 0.02))},
 
         // Commerceville
         'Excursion': { affected: ['gold'], canStart: (input) => {
@@ -1062,7 +1062,7 @@ const Koviko = {
             if (r.godFloor>=100) {
               r.power=1;
             }
-          }, end: (r,k) => (k.combat+=250*getBuffLevel("Heroism") * 0.02,k.pyromancy+=50*getBuffLevel("Heroism") * 0.02,k.restoration+=50*getBuffLevel("Heroism") * 0.02)}
+          }, end: (r,k) => (k.combat+=250*(1+getBuffLevel("Heroism") * 0.02),k.pyromancy+=50*(1+getBuffLevel("Heroism") * 0.02),k.restoration+=50*(1+getBuffLevel("Heroism") * 0.02))}
         }},
 
         'Challenge Gods': { affected: ['power'],canStart: (input)=>(input.power>0), loop: {
@@ -1072,7 +1072,7 @@ const Koviko = {
             const floor = Math.floor(p.completed / a.segments + .0000001);
             return floor in trials[a.trialNum] ? h.getSelfCombat(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
           },
-          effect: { loop: (r) => (r.power++), end: (r,k) => (k.combat+=500*getBuffLevel("Heroism") * 0.02)}
+          effect: { loop: (r) => (r.power++), end: (r,k) => (k.combat+=500*(1+getBuffLevel("Heroism") * 0.02))}
         }},
 
         'Restore Time' : {affected: ['power','rep'], canStart: (input)=>(input.power>=8), effect: (r)=> (r.rep+=9999999)},
@@ -1086,7 +1086,7 @@ const Koviko = {
         'Fight Monsters': { affected: ['gold'], canStart: (input) => (input.rep >= 2), loop: {
           cost: (p, a) => segment => g.fibonacci(Math.floor((p.completed + segment) - p.completed / a.segments + .0000001)) * 10000,
           tick: (p, a, s, k, r) => offset => h.getSelfCombat(r, k) * Math.sqrt(1 + p.total / 100) * h.getStatProgress(p, a, s, offset),
-          effect: { end: (r, k) => k.combat += 10*getBuffLevel("Heroism") * 0.02, segment: (r) => r.gold += 20 },
+          effect: { end: (r, k) => k.combat += 10*(1+getBuffLevel("Heroism") * 0.02), segment: (r) => r.gold += 20 },
         }},
         'Adventure Guild': { affected: ['gold', 'adventures'], canStart: (input) => (input.guild==''), loop: {
           cost: (p) => segment => g.precision3(Math.pow(1.2, p.completed + segment)) * 5e6,
@@ -1101,7 +1101,7 @@ const Koviko = {
         'Hunt Trolls': { affected: ['blood'], loop: {
           cost: (p, a) => segment => g.precision3(Math.pow(2, Math.floor((p.completed + segment) / a.segments+.0000001)) * 1e6),
           tick: (p, a, s, k, r) => offset => (h.getSelfCombat(r, k) * Math.sqrt(1 + p.total/100) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]])/100)),
-          effect: { loop: (r, k) => (r.blood++, k.combat += 1000*getBuffLevel("Heroism") * 0.02) }
+          effect: { loop: (r, k) => (r.blood++, k.combat += 1000*(1+getBuffLevel("Heroism") * 0.02)) }
         }},
 
         // Loops with Max
@@ -1113,7 +1113,7 @@ const Koviko = {
 
             return floor in g.dungeons[a.dungeonNum] ? (h.getSelfCombat(r, k) + g.getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + g.dungeons[a.dungeonNum][floor].completed / 200) : 0;
           },
-          effect: { end: (r, k) => (k.combat += 5*getBuffLevel("Heroism") * 0.02, k.magic += 5), loop: (r) => r.soul+=h.getRewardSS(0) },
+          effect: { end: (r, k) => (k.combat += 5*(1+getBuffLevel("Heroism") * 0.02), k.magic += 5), loop: (r) => r.soul+=h.getRewardSS(0) },
         }},
         'Large Dungeon': { affected: ['team','soul'], canStart: (input) => (input.team>0), loop: {
           max: (a) => g.dungeons[a.dungeonNum].length,
@@ -1122,7 +1122,7 @@ const Koviko = {
             let floor = Math.floor(p.completed / a.segments + .0000001);
             return floor in g.dungeons[a.dungeonNum] ? (h.getTeamCombat(r, k) + g.getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + g.dungeons[a.dungeonNum][floor].completed / 200) : 0;
           },
-          effect: { end: (r, k) => (k.combat += 15*getBuffLevel("Heroism") * 0.02, k.magic += 15), loop: (r) => r.soul +=h.getRewardSS(1)  }
+          effect: { end: (r, k) => (k.combat += 15*(1+getBuffLevel("Heroism") * 0.02), k.magic += 15), loop: (r) => r.soul +=h.getRewardSS(1)  }
         }},
 
         'Heroes Trial': { affected: ['heroism'], loop: {
@@ -1132,7 +1132,7 @@ const Koviko = {
             const floor = Math.floor(p.completed / a.segments + .0000001);
             return floor in trials[a.trialNum] ? h.getTeamCombat(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
           },
-          effect: { loop: (r) => (r.heroism=(r.heroism||0)+1), end: (r,k) => (k.combat+=500*getBuffLevel("Heroism") * 0.02,k.pyromancy+=100*getBuffLevel("Heroism") * 0.02,k.restoration+=100*getBuffLevel("Heroism") * 0.02)}
+          effect: { loop: (r) => (r.heroism=(r.heroism||0)+1), end: (r,k) => (k.combat+=500*(1+getBuffLevel("Heroism") * 0.02),k.pyromancy+=100*(1+getBuffLevel("Heroism") * 0.02),k.restoration+=100*(1+getBuffLevel("Heroism") * 0.02))}
         }},
 
         'Dead Trial': { affected: ['zombie'], loop: {
