@@ -510,7 +510,9 @@ const Koviko = {
       \$('#preditorSettings').append("<br /><br /><label>Tracked Statistic</label><select id='trackedStat' style='float:right'>");
       \$('#trackedStat').append("<option value=soul>(R) Soulstones</option>");
       for (let i in skillList) {
-        \$('#trackedStat').append("<option value="+skillList[i].toLowerCase()+">(S) "+skillList[i]+"</option>");
+        if (skills[skillList[i]].exp>0) {
+          \$('#trackedStat').append("<option value="+skillList[i].toLowerCase()+">(S) "+skillList[i]+"</option>");
+        }
       }
       for (let i in statList) {
         \$('#trackedStat').append("<option value="+statList[i]+">(T) "+_txt('stats>'+statList[i]+'>long_form')+"</option>");
@@ -1482,13 +1484,15 @@ const Koviko = {
         case "commune":
           return 'COMU';
         case "wunderkind":
-          return 'WUNDER';
+          return 'WUKID';
         case "gluttony":
           return 'GLUTT';
         case "thievery":
           return 'THIEF';
         case "leadership":
           return 'LEAD';
+        case "assassin":
+          return 'ASSA';
         default:
           return name.toUpperCase();
       }
