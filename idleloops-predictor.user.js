@@ -589,6 +589,9 @@ const Koviko = {
         getRewardSS: (dNum) => Math.floor(Math.pow(10, dNum) * Math.pow(1 + getSkillLevel("Divine") / 60, 0.25)),
 
         getStatProgress: (p, a, s, offset) => (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100),
+
+        getTrialCost: (p, a) => segment => precision3(Math.pow(a.baseScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.exponentScaling * getSkillBonus("Assassin")),
+
       });
 
       // Alias the globals to a shorter variable name
@@ -946,7 +949,7 @@ const Koviko = {
           effect: { end: (r, k) => (r.guild='thieves',k.practical+=50,k.thievery+=50), segment: (r,k) => (r.gold += 10, r.thieves=( r.thieves||0)+1,k.practical+=50,k.thievery+=50) }
         }},
         'Guild Assassin': {affected:['heart'], canStart: (input) => (input.guild==''), effect: (r,k) => {
-          k.Assassin+=100*r.heart;
+          k.assassin+=100*r.heart;
           r.heart=0;
           r.guild='assassin';
         }},
@@ -1053,7 +1056,7 @@ const Koviko = {
 
         'Gods Trial': { affected: ['power'], loop: {
           max: (a) => trialFloors[a.trialNum],
-          cost: (p, a) => segment => precision3(Math.pow(a.floorScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.baseScaling),
+          cost: h.getTrialCost,
           tick: (p, a, s, k, r) => offset => {
             const floor = Math.floor(p.completed / a.segments + .0000001);
             return floor in trials[a.trialNum] ? h.getTeamCombat(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
@@ -1068,7 +1071,7 @@ const Koviko = {
 
         'Challenge Gods': { affected: ['power'],canStart: (input)=>(input.power>0), loop: {
           max: (a) => trialFloors[a.trialNum],
-          cost: (p, a) => segment => precision3(Math.pow(a.floorScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.baseScaling),
+          cost: h.getTrialCost,
           tick: (p, a, s, k, r) => offset => {
             const floor = Math.floor(p.completed / a.segments + .0000001);
             return floor in trials[a.trialNum] ? h.getSelfCombat(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
@@ -1128,7 +1131,7 @@ const Koviko = {
 
         'Heroes Trial': { affected: ['heroism'], loop: {
           max: (a) => trialFloors[a.trialNum],
-          cost: (p, a) => segment => precision3(Math.pow(a.floorScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.baseScaling),
+          cost: h.getTrialCost,
           tick: (p, a, s, k, r) => offset => {
             const floor = Math.floor(p.completed / a.segments + .0000001);
             return floor in trials[a.trialNum] ? h.getTeamCombat(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
@@ -1138,7 +1141,7 @@ const Koviko = {
 
         'Dead Trial': { affected: ['zombie'], loop: {
           max: (a) => trialFloors[a.trialNum],
-          cost: (p, a) => segment => precision3(Math.pow(a.floorScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.baseScaling),
+          cost: h.getTrialCost,
           tick: (p, a, s, k, r) => offset => {
             const floor = Math.floor(p.completed / a.segments + .0000001);
             return floor in trials[a.trialNum] ? h.getZombieStrength(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
@@ -1148,7 +1151,7 @@ const Koviko = {
 
         'Secret Trial': { affected: ['zombie'], loop: {
           max: (a) => trialFloors[a.trialNum],
-          cost: (p, a) => segment => precision3(Math.pow(a.floorScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.baseScaling),
+          cost: h.getTrialCost,
           tick: (p, a, s, k, r) => offset => {
             const floor = Math.floor(p.completed / a.segments + .0000001);
             return floor in trials[a.trialNum] ? h.getTeamCombat(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
@@ -1435,7 +1438,7 @@ const Koviko = {
       }
 
       container && (this.totalDisplay.innerHTML = intToString(total) + " | " + totalTime + " | " );
-      container && (this.statisticDisplay.innerHTML = newStatisticValue.toLocaleString('en', {useGrouping:true}) +" "+legend+ "/min");
+      container && (this.statisticDisplay.innerHTML = intToString(newStatisticValue) +" "+legend+ "/min");
       if (this.resourcePerMinute>newStatisticValue) {
         this.statisticDisplay.style='color: #FF0000';
       } else {
