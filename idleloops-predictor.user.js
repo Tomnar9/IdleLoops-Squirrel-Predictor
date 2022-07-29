@@ -507,7 +507,7 @@ const Koviko = {
           document.getElementById("actionsColumn").style.width=tmpVal+"px";
           document.getElementById("nextActionsListContainer").style.width=(tmpVal-120)+"px";
       });
-      \$('#preditorSettings').append("<br /><br /><label>Tracked Statistic</label><select id='trackedStat' style='float:right'>");
+      \$('#actionChanges').children('div:nth-child(2)').append("<select id='trackedStat' class='button'></select>");
       \$('#trackedStat').append("<option value=soul>(R) Soulstones</option>");
       for (let i in skillList) {
         if (skills[skillList[i]].exp>0) {
@@ -517,10 +517,10 @@ const Koviko = {
       for (let i in statList) {
         \$('#trackedStat').append("<option value="+statList[i]+">(T) "+_txt('stats>'+statList[i]+'>long_form')+"</option>");
       }
-      \$('#preditorSettings').append("</select>");
-      \$('#trackedStat').focusout(function() {
+      \$('#trackedStat').change(function() {
         let tmpVal=\$(this).val();
         localStorage.setItem('trackedStat',tmpVal );
+        view.updateNextActions();
       });
     }
 
