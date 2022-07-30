@@ -736,7 +736,9 @@ const Koviko = {
         'Explore Cavern': {},
         'Mine Soulstones': { affected: ['soul'], canStart: (input) => input.pickaxe, effect: (r) => {
           r.temp10 = (r.temp10 || 0) + 1;
-          r.soul += r.temp10 <= towns[3].goodMineSoulstones ? h.getRewardSS(0) : 0;
+          let ssGained = r.temp10 <= towns[3].goodMineSoulstones ? h.getRewardSS(0) : 0;
+          r.nonDungeonSS = (r.nonDungeonSS || 0) + ssGained;
+          r.soul += ssGained;
         }},
         'Pyromancy': { effect: (r, k) => k.pyromancy += 100*(1+getBuffLevel("Heroism") * 0.02) },
         'Looping Potion': { affected: ['herbs', 'lpotions'],
@@ -1021,7 +1023,7 @@ const Koviko = {
           r.stoneCheckedZ1=(r.stoneCheckedZ1||0)+1;
           if (((t.checkedStonesZ1+r.stoneCheckedZ1)%1000)==0) {
             r.stone=1;
-          } 
+          }
         }},
         'HaulZ3': {affected: ['stone'],canStart: (input)=>((input.stone||0)<1 && stonesUsed[3] < 250), effect: (r) => {
           let t=towns[3]; //Area of the Action
@@ -1035,7 +1037,7 @@ const Koviko = {
           r.stoneCheckedZ3=(r.stoneCheckedZ3||0)+1;
           if (((t.checkedStonesZ3+r.stoneCheckedZ3)%1000)==0) {
             r.stone=1;
-          } 
+          }
         }},
         'HaulZ5': {affected: ['stone'],canStart: (input)=>((input.stone||0)<1 && stonesUsed[5] < 250), effect: (r) => {
           let t=towns[5]; //Area of the Action
@@ -1049,7 +1051,7 @@ const Koviko = {
           r.stoneCheckedZ5=(r.stoneCheckedZ5||0)+1;
           if (((t.checkedStonesZ5+r.stoneCheckedZ5)%1000)==0) {
             r.stone=1;
-          } 
+          }
         }},
         'HaulZ6': {affected: ['stone'],canStart: (input)=>((input.stone||0)<1 && stonesUsed[6] < 250), effect: (r) => {
           let t=towns[6]; //Area of the Action
@@ -1063,7 +1065,7 @@ const Koviko = {
           r.stoneCheckedZ6=(r.stoneCheckedZ6||0)+1;
           if (((t.checkedStonesZ6+r.stoneCheckedZ6)%1000)==0) {
             r.stone=1;
-          } 
+          }
         }},
 
         'Build Tower': {affected: ['stone'],canStart: (input)=>((input.stone||0)==1),effect:(r,k)=>(r.stone=0)},
@@ -1439,9 +1441,10 @@ const Koviko = {
       let newStatisticValue=0;
       let legend="";
 
-      if (statisticType=="soul") {       
+      if (statisticType=="soul") {
         let dungeonEquilibrium = Math.min(Math.sqrt(total / 200000),1);
-        newStatisticValue = dungeonEquilibrium*(state.resources.soul||0) / totalTicks * 60;
+        let dungeonSS = state.resources.soul - (state.resources.nonDungeonSS || 0);
+        newStatisticValue = ((state.resources.nonDungeonSS || 0) + dungeonEquilibrium * (dungeonSS || 0)) / totalTicks * 60;
         legend="SS";
       } else if (state.talents[statisticType]>=0) {
          newStatisticValue=(state.talents[statisticType]-statisticStart)/ totalTicks * 60;
