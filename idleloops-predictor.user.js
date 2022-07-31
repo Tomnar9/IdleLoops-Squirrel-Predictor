@@ -324,7 +324,9 @@ const Koviko = {
       this.index = 0;
       if(!this.equals(data, this.cache[0]?.data)){
         this.cache = [{key: '', data: structuredClone(data)}]
+        return false;
       }
+      return true;
     }
     add(key, data) {
       this.cache.push({'key': key, 'data':structuredClone(data)})
@@ -1341,8 +1343,8 @@ const Koviko = {
       let totalTicks = 0;
 
       // Reset the cache's index
-      this.cache.reset(state);
-      let cache = true;
+      // returns false on cache miss
+      let cache = this.cache.reset(state);
 
       /**
        * All affected resources of the current action list
