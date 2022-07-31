@@ -364,6 +364,12 @@ const Koviko = {
           document.getElementById("nextActionsListContainer").style.width=(tmpVal-120)+"px";
           \$('#actionWidth').val(tmpVal);
         }
+
+        if (localStorage.getItem("repeatPrediction")!==null) {
+          let tmpVal=localStorage.getItem("repeatPrediction");
+          \$('#repeatPrediction').prop( "checked", tmpVal=='true' );
+        }
+
         if (localStorage.getItem('trackedStat') !== null) {
           var loadedVal = localStorage.getItem('trackedStat');
           \$('#trackedStat').val(loadedVal);
@@ -456,6 +462,7 @@ const Koviko = {
       ul.koviko .power{color:#0000ff}
       ul.koviko .map{color:#2ea9bd}
       ul.koviko .completedMap{color:#45e5ff}
+      ul.koviko .finLoops{color:#777777}
       ul.koviko .heart{color:#ca0b0b}
       \`;
       document.getElementById("actionsColumn").style.width="500px";
@@ -519,6 +526,13 @@ const Koviko = {
           document.getElementById("actionsColumn").style.width=tmpVal+"px";
           document.getElementById("nextActionsListContainer").style.width=(tmpVal-120)+"px";
       });
+
+      \$('#preditorSettings').append("<br /><input id='repeatPrediction' type='checkbox'><label for='repeatPrediction'>Repeat last action</label>");
+      \$('#repeatPrediction').change(function() {
+          let tmpVal=\$(this).is(':checked');
+          localStorage.setItem('repeatPrediction',tmpVal );       
+      });
+
       \$('#actionChanges').children('div:nth-child(2)').append("<select id='trackedStat' class='button'></select>");
       \$('#trackedStat').append("<option value=soul>(R) Soulstones</option>");
       for (let i in skillList) {
@@ -1315,6 +1329,7 @@ const Koviko = {
        */
       //This is the precision of the Time field
       let precisionForTime = \$('#updateTimePrecision').val();
+      const repeatLast = \$('#repeatPrediction').is(':checked');
 
       //Statistik parammeters
       let statisticType=\$('#trackedStat').val();
@@ -1361,7 +1376,9 @@ const Koviko = {
           state.resources.actionTicks=0;
 
           // Predict each loop in sequence
-          for (let loop = 0; loop < listedAction.loops; loop++) {
+          let repeatLoop = repeatLast && options.repeatLastAction && (i == actions.length-1) && (prediction.action.allowed==undefined);
+          let loop = 0;
+          for (loop = 0; repeatLoop ? isValid : loop < listedAction.loops; loop++) {
             let canStart = typeof(prediction.canStart) === "function" ? prediction.canStart(state.resources) : prediction.canStart;
             if (!canStart) { isValid = false; }
             if ( !canStart || listedAction.disabled ) { break; }
@@ -1401,6 +1418,8 @@ const Koviko = {
               state.resources.mana += state.resources.adventures * 200;
             }
 
+            if (repeatLoop&& !isValid) {break;}
+
             // Run the effect, now that the mana checks are complete
             if (prediction.effect) {
               prediction.effect(state.resources, state.skills);
@@ -1410,6 +1429,10 @@ const Koviko = {
                 prediction.loop.effect.end(state.resources, state.skills);
               }
             }
+          }
+
+          if (repeatLoop&& loop>=listedAction.loops) {
+            isValid=true;
           }
 
           if(prediction.name in state.progress)
@@ -1422,9 +1445,13 @@ const Koviko = {
 
           // Update the view
           if (div) {
+            if (repeatLoop) {
+              affected.unshift('finLoops');
+              state.resources.finLoops=loop;
+            }
             div.className += ' showthat';
             div.innerHTML += this.template(listedAction.name, affected, state.resources, snapshots, isValid);
-          }
+          }          
         }
       });
 
