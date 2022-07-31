@@ -396,7 +396,7 @@ const Koviko = {
       // Hook stopGame with the predictor's update function
       stopGame = () => {
         _stopGame()
-        this.update(actions.next, container);
+        view.updateNextActions();
       };    
 
       view.updateNextActions();
