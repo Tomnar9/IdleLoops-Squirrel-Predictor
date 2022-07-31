@@ -659,7 +659,7 @@ const Koviko = {
           r.gold += r.temp2 <= towns[0].goodLocks ? g.Action.PickLocks.goldCost() : 0;
         }},
         'Buy Glasses': { affected: ['gold', 'glassess'], canStart: (r)=>(r.gold>=10),effect: (r) => (r.gold -= 10, r.glasses = true) },
-        'Buy Mana Z1': (challengeSave.challengeMode!=1)? ({ affected: ['mana', 'gold'], effect: (r) => (r.mana += r.gold * g.Action.BuyManaZ1.goldCost(), r.gold = 0) }):
+        'Buy Mana Z1': ((typeof challengeSave=="undefined")||(challengeSave.challengeMode!=1))? ({ affected: ['mana', 'gold'], effect: (r) => (r.mana += r.gold * g.Action.BuyManaZ1.goldCost(), r.gold = 0) }):
          ({ affected: ['mana', 'gold','manaBought'], canStart: (input) => ((input.manaBought||0)<7500), effect: (r) => {
           let spendGold = Math.min(r.gold, 300);
           let buyMana = Math.min(spendGold * g.Action.BuyManaZ1.goldCost(), 7500-(r.manaBought||0));
