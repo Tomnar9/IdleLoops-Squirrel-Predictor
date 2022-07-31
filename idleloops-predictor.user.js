@@ -421,7 +421,7 @@ const Koviko = {
 
       // Build the CSS
       let css = \`
-      .nextActionContainer { width: auto!important; padding: 0 4px;  grid-template: "a b . c" / auto auto 1fr auto }
+      .nextActionContainer { width: auto!important; padding-left:4px; padding-right: 4px; grid-template: "a b . c" / auto auto 1fr auto }
       .nextActionContainer[style~='flex;'] {display: grid!important;}
       .nextActionContainer > div:first-child { width: 70px; }
       .nextActionContainer > div:nth-child(2) { width: 120px; text-align: right; grid-area: c }
