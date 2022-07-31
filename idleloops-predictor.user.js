@@ -302,6 +302,39 @@ const Koviko = {
     }
   },
 
+  /** A cache so the predictor can skip expensivly calculating each action */
+
+  Cache: class{
+    constructor(){
+      this.cache = [];
+      this.index = 0;
+    }
+    next(key) {
+      if(this.cache.length > (this.index + 1) && this.equals(this.cache[this.index + 1].key, key)){
+        return structuredClone(this.cache[++this.index].data);
+      } else{
+        this.miss();
+        return false;
+      };
+    }
+    miss() {
+      this.cache = this.cache.slice(0, this.index + 1);
+    }
+    reset(data) {
+      this.index = 0;
+      if(!this.equals(data, this.cache[0]?.data)){
+        this.cache = [{key: '', data: structuredClone(data)}]
+      }
+    }
+    add(key, data) {
+      this.cache.push({'key': key, 'data':structuredClone(data)})
+    }
+    // Why is this something i have to write
+    equals(thing1, thing2) {
+      return JSON.stringify(thing1) === JSON.stringify(thing2);
+    }
+  },
+
   /** A predictor which uses Predictions to calculate and estimate an entire action list. */
   Predictor: class {
     /**
@@ -607,6 +640,10 @@ const Koviko = {
         getTrialCost: (p, a) => segment => precision3(Math.pow(a.baseScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.exponentScaling * getSkillBonus("Assassin")),
 
       });
+
+      // Initialise cache
+
+      this.cache = new Koviko.Cache();
 
       // Alias the globals to a shorter variable name
       const g = Koviko.globals;
@@ -1264,7 +1301,7 @@ const Koviko = {
        * Organize accumulated resources, accumulated stats, and accumulated progress into a single object
        * @var {Koviko.Predictor~State}
        */
-      const state = {
+      let state = {
         resources: { mana: 250, town: 0, guild: "" },
         stats: Koviko.globals.statList.reduce((stats, name) => (stats[name] = getExpOfLevel(buffs.Imbuement2.amt*(Koviko.globals.skills.Wunderkind.exp>=100?2:1)), stats), {}),
         talents:  Koviko.globals.statList.reduce((talents, name) => (talents[name] = stats[name].talent, talents), {}),
@@ -1303,12 +1340,16 @@ const Koviko = {
        */
       let totalTicks = 0;
 
+      // Reset the cache's index
+      this.cache.reset(state);
+      let cache = true;
+
       /**
        * All affected resources of the current action list
        * @var {Array.<string>}
        */
       const affected = Object.keys(actions.reduce((stats, x) => (x.name in this.predictions && this.predictions[x.name].affected || []).reduce((stats, name) => (stats[name] = true, stats), stats), {}));
-
+      
 
       /**
        *This is used to see when the loop becomes invalid due to mana cost
@@ -1330,8 +1371,25 @@ const Koviko = {
       // Initialize the display element for the total amount of mana used
       container && (this.totalDisplay.innerHTML = '');
 
+      // Initialize cached variables outside of the loop so we don't have to worry about initializing them on hit/miss in two separate places
+      /** @var {boolean} */
+      let isValid;
+
       // Run through the action list and update the view for each action
       actions.forEach((listedAction, i) => {
+
+        // If the cache hit the last time
+        if(cache) {
+          // Pull out all the variables we would usually expensivly calculate
+          cache = this.cache.next([listedAction.name, listedAction.loops, listedAction.disabled]);
+          if(cache) {
+            [state, total, isValid] = cache
+            
+            // Why is totalTicks stored both inside resources and outside the loop? Who knows, but this line needs to be here to make it behave correctly 
+            totalTicks = state.resources.totalTicks
+          }
+        }
+        
         /** @var {Koviko.Prediction} */
         let prediction = this.predictions[listedAction.name];
 
@@ -1342,79 +1400,82 @@ const Koviko = {
            */
           let div = container ? container.children[i] : null;
 
-          /** @var {boolean} */
-          let isValid = (prediction.action.townNum==state.resources.town);
+          if(!cache) {
+            // Reinitialise variables on cache miss
+            isValid = (prediction.action.townNum==state.resources.town);
 
-          /** @var {number} */
-          let currentMana;
+            /** @var {number} */
+            let currentMana;
 
-          // Make sure that the loop is properly represented in \`state.progress\`
-          if (prediction.loop && !(prediction.name in state.progress)) {
-            /** @var {Koviko.Predictor~Progression} */
-            state.progress[prediction.name] = {
-              progress: 0,
-              completed: 0,
-              total: Koviko.globals.towns[prediction.action.townNum]['total' + prediction.action.varName],
-            };
-          }
-
-          state.resources.actionTicks=0;
-
-          // Predict each loop in sequence
-          for (let loop = 0; loop < listedAction.loops; loop++) {
-            let canStart = typeof(prediction.canStart) === "function" ? prediction.canStart(state.resources) : prediction.canStart;
-            if (!canStart) { isValid = false; }
-            if ( !canStart || listedAction.disabled ) { break; }
-
-            // Save the mana prior to the prediction
-            currentMana = state.resources.mana;
-
-            // Skip EXP calculations for the last element, when no longer necessary (only costs 1 mana)
-            if ((i==actions.length-1) && (prediction.ticks()==1) &&(!prediction.loop) &&(loop>0)) {
-              state.resources.mana--;
-            } else {
-              // Run the prediction
-              this.predict(prediction, state);
+            // Make sure that the loop is properly represented in \`state.progress\`
+            if (prediction.loop && !(prediction.name in state.progress)) {
+              /** @var {Koviko.Predictor~Progression} */
+              state.progress[prediction.name] = {
+                progress: 0,
+                completed: 0,
+                total: Koviko.globals.towns[prediction.action.townNum]['total' + prediction.action.varName],
+              };
             }
 
-            // Check if the amount of mana used was too much
-            isValid = isValid && state.resources.mana >= 0;
+            state.resources.actionTicks=0;
 
-            // Only for Adventure Guild
-            if ( listedAction.name == "Adventure Guild" ) {
-              state.resources.mana -= state.resources.adventures * 200;
-            }
+            // Predict each loop in sequence
+            for (let loop = 0; loop < listedAction.loops; loop++) {
+              let canStart = typeof(prediction.canStart) === "function" ? prediction.canStart(state.resources) : prediction.canStart;
+              if (!canStart) { isValid = false; }
+              if ( !canStart || listedAction.disabled ) { break; }
 
-            // Calculate the total amount of mana used in the prediction and add it to the total
-            total += currentMana - state.resources.mana;
+              // Save the mana prior to the prediction
+              currentMana = state.resources.mana;
+
+              // Skip EXP calculations for the last element, when no longer necessary (only costs 1 mana)
+              if ((i==actions.length-1) && (prediction.ticks()==1) &&(!prediction.loop) &&(loop>0)) {
+                state.resources.mana--;
+              } else {
+                // Run the prediction
+                this.predict(prediction, state);
+              }
+
+              // Check if the amount of mana used was too much
+              isValid = isValid && state.resources.mana >= 0;
+
+              // Only for Adventure Guild
+              if ( listedAction.name == "Adventure Guild" ) {
+                state.resources.mana -= state.resources.adventures * 200;
+              }
+
+              // Calculate the total amount of mana used in the prediction and add it to the total
+              total += currentMana - state.resources.mana;
 
 
 
-            // Calculate time spent
-            let temp = (currentMana - state.resources.mana) / getSpeedMult(state.resources.town);
-            totalTicks += temp;
-            state.resources.totalTicks=totalTicks;
-            state.resources.actionTicks+=temp;
+              // Calculate time spent
+              let temp = (currentMana - state.resources.mana) / getSpeedMult(state.resources.town);
+              totalTicks += temp;
+              state.resources.totalTicks=totalTicks;
+              state.resources.actionTicks+=temp;
 
-            // Only for Adventure Guild
-            if ( listedAction.name == "Adventure Guild" ) {
-              state.resources.mana += state.resources.adventures * 200;
-            }
+              // Only for Adventure Guild
+              if ( listedAction.name == "Adventure Guild" ) {
+                state.resources.mana += state.resources.adventures * 200;
+              }
 
-            // Run the effect, now that the mana checks are complete
-            if (prediction.effect) {
-              prediction.effect(state.resources, state.skills);
-            }
-            if (prediction.loop) {
-              if (prediction.loop.effect.end) {
-                prediction.loop.effect.end(state.resources, state.skills);
+              // Run the effect, now that the mana checks are complete
+              if (prediction.effect) {
+                prediction.effect(state.resources, state.skills);
+              }
+              if (prediction.loop) {
+                if (prediction.loop.effect.end) {
+                  prediction.loop.effect.end(state.resources, state.skills);
+                }
               }
             }
+
+            if(prediction.name in state.progress)
+              state.currProgress[prediction.name] = state.progress[prediction.name].completed / prediction.action.segments;
+            // Update the cache
+            this.cache.add([listedAction.name, listedAction.loops, listedAction.disabled], [state, total, isValid])
           }
-
-          if(prediction.name in state.progress)
-            state.currProgress[prediction.name] = state.progress[prediction.name].completed / prediction.action.segments;
-
           // Update the snapshots
           for (let i in snapshots) {
             snapshots[i].snap(state[i]);
@@ -1429,6 +1490,7 @@ const Koviko = {
       });
 
       // Update the display for the total amount of mana used by the action list
+      totalTicks = state.resources.totalTicks
       totalTicks /= 50;
       var h = Math.floor(totalTicks / 3600);
       var m = Math.floor(totalTicks % 3600 / 60);
