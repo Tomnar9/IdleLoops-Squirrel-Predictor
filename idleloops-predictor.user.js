@@ -2,7 +2,7 @@
 // @name         IdleLoops Predictor Makro
 // @namespace    https://github.com/MakroCZ/
 // @downloadURL  https://raw.githubusercontent.com/MakroCZ/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      2.0.5
+// @version      2.0.6
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://omsi6.github.io/loops/
@@ -519,7 +519,7 @@ const Koviko = {
           }
           localStorage.setItem('timePrecision', \$(this).val());
       });
-      \$('#preditorSettings').append("<br /><label>Width of the Action List</label><input id='actionWidth' type='number' value='500' min='100' max='4000' style='width: 50px; float:right'>");
+      \$('#preditorSettings').append("<br /><label>Width of the Action List</label><input id='actionWidth' type='number' value='500' min='100' max='4000' style='width: 50px; margin-left:40px'>");
       \$('#actionWidth').focusout(function() {
           let tmpVal=\$(this).val();
           localStorage.setItem('actionWidth',tmpVal );       
@@ -527,7 +527,7 @@ const Koviko = {
           document.getElementById("nextActionsListContainer").style.width=(tmpVal-120)+"px";
       });
 
-      \$('#preditorSettings').append("<br /><input id='repeatPrediction' type='checkbox'><label for='repeatPrediction'>Repeat last action</label>");
+      \$('#preditorSettings').append(\`<br /><input id='repeatPrediction' type='checkbox'><label for='repeatPrediction'>" Repeat last action on list" applies to the Predictor</label>\`);
       \$('#repeatPrediction').change(function() {
           let tmpVal=\$(this).is(':checked');
           localStorage.setItem('repeatPrediction',tmpVal );       
