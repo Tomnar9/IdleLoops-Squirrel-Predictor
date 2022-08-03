@@ -1387,6 +1387,8 @@ const Koviko = {
             // Skip EXP calculations for the last element, when no longer necessary (only costs 1 mana)
             if ((i==actions.length-1) && (prediction.ticks()==1) &&(!prediction.loop) &&(loop>0)) {
               state.resources.mana--;
+            } else if (prediction.loop && prediction.loop.max &&((prediction.loop.max(prediction.action)*prediction.action.segments)<=state.progress[prediction.name].completed)) {
+              break;
             } else {
               // Run the prediction
               this.predict(prediction, state);
