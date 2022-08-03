@@ -2,7 +2,7 @@
 // @name         IdleLoops Predictor Makro
 // @namespace    https://github.com/MakroCZ/
 // @downloadURL  https://raw.githubusercontent.com/MakroCZ/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      2.0.8
+// @version      2.0.9
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://lloyd-delacroix.github.io/omsi-loops/
@@ -1343,6 +1343,10 @@ const Koviko = {
       // Initialize the display element for the total amount of mana used
       container && (this.totalDisplay.innerHTML = '');
 
+      let finalIndex=actions.length-1;
+      while ((finalIndex>0) && (actions[finalIndex].disabled)) {
+        finalIndex--;
+      }
       // Run through the action list and update the view for each action
       actions.forEach((listedAction, i) => {
         /** @var {Koviko.Prediction} */
@@ -1374,7 +1378,7 @@ const Koviko = {
           state.resources.actionTicks=0;
 
           // Predict each loop in sequence
-          let repeatLoop = repeatLast && options.repeatLastAction && (i == actions.length-1) && (prediction.action.allowed==undefined);
+          let repeatLoop = repeatLast && options.repeatLastAction && (i == finalIndex) && (prediction.action.allowed==undefined);
           let loop = 0;
           for (loop = 0; repeatLoop ? isValid : loop < listedAction.loops; loop++) {
             let canStart = typeof(prediction.canStart) === "function" ? prediction.canStart(state.resources) : prediction.canStart;
@@ -1385,7 +1389,7 @@ const Koviko = {
             currentMana = state.resources.mana;
 
             // Skip EXP calculations for the last element, when no longer necessary (only costs 1 mana)
-            if ((i==actions.length-1) && (prediction.ticks()==1) &&(!prediction.loop) &&(loop>0)) {
+            if ((i==finalIndex) && (prediction.ticks()==1) &&(!prediction.loop) &&(loop>0)) {
               state.resources.mana--;
             } else if (prediction.loop && prediction.loop.max &&((prediction.loop.max(prediction.action)*prediction.action.segments)<=state.progress[prediction.name].completed)) {
               break;
