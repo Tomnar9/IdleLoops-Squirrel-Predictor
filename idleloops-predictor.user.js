@@ -659,14 +659,17 @@ const Koviko = {
           r.gold += r.temp2 <= towns[0].goodLocks ? g.Action.PickLocks.goldCost() : 0;
         }},
         'Buy Glasses': { affected: ['gold', 'glassess'], canStart: (r)=>(r.gold>=10),effect: (r) => (r.gold -= 10, r.glasses = true) },
-        'Buy Mana Z1': ((typeof challengeSave=="undefined")||(challengeSave.challengeMode!=1))? ({ affected: ['mana', 'gold'], effect: (r) => (r.mana += r.gold * g.Action.BuyManaZ1.goldCost(), r.gold = 0) }):
-         ({ affected: ['mana', 'gold','manaBought'], canStart: (input) => ((input.manaBought||0)<7500), effect: (r) => {
-          let spendGold = Math.min(r.gold, 300);
-          let buyMana = Math.min(spendGold * g.Action.BuyManaZ1.goldCost(), 7500-(r.manaBought||0));
-          r.mana+=buyMana;
-          r.manaBought= (r.manaBought||0)+buyMana;
-          r.gold-=spendGold; 
-        }}),
+        'Buy Mana Z1':{ affected: ['mana', 'gold','manaBought'], canStart: (input) => (!input.isManaDrought||(input.manaBought>0)), effect: (r) => {
+          if (r.isManaDrought) {
+            let spendGold = Math.min(r.gold, 300);
+            let buyMana = Math.min(spendGold * g.Action.BuyManaZ1.goldCost(), r.manaBought);
+            r.mana+=buyMana;
+            r.manaBought-=buyMana;
+            r.gold-=spendGold; 
+          } else { 
+            r.mana += r.gold * g.Action.BuyManaZ1.goldCost();
+            r.gold = 0;
+        }}},
         'Meet People': {},
         'Train Strength': {},
         'Short Quest': { affected: ['gold'], effect: (r) => {
@@ -1289,6 +1292,13 @@ const Koviko = {
       if(getExploreProgress() >= 100) {
         state.resources.glasses=true;
       }
+
+      //Challenge Mode 
+        if ((typeof challengeSave!="undefined")&&(challengeSave.challengeMode==1)) {
+          state.resources.isManaDrought=true;
+          state.resources.manaBought=7500;
+        }
+
 
       /**
        * Snapshots of accumulated stats and accumulated skills
