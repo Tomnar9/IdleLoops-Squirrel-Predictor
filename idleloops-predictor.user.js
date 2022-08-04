@@ -2,7 +2,7 @@
 // @name         IdleLoops Predictor Makro
 // @namespace    https://github.com/MakroCZ/
 // @downloadURL  https://raw.githubusercontent.com/MakroCZ/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      2.0.9
+// @version      2.1.0
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://lloyd-delacroix.github.io/omsi-loops/
@@ -906,7 +906,7 @@ const Koviko = {
           canStart: (input) => (input.blood >= 1),
           effect: (r,k) => (r.blood -=1,k.commune+=100)
         },
-        'The Spire': { affected: ['soul'], manaCost: (r,k) => (100000 * Math.pow(0.9,(r.pylons||0))), loop: {
+        'The Spire': { affected: ['soul'], loop: {
           max: (a) => g.dungeons[a.dungeonNum].length,
           cost: (p, a) => segment => g.precision3(Math.pow(2, Math.floor((p.completed + segment) / a.segments + .0000001)) * 10000000),
           tick: (p, a, s, k, r) => offset => {
@@ -914,6 +914,7 @@ const Koviko = {
 
             return floor in g.dungeons[a.dungeonNum] ?
                 h.getTeamCombat(r, k) *
+                (1 + 0.1 * (r.pylons||0)) *
                 h.getStatProgress(p, a, s, offset) *
                 Math.sqrt(1 + g.dungeons[a.dungeonNum][floor].completed / 200) : 0;
           },
