@@ -1459,7 +1459,8 @@ const Koviko = {
               let lastcache = this.cache.next(key);
 
               if(lastcache && lastcache[1] < listedAction.loops){
-                [state, loop, isValid] = lastcache;
+                [state, loop, total, isValid] = lastcache;
+                totalTicks = state.resources.totalTicks
 
                 // Invalidate the entry if it's from less than 90% through (it'll be set again once it gets to 90%)
                 if(loop <= Math.floor(listedAction.loops * 0.9)){
@@ -1532,7 +1533,7 @@ const Koviko = {
               if(i==finalIndex && loop === Math.floor(listedAction.loops * 0.9)){
                 let key = [listedAction.name, listedAction.disabled];
                 key['last'] = true;
-                this.cache.add(key, [state, loop + 1, isValid]);
+                this.cache.add(key, [state, loop + 1, total, isValid]);
               }
 
             }
