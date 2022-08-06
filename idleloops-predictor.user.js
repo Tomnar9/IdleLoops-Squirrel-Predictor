@@ -315,8 +315,9 @@ const Koviko = {
         return false;
       };
     }
-    miss() {
-      this.cache = this.cache.slice(0, this.index + 1);
+    // Use current = true to invalidate the entry after reading it, current = false to invalidate the next entry
+    miss(current = false) {
+      this.cache = this.cache.slice(0, this.index + !current);
     }
     reset(data) {
       this.index = 0;
@@ -1408,7 +1409,7 @@ const Koviko = {
       actions.forEach((listedAction, i) => {
 
         // If the cache hit the last time
-        if(cache) {
+        if(cache && i !== finalIndex) {
           // Pull out all the variables we would usually expensivly calculate
           cache = this.cache.next([listedAction.name, listedAction.loops, listedAction.disabled]);
           if(cache) {
@@ -1431,7 +1432,7 @@ const Koviko = {
 
           let repeatLoop = repeatLast && options.repeatLastAction && (i == finalIndex) && (prediction.action.allowed==undefined);
           
-          if(!cache) {
+          if(!cache || i == finalIndex) {
             // Reinitialise variables on cache miss
             isValid = (prediction.action.townNum==state.resources.town);
 
@@ -1450,8 +1451,30 @@ const Koviko = {
 
             state.resources.actionTicks=0;
 
+            // Complicated mess of ifs to use the cache for 90% of the last action 
+
+            if(i == finalIndex && cache){
+              let key = [listedAction.name, listedAction.disabled];
+              key['last'] = true;
+              let lastcache = this.cache.next(key);
+
+              if(lastcache && lastcache[1] < listedAction.loops){
+                [state, loop, isValid] = lastcache;
+
+                // Invalidate the entry if it's from less than 90% through (it'll be set again once it gets to 90%)
+                if(loop <= Math.floor(listedAction.loops * 0.9)){
+                  this.cache.miss(true);
+                }
+              } else {
+                loop = 0;
+                this.cache.miss(true);
+              }
+            } else {
+              loop = 0;
+            }
+
             // Predict each loop in sequence
-            for (loop = 0; repeatLoop ? isValid : loop < listedAction.loops; loop++) {
+            for (loop; repeatLoop ? isValid : loop < listedAction.loops; loop++) {
               let canStart = typeof(prediction.canStart) === "function" ? prediction.canStart(state.resources) : prediction.canStart;
               if (!canStart) { isValid = false; }
               if ( !canStart || listedAction.disabled ) { break; }
@@ -1504,6 +1527,14 @@ const Koviko = {
                   prediction.loop.effect.end(state.resources, state.skills);
                 }
               }
+
+              // Add to cache 90% through the final action
+              if(i==finalIndex && loop === Math.floor(listedAction.loops * 0.9)){
+                let key = [listedAction.name, listedAction.disabled];
+                key['last'] = true;
+                this.cache.add(key, [state, loop + 1, isValid]);
+              }
+
             }
 
             if (repeatLoop&& loop>=listedAction.loops) {
@@ -1514,7 +1545,7 @@ const Koviko = {
             if(prediction.name in state.progress)
               state.currProgress[prediction.name] = state.progress[prediction.name].completed / prediction.action.segments;
             // Update the cache
-            this.cache.add([listedAction.name, listedAction.loops, listedAction.disabled], [state, total, isValid])
+            if(i!==finalIndex) this.cache.add([listedAction.name, listedAction.loops, listedAction.disabled], [state, total, isValid]);
           }
           // Update the snapshots
           for (let i in snapshots) {
