@@ -1364,16 +1364,15 @@ const Koviko = {
        */
       let totalTicks = 0;
 
-      // Reset the cache's index
-      // returns false on cache miss
-      let cache = this.cache.reset(state);
-
       /**
        * All affected resources of the current action list
        * @var {Array.<string>}
        */
       const affected = Object.keys(actions.reduce((stats, x) => (x.name in this.predictions && this.predictions[x.name].affected || []).reduce((stats, name) => (stats[name] = true, stats), stats), {}));
       
+      // Reset the cache's index
+      // returns false on cache miss
+      let cache = this.cache.reset([state, affected]);
 
       /**
        *This is used to see when the loop becomes invalid due to mana cost
