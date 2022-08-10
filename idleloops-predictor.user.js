@@ -658,6 +658,11 @@ const Koviko = {
       // Initialise cache
 
       this.cache = new Koviko.Cache();
+      if(typeof(structuredClone) !== 'function'){
+        console.log('Predictor: This browser does not support structuredClone, disabling the cache');
+        this.cache.reset = function(x) {return false;};
+        this.cache.add = function(x, y) {};
+      }
 
       // Alias the globals to a shorter variable name
       const g = Koviko.globals;
