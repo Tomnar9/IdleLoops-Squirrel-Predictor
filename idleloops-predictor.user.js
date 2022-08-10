@@ -608,7 +608,7 @@ const Koviko = {
          * @return {number} Current bonus from guild rank
          * @memberof Koviko.Predictor#helpers
          */
-        getGuildRankBonus: (guild) => Math.floor(guild / 3 + .00001) >= 14 ? Math.floor(1 + 2.25 + (45 ** 2) / 300) : g.precision3(1 + guild / 20 + (guild ** 2) / 300),
+        getGuildRankBonus: (guild) => Math.floor(guild / 3 + .00001) >= 14 ? Math.floor(1 + 2.25 + (45 ** 2) / 300) :  precision3(1 + guild / 20 + (guild ** 2) / 300),
 
         /**
          * Calculate the bonus given by "Wizard College"
@@ -619,9 +619,9 @@ const Koviko = {
          */
         getWizardRankBonus: (r) => ((r.wizard >= 63) ? 5 : precision3(1 + 0.02 * Math.pow((r.wizard||0), 1.05))),
 
-        getSkillBonusInc: (exp) => (Math.pow(1 + g.getSkillLevelFromExp(exp) / 60, 0.25)),
+        getSkillBonusInc: (exp) => (Math.pow(1 +  getSkillLevelFromExp(exp) / 60, 0.25)),
 
-        getSkillBonusDec: (exp) => (1 / (1 + g.getSkillLevelFromExp(exp) / 100)),
+        getSkillBonusDec: (exp) => (1 / (1 +  getSkillLevelFromExp(exp) / 100)),
 
         /**
          * Calculate the ArmorLevel specifically affecting the team leader
@@ -639,17 +639,17 @@ const Koviko = {
          * @return {number} Combat skill of the team leader
          * @memberof Koviko.Predictor#helpers
          */
-        getSelfCombat: (r, k) => (g.getSkillLevelFromExp(k.combat) + g.getSkillLevelFromExp(k.pyromancy) * 5) * h.getArmorLevel(r,k) * (1 + getBuffLevel("Feast") * 0.05),
+        getSelfCombat: (r, k) => ( getSkillLevelFromExp(k.combat) +  getSkillLevelFromExp(k.pyromancy) * 5) * h.getArmorLevel(r,k) * (1 + getBuffLevel("Feast") * 0.05),
 
-        getZombieStrength: (r, k) => (g.getSkillLevelFromExp(k.dark) * (r.zombie||0) / 2 * Math.max(getBuffLevel("Ritual") / 100, 1)) * (1 + getBuffLevel("Feast") * 0.05),
+        getZombieStrength: (r, k) => ( getSkillLevelFromExp(k.dark) * (r.zombie||0) / 2 * Math.max(getBuffLevel("Ritual") / 100, 1)) * (1 + getBuffLevel("Feast") * 0.05),
 
-        getTeamStrength: (r, k) => ((g.getSkillLevelFromExp(k.combat) + g.getSkillLevelFromExp(k.restoration) * 4) * ((r.team||0) / 2) * h.getGuildRankBonus(r.adventures || 0) * h.getSkillBonusInc(k.leadership))  * (1 + getBuffLevel("Feast") * 0.05),
+        getTeamStrength: (r, k) => (( getSkillLevelFromExp(k.combat) +  getSkillLevelFromExp(k.restoration) * 4) * ((r.team||0) / 2) * h.getGuildRankBonus(r.adventures || 0) * h.getSkillBonusInc(k.leadership))  * (1 + getBuffLevel("Feast") * 0.05),
 
         getTeamCombat: (r, k) => (h.getSelfCombat(r, k) + h.getZombieStrength(r, k) + h.getTeamStrength(r, k)),
 
         getRewardSS: (dNum) => Math.floor(Math.pow(10, dNum) * Math.pow(1 + getSkillLevel("Divine") / 60, 0.25)),
 
-        getStatProgress: (p, a, s, offset) => (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100),
+        getStatProgress: (p, a, s, offset) => (1 +  getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 100),
 
         getTrialCost: (p, a) => segment => precision3(Math.pow(a.baseScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.exponentScaling * getSkillBonus("Assassin")),
 
@@ -671,14 +671,14 @@ const Koviko = {
             if ((p.completed / a.segments + .0000001)>=1) {
               return 0;
             }
-            let baseSkill = Math.sqrt(g.getSkillLevelFromExp(k.practical)) + g.getSkillLevelFromExp(k.thievery) + g.getSkillLevelFromExp(k.assassin);
-            let loopStat = (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 1000);
+            let baseSkill = Math.sqrt( getSkillLevelFromExp(k.practical)) +  getSkillLevelFromExp(k.thievery) +  getSkillLevelFromExp(k.assassin);
+            let loopStat = (1 +  getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 1000);
             let completions = Math.sqrt(1 + p.total / 100);
             let reputationPenalty = (Math.abs(r.rep)|| 1);
             let killStreak = (r.heart || 1);
             return baseSkill * loopStat * completions / reputationPenalty / killStreak;
           },
-          effect: { loop: (r) => r.heart++, end: (r,k) => ( r.rep+=Math.min((r.town + 1) * -250 + g.getSkillLevelFromExp(k.assassin), 0))},
+          effect: { loop: (r) => r.heart++, end: (r,k) => ( r.rep+=Math.min((r.town + 1) * -250 +  getSkillLevelFromExp(k.assassin), 0))},
         }};
 
 
@@ -691,39 +691,39 @@ const Koviko = {
         'Wander': {},
         'Smash Pots': { affected: ['mana'], effect: (r) => {
           r.temp1 = (r.temp1 || 0) + 1;
-          r.mana += r.temp1 <= towns[0].goodPots ? g.Action.SmashPots.goldCost() : 0;
+          r.mana += r.temp1 <= towns[0].goodPots ?  Action.SmashPots.goldCost() : 0;
         }},
         'Pick Locks': { affected: ['gold'], effect: (r) => {
           r.temp2 = (r.temp2 || 0) + 1;
-          r.gold += r.temp2 <= towns[0].goodLocks ? g.Action.PickLocks.goldCost() : 0;
+          r.gold += r.temp2 <= towns[0].goodLocks ?  Action.PickLocks.goldCost() : 0;
         }},
         'Buy Glasses': { affected: ['gold', 'glassess'], canStart: (r)=>(r.gold>=10),effect: (r) => (r.gold -= 10, r.glasses = true) },
         'Buy Mana Z1':{ affected: ['mana', 'gold','manaBought'], canStart: (input) => (!input.isManaDrought||(input.manaBought>0)), effect: (r) => {
           if (r.isManaDrought) {
             let spendGold = Math.min(r.gold, 300);
-            let buyMana = Math.min(spendGold * g.Action.BuyManaZ1.goldCost(), r.manaBought);
+            let buyMana = Math.min(spendGold *  Action.BuyManaZ1.goldCost(), r.manaBought);
             r.mana+=buyMana;
             r.manaBought-=buyMana;
             r.gold-=spendGold; 
           } else { 
-            r.mana += r.gold * g.Action.BuyManaZ1.goldCost();
+            r.mana += r.gold *  Action.BuyManaZ1.goldCost();
             r.gold = 0;
         }}},
         'Meet People': {},
         'Train Strength': {},
         'Short Quest': { affected: ['gold'], effect: (r) => {
           r.temp3 = (r.temp3 || 0) + 1;
-          r.gold += r.temp3 <= towns[0].goodSQuests ? g.Action.ShortQuest.goldCost() : 0;
+          r.gold += r.temp3 <= towns[0].goodSQuests ?  Action.ShortQuest.goldCost() : 0;
         }},
         'Investigate': {},
         'Long Quest': { affected: ['gold', 'rep'], effect: (r) => {
           r.temp4 = (r.temp4 || 0) + 1;
-          r.gold += r.temp4 <= towns[0].goodLQuests ? g.Action.LongQuest.goldCost() : 0;
+          r.gold += r.temp4 <= towns[0].goodLQuests ?  Action.LongQuest.goldCost() : 0;
           r.rep += r.temp4 <= towns[0].goodLQuests ? 1 : 0;
         }},
         'Throw Party': { affected: ['rep'], effect: (r) => r.rep -= 2 },
         'Warrior Lessons': { effect: (r, k) => k.combat += 100*(1+getBuffLevel("Heroism") * 0.02), canStart: (input) => input.rep >= 2 },
-        'Mage Lessons': { effect: (r, k) => k.magic += 100 * (1 + g.getSkillLevelFromExp(k.alchemy) / 100), canStart: (input) => input.rep >= 2 },
+        'Mage Lessons': { effect: (r, k) => k.magic += 100 * (1 +  getSkillLevelFromExp(k.alchemy) / 100), canStart: (input) => input.rep >= 2 },
         'Buy Supplies': { affected: ['gold'], effect: (r) => (r.gold -= 300 - Math.max((r.supplyDiscount || 0) * 20, 0), r.supplies = (r.supplies || 0) + 1), canStart: (input) => input.gold >= 300 - Math.max((input.supplyDiscount || 0) * 20, 0) },
         'Haggle': { affected: ['rep'], canStart: (input) => (input.rep > 0), effect: (r) => (r.rep--, r.supplyDiscount = (r.supplyDiscount >= 15 ? 15 : (r.supplyDiscount || 0) + 1)) },
         'Start Journey': { effect: (r) => (r.supplies = (r.supplies || 0) - 1, r.town =1), canStart: r => r.supplies >= 1},
@@ -734,7 +734,7 @@ const Koviko = {
         'Explore Forest': {},
         'Wild Mana': { affected: ['mana'], effect: (r) => {
           r.temp5 = (r.temp5 || 0) + 1;
-          r.mana += r.temp5 <= towns[1].goodWildMana ? g.Action.WildMana.goldCost() : 0;
+          r.mana += r.temp5 <= towns[1].goodWildMana ?  Action.WildMana.goldCost() : 0;
         }},
         'Gather Herbs': { affected: ['herbs'], effect: (r) => {
           r.temp6 = (r.temp6 || 0) + 1;
@@ -767,8 +767,8 @@ const Koviko = {
           r.rep--;
         }},
         'Get Drunk': { affected: ['rep'], canStart: (input) => (input.rep >= -3), effect: (r) => r.rep-- },
-        'Buy Mana Z3': { affected: ['mana', 'gold'], effect: (r) => (r.mana += r.gold * g.Action.BuyManaZ3.goldCost(), r.gold = 0) },
-        'Sell Potions': { affected: ['gold', 'potions'], effect: (r, k) => (r.gold += r.potions * g.getSkillLevelFromExp(k.alchemy), r.potions = 0) },
+        'Buy Mana Z3': { affected: ['mana', 'gold'], effect: (r) => (r.mana += r.gold *  Action.BuyManaZ3.goldCost(), r.gold = 0) },
+        'Sell Potions': { affected: ['gold', 'potions'], effect: (r, k) => (r.gold += r.potions *  getSkillLevelFromExp(k.alchemy), r.potions = 0) },
         'Read Books': {canStart: (input) => input.glasses},
         'Gather Team': { affected: ['team','gold'], canStart: (input) => ((input.guild=='adventure')&&(input.gold>=(input.team+1) * 100)), effect: (r) => (r.team = (r.team || 0) + 1, r.gold -= r.team * 100) },
         'Craft Armor': { affected: ['hide'], canStart: (input) => (input.hide >= 2), effect: (r) => (r.hide -= 2, r.armor = (r.armor || 0) + 1) },
@@ -830,8 +830,8 @@ const Koviko = {
           r.rep -= 1;
         }},
         'Tidy Up': { affected: ['gold', 'rep'], loop: {
-          cost: (p, a) => segment => g.fibonacci(Math.floor((p.completed + segment) - p.completed / 3 + .0000001)) * 1000000,
-          tick: (p, a, s, k) => offset => g.getSkillLevelFromExp(k.practical) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
+          cost: (p, a) => segment =>  fibonacci(Math.floor((p.completed + segment) - p.completed / 3 + .0000001)) * 1000000,
+          tick: (p, a, s, k) => offset =>  getSkillLevelFromExp(k.practical) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
           effect: {
             loop: (r) => {
               r.gold += 5;
@@ -839,7 +839,7 @@ const Koviko = {
             }
           },
         }},
-        'Buy Mana Z5': { affected: ['mana', 'gold'], effect: (r) => (r.mana += r.gold * g.Action.BuyManaZ5.goldCost(), r.gold = 0)},
+        'Buy Mana Z5': { affected: ['mana', 'gold'], effect: (r) => (r.mana += r.gold *  Action.BuyManaZ5.goldCost(), r.gold = 0)},
         'Sell Artifact': { affected: ['gold', 'artifacts'], canStart: (input) => {
           return (input.artifacts >= 1);
         }, effect: (r) => {
@@ -868,9 +868,9 @@ const Koviko = {
           canStart: (input) => {
           return (input.gold >= 500 && input.favor >= 10);
         }, loop: {
-          cost: (p) => segment => g.precision3(Math.pow(1.3, p.completed + segment)) * 1e7,
-          tick: (p, a, s, k) => offset => (g.getSkillLevelFromExp(k.magic) + g.getSkillLevelFromExp(k.practical) + g.getSkillLevelFromExp(k.dark) +
-                                          g.getSkillLevelFromExp(k.chronomancy) + g.getSkillLevelFromExp(k.pyromancy) + g.getSkillLevelFromExp(k.restoration) + g.getSkillLevelFromExp(k.spatiomancy)) *
+          cost: (p) => segment =>  precision3(Math.pow(1.3, p.completed + segment)) * 1e7,
+          tick: (p, a, s, k) => offset => ( getSkillLevelFromExp(k.magic) +  getSkillLevelFromExp(k.practical) +  getSkillLevelFromExp(k.dark) +
+                                           getSkillLevelFromExp(k.chronomancy) +  getSkillLevelFromExp(k.pyromancy) +  getSkillLevelFromExp(k.restoration) +  getSkillLevelFromExp(k.spatiomancy)) *
                                           h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000),
                     effect: { segment: (r, k) => (r.wizard++) }
         }, effect: (r) => {
@@ -881,10 +881,10 @@ const Koviko = {
         'Spatiomancy': { effect: (r, k) => k.spatiomancy += 100, manaCost:(r,k)=>(20000 / h.getWizardRankBonus(r)) },
         'Seek Citizenship': {},
         'Build Housing': {canStart: (input) => {
-          return (input.houses||0) < Math.floor(h.getGuildRankBonus(input.crafts || 0) * (1 + Math.min(g.getSkillLevelFromExp(skills.Spatiomancy.exp),500) * .01));
+          return (input.houses||0) < Math.floor(h.getGuildRankBonus(input.crafts || 0) * (1 + Math.min( getSkillLevelFromExp(skills.Spatiomancy.exp),500) * .01));
         }, effect: (r) => (r.houses = (r.houses ? r.houses+1 : 1))},
         'Collect Taxes': { canStart: (input) => (input.houses > 0), effect: (r, k) => {
-          r.gold += Math.floor(r.houses * g.getSkillLevelFromExp(k.mercantilism) / 10);
+          r.gold += Math.floor(r.houses *  getSkillLevelFromExp(k.mercantilism) / 10);
         }},
         'Oracle': {},
         'Pegasus': { affected: ['gold', 'favor'], canStart: (input) => {
@@ -898,7 +898,7 @@ const Koviko = {
           max: () => 1,
           cost: (p) => segment => 1000000000 * (segment * 5 + 1),
           tick: (p, a, s, k) => offset => {
-            return g.getSkillLevelFromExp(k.practical) * h.getStatProgress(p, a, s, offset);
+            return  getSkillLevelFromExp(k.practical) * h.getStatProgress(p, a, s, offset);
           },
           effect: { loop: (r) => r.feast++ }
         }},
@@ -910,7 +910,7 @@ const Koviko = {
         'Seek Blessing': { canStart: (input) => {
           return (input.pegasus);
         }, effect: (r, k) => {
-          k.divine+= (r.giants>62? 10:g.precision3(1 + 0.05 * Math.pow(r.giants||0, 1.05)) ) *50;
+          k.divine+= (r.giants>62? 10: precision3(1 + 0.05 * Math.pow(r.giants||0, 1.05)) ) *50;
         }},
         'Fall From Grace': { effect: (r) => {
           if (r.rep >= 0) {
@@ -946,16 +946,16 @@ const Koviko = {
           effect: (r,k) => (r.blood -=1,k.commune+=100)
         },
         'The Spire': { affected: ['soul'], loop: {
-          max: (a) => g.dungeons[a.dungeonNum].length,
-          cost: (p, a) => segment => g.precision3(Math.pow(2, Math.floor((p.completed + segment) / a.segments + .0000001)) * 10000000),
+          max: (a) =>  dungeons[a.dungeonNum].length,
+          cost: (p, a) => segment =>  precision3(Math.pow(2, Math.floor((p.completed + segment) / a.segments + .0000001)) * 10000000),
           tick: (p, a, s, k, r) => offset => {
             const floor = Math.floor(p.completed / a.segments + .0000001);
 
-            return floor in g.dungeons[a.dungeonNum] ?
+            return floor in  dungeons[a.dungeonNum] ?
                 h.getTeamCombat(r, k) *
                 (1 + 0.1 * (r.pylons||0)) *
                 h.getStatProgress(p, a, s, offset) *
-                Math.sqrt(1 + g.dungeons[a.dungeonNum][floor].completed / 200) : 0;
+                Math.sqrt(1 +  dungeons[a.dungeonNum][floor].completed / 200) : 0;
           },
           effect: { loop: (r) => r.soul += h.getRewardSS(2) }
         }},
@@ -973,15 +973,15 @@ const Koviko = {
         // Jungle Path
         'Explore Jungle': { affected: ['herbs'],effect: (r) => (r.herbs++) },
         'Fight Jungle Monsters': { affected: ['blood'], loop: {
-          cost: (p, a) => segment => g.precision3(Math.pow(1.3, p.completed + segment)) * 1e8,
+          cost: (p, a) => segment =>  precision3(Math.pow(1.3, p.completed + segment)) * 1e8,
           tick: (p, a, s, k, r) => offset => h.getSelfCombat(r, k) * h.getStatProgress(p, a, s, offset) *
                                              Math.sqrt(1 + p.total / 1000),
           effect: { segment: (r) => r.blood=(r.blood||0)+1 , loop: (r,k)=> (k.combat+=2000*(1+getBuffLevel("Heroism") * 0.02))},
         }},
         'Rescue Survivors': {
           loop: {
-            cost: (p, a) => segment => g.fibonacci(2 + Math.floor((p.completed + segment) / a.segments + .0000001)) * 5000,
-            tick: (p, a, s, k) => offset => g.getSkillLevelFromExp(k.magic) * Math.max(g.getSkillLevelFromExp(k.restoration) / 100, 1) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
+            cost: (p, a) => segment =>  fibonacci(2 + Math.floor((p.completed + segment) / a.segments + .0000001)) * 5000,
+            tick: (p, a, s, k) => offset =>  getSkillLevelFromExp(k.magic) * Math.max( getSkillLevelFromExp(k.restoration) / 100, 1) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
             effect: { loop: (r) => (r.survivor= (r.survivor||0)+1,r.rep+=4) },
         }},
         'Prepare Buffet': { affected:['herbs','blood'],
@@ -1015,8 +1015,8 @@ const Koviko = {
         'Thieves Guild': { affected: ['gold', 'thieves'], canStart: (input) => {
           return ((input.rep < 0) && (input.guild==''));
         }, loop: {
-          cost: (p) => segment => g.precision3(Math.pow(1.2, p.completed + segment)) * 5e8,
-          tick: (p, a, s, k, r) => offset => (g.getSkillLevelFromExp(k.practical) + g.getSkillLevelFromExp(k.thievery)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000),
+          cost: (p) => segment =>  precision3(Math.pow(1.2, p.completed + segment)) * 5e8,
+          tick: (p, a, s, k, r) => offset => ( getSkillLevelFromExp(k.practical) +  getSkillLevelFromExp(k.thievery)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000),
           effect: { end: (r, k) => (r.guild='thieves',k.practical+=50,k.thievery+=50), segment: (r,k) => (r.gold += 10, r.thieves=( r.thieves||0)+1,k.practical+=50,k.thievery+=50) }
         }},
         'Guild Assassin': {affected:['heart'], canStart: (input) => (input.guild==''), effect: (r,k) => {
@@ -1154,48 +1154,48 @@ const Koviko = {
 
         // Loops without Max
         'Heal The Sick': { affected: ['rep'], canStart: (input) => (input.rep >= 1), loop: {
-          cost: (p, a) => segment => g.fibonacci(2 + Math.floor((p.completed + segment) / a.segments + .0000001)) * 5000,
-          tick: (p, a, s, k) => offset => g.getSkillLevelFromExp(k.magic) * Math.max(g.getSkillLevelFromExp(k.restoration) / 50, 1) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
+          cost: (p, a) => segment =>  fibonacci(2 + Math.floor((p.completed + segment) / a.segments + .0000001)) * 5000,
+          tick: (p, a, s, k) => offset =>  getSkillLevelFromExp(k.magic) * Math.max( getSkillLevelFromExp(k.restoration) / 50, 1) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
           effect: { end: (r, k) => k.magic += 10, loop: (r) => r.rep += 3 },
         }},
         'Fight Monsters': { affected: ['gold'], canStart: (input) => (input.rep >= 2), loop: {
-          cost: (p, a) => segment => g.fibonacci(Math.floor((p.completed + segment) - p.completed / a.segments + .0000001)) * 10000,
+          cost: (p, a) => segment =>  fibonacci(Math.floor((p.completed + segment) - p.completed / a.segments + .0000001)) * 10000,
           tick: (p, a, s, k, r) => offset => h.getSelfCombat(r, k) * Math.sqrt(1 + p.total / 100) * h.getStatProgress(p, a, s, offset),
           effect: { end: (r, k) => k.combat += 10*(1+getBuffLevel("Heroism") * 0.02), segment: (r) => r.gold += 20 },
         }},
         'Adventure Guild': { affected: ['gold', 'adventures'], canStart: (input) => (input.guild==''), loop: {
-          cost: (p) => segment => g.precision3(Math.pow(1.2, p.completed + segment)) * 5e6,
-          tick: (p, a, s, k, r) => offset => (h.getSelfCombat(r, k) + g.getSkillLevelFromExp(k.magic) / 2) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000),
+          cost: (p) => segment =>  precision3(Math.pow(1.2, p.completed + segment)) * 5e6,
+          tick: (p, a, s, k, r) => offset => (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic) / 2) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000),
           effect: {end: (r) => (r.guild='adventure'), segment: (r) => (r.mana += 200, r.adventures++) }
         }},
         'Crafting Guild': { affected: ['gold', 'crafts'], canStart: (input) => (input.guild==''), loop: {
-          cost: (p) => segment => g.precision3(Math.pow(1.2, p.completed + segment)) * 2e6,
-          tick: (p, a, s, k) => offset => (g.getSkillLevelFromExp(k.magic) / 2 + g.getSkillLevelFromExp(k.crafting)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000),
+          cost: (p) => segment =>  precision3(Math.pow(1.2, p.completed + segment)) * 2e6,
+          tick: (p, a, s, k) => offset => ( getSkillLevelFromExp(k.magic) / 2 +  getSkillLevelFromExp(k.crafting)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000),
           effect: {end: (r) => (r.guild='crafting'), segment: (r, k) => (r.gold += 10, r.crafts++, k.crafting += 50) }
         }},
         'Hunt Trolls': { affected: ['blood'], loop: {
-          cost: (p, a) => segment => g.precision3(Math.pow(2, Math.floor((p.completed + segment) / a.segments+.0000001)) * 1e6),
-          tick: (p, a, s, k, r) => offset => (h.getSelfCombat(r, k) * Math.sqrt(1 + p.total/100) * (1 + g.getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]])/100)),
+          cost: (p, a) => segment =>  precision3(Math.pow(2, Math.floor((p.completed + segment) / a.segments+.0000001)) * 1e6),
+          tick: (p, a, s, k, r) => offset => (h.getSelfCombat(r, k) * Math.sqrt(1 + p.total/100) * (1 +  getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]])/100)),
           effect: { loop: (r, k) => (r.blood++, k.combat += 1000*(1+getBuffLevel("Heroism") * 0.02)) }
         }},
 
         // Loops with Max
         'Small Dungeon': { affected: ['soul'], canStart: (input) => input.rep >= 2, loop: {
-          max: (a) => g.dungeons[a.dungeonNum].length,
-          cost: (p, a) => segment => g.precision3(Math.pow(2, Math.floor((p.completed + segment) / a.segments + .0000001)) * 15000),
+          max: (a) =>  dungeons[a.dungeonNum].length,
+          cost: (p, a) => segment =>  precision3(Math.pow(2, Math.floor((p.completed + segment) / a.segments + .0000001)) * 15000),
           tick: (p, a, s, k, r) => offset => {
             let floor = Math.floor(p.completed / a.segments + .0000001);
 
-            return floor in g.dungeons[a.dungeonNum] ? (h.getSelfCombat(r, k) + g.getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + g.dungeons[a.dungeonNum][floor].completed / 200) : 0;
+            return floor in  dungeons[a.dungeonNum] ? (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 +  dungeons[a.dungeonNum][floor].completed / 200) : 0;
           },
           effect: { end: (r, k) => (k.combat += 5*(1+getBuffLevel("Heroism") * 0.02), k.magic += 5), loop: (r) => r.soul+=h.getRewardSS(0) },
         }},
         'Large Dungeon': { affected: ['team','soul'], canStart: (input) => (input.team>0), loop: {
-          max: (a) => g.dungeons[a.dungeonNum].length,
-          cost: (p, a) => segment => g.precision3(Math.pow(3, Math.floor((p.completed + segment) / a.segments + .0000001)) * 5e5),
+          max: (a) =>  dungeons[a.dungeonNum].length,
+          cost: (p, a) => segment =>  precision3(Math.pow(3, Math.floor((p.completed + segment) / a.segments + .0000001)) * 5e5),
           tick: (p, a, s, k, r) => offset => {
             let floor = Math.floor(p.completed / a.segments + .0000001);
-            return floor in g.dungeons[a.dungeonNum] ? (h.getTeamCombat(r, k) + g.getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + g.dungeons[a.dungeonNum][floor].completed / 200) : 0;
+            return floor in  dungeons[a.dungeonNum] ? (h.getTeamCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 +  dungeons[a.dungeonNum][floor].completed / 200) : 0;
           },
           effect: { end: (r, k) => (k.combat += 15*(1+getBuffLevel("Heroism") * 0.02), k.magic += 15), loop: (r) => r.soul +=h.getRewardSS(1)  }
         }},
@@ -1236,7 +1236,7 @@ const Koviko = {
           tick: (p, a, s, k) => offset => {
             let attempt = Math.floor(p.completed / a.segments + .0000001);
 
-            return attempt < 1 ? (g.getSkillLevelFromExp(k.dark) * h.getStatProgress(p, a, s, offset)) / (1 - towns[1].getLevel("Witch") * .005) : 0;
+            return attempt < 1 ? ( getSkillLevelFromExp(k.dark) * h.getStatProgress(p, a, s, offset)) / (1 - towns[1].getLevel("Witch") * .005) : 0;
           },
           effect: { loop: (r) => r.ritual++ }
         }},
@@ -1246,7 +1246,7 @@ const Koviko = {
           tick: (p, a, s, k) => offset => {
             let attempt = Math.floor(p.completed / a.segments + .0000001);
 
-            return attempt < 1 ? (g.getSkillLevelFromExp(k.magic) * h.getStatProgress(p, a, s, offset)) : 0;
+            return attempt < 1 ? ( getSkillLevelFromExp(k.magic) * h.getStatProgress(p, a, s, offset)) : 0;
           },
           effect: { loop: (r) => r.mind++ },
         }},
@@ -1256,7 +1256,7 @@ const Koviko = {
           tick: (p, a, s, k) => offset => {
             let attempt = Math.floor(p.completed / a.segments + .0000001);
 
-            return attempt < 1 ? (g.getSkillLevelFromExp(k.magic) * h.getStatProgress(p, a, s, offset)) : 0;
+            return attempt < 1 ? ( getSkillLevelFromExp(k.magic) * h.getStatProgress(p, a, s, offset)) : 0;
           },
           effect: { loop: (r) => r.body++ },
         }},
@@ -1266,7 +1266,7 @@ const Koviko = {
           tick: (p, a, s, k) => offset => {
             let attempt = Math.floor(p.completed / a.segments + .0000001);
 
-            return attempt < 1 ? (g.getSkillLevelFromExp(k.magic) * h.getStatProgress(p, a, s, offset)) : 0;
+            return attempt < 1 ? ( getSkillLevelFromExp(k.magic) * h.getStatProgress(p, a, s, offset)) : 0;
           },
           effect: { loop: (r) => r.body++ },
         }},
