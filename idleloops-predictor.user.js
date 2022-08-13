@@ -2,7 +2,7 @@
 // @name         IdleLoops Predictor Makro
 // @namespace    https://github.com/MakroCZ/
 // @downloadURL  https://raw.githubusercontent.com/MakroCZ/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      2.1.2
+// @version      2.1.3
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://lloyd-delacroix.github.io/omsi-loops/
@@ -1031,15 +1031,15 @@ const Koviko = {
         }},
 
         'Pick Pockets': { canStart: (input) => (input.guild==='thieves'), effect: (r, k) => {
-          r.gold += Math.floor(Math.floor(1 * h.getSkillBonusInc(k.thievery)) * h.getGuildRankBonus(r.thieves));
+          r.gold += Math.floor(Math.floor(2 * h.getSkillBonusInc(k.thievery)) * h.getGuildRankBonus(r.thieves));
           k.thievery+=10 * (1 + towns[7].getLevel("PickPockets") / 100);
         }},
         'Rob Warehouse': { canStart: (input) => (input.guild==='thieves'), effect: (r, k) => {
-          r.gold += Math.floor(Math.floor(10 * h.getSkillBonusInc(k.thievery)) * h.getGuildRankBonus(r.thieves));
+          r.gold += Math.floor(Math.floor(20 * h.getSkillBonusInc(k.thievery)) * h.getGuildRankBonus(r.thieves));
           k.thievery+=20 * (1 + towns[7].getLevel("RobWarehouse") / 100);
         }},
         'Insurance Fraud': { canStart: (input) => (input.guild==='thieves'), effect: (r, k) => {
-          r.gold += Math.floor(Math.floor(100 * h.getSkillBonusInc(k.thievery)) * h.getGuildRankBonus(r.thieves));
+          r.gold += Math.floor(Math.floor(200 * h.getSkillBonusInc(k.thievery)) * h.getGuildRankBonus(r.thieves));
           k.thievery+=40 * (1 + towns[7].getLevel("InsuranceFraud") / 100);
         }},
         'Invest': {affected:['gold'],canStart: (input)=>(input.gold>0),effect: (r,k)=> {
