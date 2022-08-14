@@ -2,7 +2,7 @@
 // @name         IdleLoops Predictor Makro
 // @namespace    https://github.com/MakroCZ/
 // @downloadURL  https://raw.githubusercontent.com/MakroCZ/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      2.1.3
+// @version      2.1.4
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://lloyd-delacroix.github.io/omsi-loops/
@@ -1325,7 +1325,7 @@ const Koviko = {
        * @var {Koviko.Predictor~State}
        */
       let state = {
-        resources: { mana: 250, town: 0, guild: "" },
+        resources: { mana: 250, town: 0, guild: "", totalTicks: 0 },
         stats: Koviko.globals.statList.reduce((stats, name) => (stats[name] = getExpOfLevel(buffs.Imbuement2.amt*(Koviko.globals.skills.Wunderkind.exp>=100?2:1)), stats), {}),
         talents:  Koviko.globals.statList.reduce((talents, name) => (talents[name] = stats[name].talent, talents), {}),
         skills: Object.entries(Koviko.globals.skills).reduce((skills, x) => (skills[x[0].toLowerCase()] = x[1].exp, skills), {}),
@@ -1364,11 +1364,6 @@ const Koviko = {
        */
       let total = 0;
 
-      /**
-       * Total time used for the action list
-       * @var {number}
-       */
-      let totalTicks = 0;
 
       /**
        * All affected resources of the current action list
@@ -1420,8 +1415,6 @@ const Koviko = {
           if(cache) {
             [state, total, isValid] = cache
             
-            // Why is totalTicks stored both inside resources and outside the loop? Who knows, but this line needs to be here to make it behave correctly 
-            totalTicks = state.resources.totalTicks
           }
         }
         
@@ -1465,7 +1458,6 @@ const Koviko = {
 
               if(lastcache && lastcache[1] < listedAction.loops){
                 [state, loop, total, isValid] = lastcache;
-                totalTicks = state.resources.totalTicks
 
                 // Invalidate the entry if it's from less than 90% through (it'll be set again once it gets to 90%)
                 if(loop <= Math.floor(listedAction.loops * 0.9)){
@@ -1513,8 +1505,7 @@ const Koviko = {
 
               // Calculate time spent
               let temp = (currentMana - state.resources.mana) / getSpeedMult(state.resources.town);
-              totalTicks += temp;
-              state.resources.totalTicks=totalTicks;
+              state.resources.totalTicks += temp;
               state.resources.actionTicks+=temp;
 
               // Only for Adventure Guild
@@ -1571,7 +1562,7 @@ const Koviko = {
       });
 
       // Update the display for the total amount of mana used by the action list
-      totalTicks = state.resources.totalTicks
+      let totalTicks = state.resources.totalTicks
       totalTicks /= 50;
       var h = Math.floor(totalTicks / 3600);
       var m = Math.floor(totalTicks % 3600 / 60);
