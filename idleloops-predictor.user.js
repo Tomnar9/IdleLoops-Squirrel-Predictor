@@ -2,7 +2,7 @@
 // @name         IdleLoops Predictor Makro
 // @namespace    https://github.com/MakroCZ/
 // @downloadURL  https://raw.githubusercontent.com/MakroCZ/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      2.1.4
+// @version      2.1.5
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://lloyd-delacroix.github.io/omsi-loops/
@@ -387,6 +387,7 @@ const Koviko = {
       this.initStyle();
       this.initElements()
       this.initPredictions();
+      this.state;
       if(typeof localStorage !== "undefined") { 
         if (localStorage.getItem('timePrecision') !== null) {
           var loadedVal = localStorage.getItem('timePrecision');
@@ -1606,6 +1607,7 @@ const Koviko = {
           total: total
         });
       }
+      this.state = state;
     }
 
     getShortSkill(name) {
