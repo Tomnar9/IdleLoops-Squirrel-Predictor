@@ -419,7 +419,7 @@ const Koviko = {
       // Hook \`updateNextActions\` with the predictor's update function
       view.updateNextActions = () => {
         view._updateNextActions();
-        this.state = this.update(actions.next, container);
+        this.update(actions.next, container);
       };
 
       // Prepare stopGame to be hooked
@@ -1607,7 +1607,7 @@ const Koviko = {
           total: total
         });
       }
-      return state;
+      this.state = state;
     }
 
     getShortSkill(name) {
