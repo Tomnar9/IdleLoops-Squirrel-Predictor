@@ -687,6 +687,7 @@ const Koviko = {
           effect: { loop: (r) => r.heart++, end: (r,k) => ( r.rep+=Math.min((r.town + 1) * -250 +  getSkillLevelFromExp(k.assassin), 0))},
         }};
 
+      const surveyBase={affected:['map','completedMap'],canStart:(input)=>(input.map>0),effect:(r)=>(r.map--,r.completedMap++)};
 
       /**
        * Prediction parameters
@@ -1278,15 +1279,15 @@ const Koviko = {
         }},
 
         //Survey Actions
-        'SurveyZ0': {affected:['map','completedMap'],canStart:(input)=>(input.map>0),effect:(r)=>(r.map--,r.completedMap++)},
-        'SurveyZ1': {affected:['map','completedMap'],canStart:(input)=>(input.map>0),effect:(r)=>(r.map--,r.completedMap++)},
-        'SurveyZ2': {affected:['map','completedMap'],canStart:(input)=>(input.map>0),effect:(r)=>(r.map--,r.completedMap++)},
-        'SurveyZ3': {affected:['map','completedMap'],canStart:(input)=>(input.map>0),effect:(r)=>(r.map--,r.completedMap++)},
-        'SurveyZ4': {affected:['map','completedMap'],canStart:(input)=>(input.map>0),effect:(r)=>(r.map--,r.completedMap++)},
-        'SurveyZ5': {affected:['map','completedMap'],canStart:(input)=>(input.map>0),effect:(r)=>(r.map--,r.completedMap++)},
-        'SurveyZ6': {affected:['map','completedMap'],canStart:(input)=>(input.map>0),effect:(r)=>(r.map--,r.completedMap++)},
-        'SurveyZ7': {affected:['map','completedMap'],canStart:(input)=>(input.map>0),effect:(r)=>(r.map--,r.completedMap++)},
-        'SurveyZ8': {affected:['map','completedMap'],canStart:(input)=>(input.map>0),effect:(r)=>(r.map--,r.completedMap++)},
+        'SurveyZ0': surveyBase,
+        'SurveyZ1': surveyBase,
+        'SurveyZ2': surveyBase,
+        'SurveyZ3': surveyBase,
+        'SurveyZ4': surveyBase,
+        'SurveyZ5': surveyBase,
+        'SurveyZ6': surveyBase,
+        'SurveyZ7': surveyBase,
+        'SurveyZ8': surveyBase,
         'Map': {affected:['gold','map'],canStart:(input)=>(input.gold>=15),effect:(r)=>(r.map++,r.gold-=15)},
 
         //assasin Actions;
