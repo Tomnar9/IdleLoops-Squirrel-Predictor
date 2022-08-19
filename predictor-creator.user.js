@@ -1004,7 +1004,7 @@ creatorCache['Get Drunk'].effect={};
 creatorCache['Get Drunk'].effect.game=\`finish() {
         towns[2].finishProgress(this.varName, 100);
     }\`;
-creatorCache['Get Drunk'].effect.pred=\`\`;
+creatorCache['Get Drunk'].effect.pred=\`(r) => r.rep--\`;
 creatorCache['Buy Mana Z3']={};
 creatorCache['Buy Mana Z3'].affected=['mana','gold'];
 creatorCache['Buy Mana Z3'].canStart={};

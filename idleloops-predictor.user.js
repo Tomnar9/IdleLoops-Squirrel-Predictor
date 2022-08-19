@@ -913,7 +913,8 @@ const Koviko = {
           r.rep--;
         }},
         'Get Drunk':{ affected:['rep'],
-          canStart:(input) => (input.rep >= -3)},
+          canStart:(input) => (input.rep >= -3),
+          effect:(r) => r.rep--},
         'Buy Mana Z3':{ affected:['mana','gold'],
           canStart:true,
           effect:(r) => (r.mana += r.gold *  Action.BuyManaZ3.goldCost(), r.gold = 0)},
