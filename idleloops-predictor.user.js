@@ -2,7 +2,7 @@
 // @name         IdleLoops Predictor Makro
 // @namespace    https://github.com/MakroCZ/
 // @downloadURL  https://raw.githubusercontent.com/MakroCZ/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      2.2.0
+// @version      2.2.1
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://lloyd-delacroix.github.io/omsi-loops/
@@ -696,7 +696,7 @@ const Koviko = {
       const predictions = {
 
 
- 
+
         'RuinsZ1':{ affected:['']},
         'RuinsZ3':{ affected:['']},
         'RuinsZ5':{ affected:['']},
@@ -1034,14 +1034,15 @@ const Koviko = {
           effect:{loop:(r) => r.body++}
         }},
         'Face Judgement':{ affected:[''],
-          effect:(r) => (r.town = r.rep>=50?4:5)},
+          effect:(r) =>(r.town = r.rep>=50?4:(r.rep<=-50?5:3))},
         'Guru':{ affected:['herbs'],
           canStart:(input)=>(input.herbs>=1000),
           effect:(r) => (r.town = 4,r.herbs-=1000)},
         'Guided Tour':{ affected:['gold'],
           canStart:(input) => {
           return (input.gold >= 10);
-        }},
+        },
+          effect:(r,k)=>(r.gold -= 10)},
         'Canvass':{ affected:['']},
         'Donate':{ affected:['gold','rep'],
           canStart:(input) => {

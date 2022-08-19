@@ -1574,7 +1574,7 @@ creatorCache['Face Judgement'].effect.game=\`finish() {
             unlockTown(5);
         }
     }\`;
-creatorCache['Face Judgement'].effect.pred=\`(r) => (r.town = r.rep>=50?4:5)\`;
+creatorCache['Face Judgement'].effect.pred=\`(r) =>(r.town = r.rep>=50?4:(r.rep<=-50?5:3))\`;
 creatorCache['Guru']={};
 creatorCache['Guru'].affected=['herbs'];
 creatorCache['Guru'].canStart={};
@@ -1600,7 +1600,7 @@ creatorCache['Guided Tour'].effect={};
 creatorCache['Guided Tour'].effect.game=\`finish() {
         towns[4].finishProgress(this.varName, 100 * (resources.glasses ? 2 : 1));
     }\`;
-creatorCache['Guided Tour'].effect.pred=\`\`;
+creatorCache['Guided Tour'].effect.pred=\`(r,k)=>(r.gold -= 10)\`;
 creatorCache['Canvass']={};
 creatorCache['Canvass'].affected=[''];
 creatorCache['Canvass'].effect={};
