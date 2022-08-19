@@ -1,11 +1,11 @@
 // ==UserScript==
-// @name         IdleLoops Predictor Makro
-// @namespace    https://github.com/MakroCZ/
-// @downloadURL  https://raw.githubusercontent.com/MakroCZ/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      2.2.0
+// @name         IdleLoops Squirrel Predictor Makro
+// @namespace    https://github.com/Tomnar9/
+// @downloadURL  https://raw.githubusercontent.com/Tomnar9/IdleLoops-Predictor/master/idleloops-predictor.user.js
+// @version      0.1.0
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
-// @match        https://lloyd-delacroix.github.io/omsi-loops/
+// @match        https://mopatissier.github.io/IdleLoopsReworked/
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @run-at       document-idle
@@ -166,23 +166,23 @@ const Koviko = {
      * @param {Koviko.Predictor~Stats} s Accumulated stat experience
      * @memberof Koviko.Prediction
      */
-    updateTicks(a, s, state) {
-      let baseMana=this.baseManaCost(a,state);
-      let cost = Koviko.globals.statList.reduce((cost, i) => cost + (i in a.stats && i in s ? a.stats[i] / (1 + Koviko.globals.getLevelFromExp(s[i]) / 100) : 0), 0);
+    updateTicks(a, s, state, isSquirrel) {
+      let baseMana=this.baseManaCost(a,state, isSquirrel);
+      let cost = Koviko.globals.statList.reduce((cost, i) => cost + (i in a.stats && i in s ? a.stats[i] /  Math.sqrt(1 + Koviko.globals.getLevelFromExp(s[i]) / 100) : 0), 0);
       this._baseManaCost=baseMana;
       return (this._ticks = Math.ceil(baseMana * cost - .000001));
     }
 
     //returns the base mana cost of the action referenced, taking the context
-    baseManaCost(a,state=false) {
+    baseManaCost(a,state=false, isSquirrel=false) {
       if (this.manaCost) {
         if (state) {
-          return this.manaCost(state.resources,state.skills);
+          return this.manaCost(state.resources,state.skills, isSquirrel);
         } else {
           return this._baseManaCost;
         }
       } else {
-        return a.manaCost();
+        return a.manaCost(isSquirrel);
       }
     }
 
@@ -654,6 +654,7 @@ const Koviko = {
 
         getTrialCost: (p, a) => segment => precision3(Math.pow(a.baseScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.exponentScaling * getSkillBonus("Assassin")),
 
+        killSquirrel: (r)=>(r.squirrel=0,r.deadSquirrel=1)
       });
 
       // Initialise cache
@@ -694,8 +695,6 @@ const Koviko = {
        * @type {Object.<string, Koviko.Prediction~Parameters>}
        */
       const predictions = {
-
-
  
         'RuinsZ1':{ affected:['']},
         'RuinsZ3':{ affected:['']},
@@ -1414,6 +1413,7 @@ const Koviko = {
         'AssassinZ6': assassinBase,
         'AssassinZ7': assassinBase,
 
+// END OF ACTIONS*/
       };
 
       /**
@@ -1441,10 +1441,10 @@ const Koviko = {
        * @var {Koviko.Predictor~State}
        */
       let state = {
-        resources: { mana: 250, town: 0, guild: "", totalTicks: 0 },
+        resources: { mana: 500, town: 0, guild: "", squirrel:0, deadSquirrel:0},
         stats: Koviko.globals.statList.reduce((stats, name) => (stats[name] = getExpOfLevel(buffs.Imbuement2.amt*(Koviko.globals.skills.Wunderkind.exp>=100?2:1)), stats), {}),
         talents:  Koviko.globals.statList.reduce((talents, name) => (talents[name] = stats[name].talent, talents), {}),
-        skills: Object.entries(Koviko.globals.skills).reduce((skills, x) => (skills[x[0].toLowerCase()] = x[1].exp, skills), {}),
+        skills: Object.assign(Object.entries(Koviko.globals.skills).reduce((skills, x) => (skills[x[0].toLowerCase()] = x[1].exp, skills), {}),Object.entries(Koviko.globals.skillsSquirrel).reduce((skills, x) => (skills[x[0].toLowerCase()+"Squirrel"] = x[1].exp, skills), {})),
         progress: {},
         currProgress: {}
       };
@@ -1453,6 +1453,8 @@ const Koviko = {
       if(getExploreProgress() >= 100) {
         state.resources.glasses=true;
       }
+      if(getLevelSquirrelAction("Pet Squirrel") >= 2) state.resources.squirrel=1;
+
 
       //Challenge Mode 
         if ((typeof challengeSave!="undefined")&&(challengeSave.challengeMode==1)) {
@@ -1589,9 +1591,10 @@ const Koviko = {
 
             // Predict each loop in sequence
             for (loop; repeatLoop ? isValid : loop < listedAction.loops; loop++) {
-              let canStart = typeof(prediction.canStart) === "function" ? prediction.canStart(state.resources) : prediction.canStart;
+              let canStart = typeof(prediction.canStart) === "function" ? prediction.canStart(state.resources, listedAction.squirrelAction) : prediction.canStart;
               if (!canStart) { isValid = false; }
               if ( !canStart || listedAction.disabled ) { break; }
+              if (listedAction.squirrelAction&&(state.resources.squirrel<=0)) {isValid = false;}
 
               // Save the mana prior to the prediction
               currentMana = state.resources.mana;
@@ -1603,7 +1606,7 @@ const Koviko = {
                 break;
               } else {
                 // Run the prediction
-                this.predict(prediction, state);
+                this.predict(prediction, state, listedAction.squirrelAction);
               }
 
               // Check if the amount of mana used was too much
@@ -1633,7 +1636,7 @@ const Koviko = {
 
               // Run the effect, now that the mana checks are complete
               if (prediction.effect) {
-                prediction.effect(state.resources, state.skills);
+                prediction.effect(state.resources, state.skills, listedAction.squirrelAction);
               }
               if (prediction.loop) {
                 if (prediction.loop.effect.end) {
@@ -1679,7 +1682,7 @@ const Koviko = {
 
       // Update the display for the total amount of mana used by the action list
       let totalTicks = state.resources.totalTicks
-      totalTicks /= 50;
+      totalTicks /= 100;
       var h = Math.floor(totalTicks / 3600);
       var m = Math.floor(totalTicks % 3600 / 60);
       var s = Math.floor(totalTicks % 3600 % 60);
@@ -1868,7 +1871,7 @@ const Koviko = {
         }
       }
       //Timer 
-      tooltip+= '<tr><td><b>TIME</b></td><td>' + precision3(resources.totalTicks/50, 1) + '</td><td>(+' + precision3(resources.actionTicks/50, 1) + ')</td></tr>';
+      tooltip+= '<tr><td><b>TIME</b></td><td>' + precision3(resources.totalTicks/100, 1) + '</td><td>(+' + precision3(resources.actionTicks/100, 1) + ')</td></tr>';
 
       var Affec = affected.map(name => {
         if ( resources[name] != 0 ) return ('<li class='+name+'>'+resources[name].toLocaleString('en', {useGrouping:true})+'</li>');
@@ -1884,7 +1887,7 @@ const Koviko = {
      * @return {boolean} Whether another tick can occur
      * @memberof Koviko.Predictor
      */
-    tick(prediction, state) {
+    tick(prediction, state, isSquirrel) {
       // Apply the accumulated stat experience
       prediction.exp(prediction.action, state.stats,state.talents);
 
@@ -1897,7 +1900,7 @@ const Koviko = {
         const loopCost = prediction.loop.cost(progression, prediction.action);
 
         /** @var {function} */
-        const tickProgress = prediction.loop.tick(progression, prediction.action, state.stats, state.skills, state.resources);
+        const tickProgress = prediction.loop.tick(progression, prediction.action, state.stats, state.skills, state.resources, isSquirrel);
 
         /** @var {number} */
         const totalSegments = prediction.action.segments;
@@ -1969,15 +1972,15 @@ const Koviko = {
      * @param {Koviko.Predictor~state} state State object
      * @memberof Koviko.Predictor
      */
-    predict(prediction, state) {
+    predict(prediction, state, isSquirrel) {
       // Update the amount of ticks necessary to complete the action, but only once at the start of the action
-      prediction.updateTicks(prediction.action, state.stats, state);
+      prediction.updateTicks(prediction.action, state.stats, state, isSquirrel);
 
       // Perform all ticks in succession
       for (let ticks = 0; ticks < prediction.ticks(); ticks++) {
         state.resources.mana--;
         if (state.resources.mana >= 0) {
-            if (!this.tick(prediction, state)) break;
+            if (!this.tick(prediction, state, isSquirrel)) break;
         }
       }
     }
