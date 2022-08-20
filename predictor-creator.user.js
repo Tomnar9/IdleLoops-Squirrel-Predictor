@@ -1093,7 +1093,7 @@ creatorCache['Pet Squirrel'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Pet Squirrel'].canStart.pred=\`(input,sq) => {
           if(sq){
-		    if(getLevelSquirrelAction("Pet Squirrel") >= 3) return (input.reputation >= 2)
+		    if(getLevelSquirrelAction("Pet Squirrel") >= 3) return (input.rep >= 2)
             return true;
           }
           if(getLevelSquirrelAction("Pet Squirrel") >= 2 && !input.squirrel ) return false;
@@ -1192,7 +1192,7 @@ creatorCache['Pick Locks'].effect.game=\`finish() {
 		}	
         
     }\`;
-creatorCache['Pick Locks'].effect.pred=\`(r) => {
+creatorCache['Pick Locks'].effect.pred=\`(r,k,sq) => {
           if (sq) {
             if (getLevelSquirrelAction("Pick Locks")>=2) {
               r.temp2 = (r.temp2 || 0) + 1;
@@ -1211,7 +1211,7 @@ creatorCache['Take Glasses'].canStart.game=\`canStart() {
 		if(this.squirrelAction) return resources.squirrel && resources.stolenGoods >= 1;
         return resources.stolenGoods >= 1;
     }\`;
-creatorCache['Take Glasses'].canStart.pred=\`(input) => (r.stolenGoods >= 1)\`;
+creatorCache['Take Glasses'].canStart.pred=\`(input) => (input.stolenGoods >= 1)\`;
 creatorCache['Take Glasses'].effect={};
 creatorCache['Take Glasses'].effect.game=\`finish() {
 		
@@ -2227,7 +2227,7 @@ creatorCache['Distill Potions'].canStart.game=\`canStart() {
         return resources.herbs >= 10 && resources.reputation >= 10;
     }\`;
 creatorCache['Distill Potions'].canStart.pred=\`(input) => {
-          return (r.herbs>=10 && r.rep>=10);
+          return (input.herbs>=10 && input.rep>=10);
         }\`;
 creatorCache['Distill Potions'].loop={};
 creatorCache['Distill Potions'].loop.cost={};
@@ -2420,7 +2420,7 @@ creatorCache['Concoct Potions'].canStart.game=\`canStart() {
         return resources.darkEssences >= 10 && resources.reputation <= -10;
     }\`;
 creatorCache['Concoct Potions'].canStart.pred=\`(input) => {
-            return (r.rep<=-10 && r.darkEssences>=10);
+            return (input.rep<=-10 && input.darkEssences>=10);
           }\`;
 creatorCache['Concoct Potions'].loop={};
 creatorCache['Concoct Potions'].loop.cost={};

@@ -203,7 +203,7 @@ const Koviko = {
     exp(a, s, t) {
       Koviko.globals.statList.forEach(i => {
         if (i in a.stats && i in s) {
-          let expToAdd=a.stats[i] * a.expMult * (this.baseManaCost(a) / this.ticks()) * this.getTotalBonusXP(i,t);
+          let expToAdd=a.stats[i] * a.expMult * (this._baseManaCost / this.ticks()) * this.getTotalBonusXP(i,t);
           s[i] += expToAdd;
           let talentGain = expToAdd*(getSkillBonus("Wunderkind") + getBuffLevel("Aspirant") * 0.01) / 100;
           t[i] += talentGain;
@@ -213,7 +213,7 @@ const Koviko = {
 
     getTotalBonusXP(statName,t) {
       const soulstoneBonus = stats[statName].soulstone ? calcSoulstoneMult(stats[statName].soulstone) : 1;
-      return soulstoneBonus * (1 + Math.pow(getLevelFromTalent(t[statName]), 0.4) / 3);
+      return soulstoneBonus * calcTalentMult(getLevelFromTalent(t[statName]));
     }
   
   },
@@ -699,6 +699,7 @@ const Koviko = {
  
 
 
+
         'RuinsZ1':{ affected:['']},
         'RuinsZ3':{ affected:['']},
         'RuinsZ5':{ affected:['']},
@@ -819,7 +820,7 @@ const Koviko = {
         },
           canStart:(input,sq) => {
           if(sq){
-		    if(getLevelSquirrelAction("Pet Squirrel") >= 3) return (input.reputation >= 2)
+		    if(getLevelSquirrelAction("Pet Squirrel") >= 3) return (input.rep >= 2)
             return true;
           }
           if(getLevelSquirrelAction("Pet Squirrel") >= 2 && !input.squirrel ) return false;
@@ -838,7 +839,7 @@ const Koviko = {
         }},
         'Pick Locks':{ affected:['gold','stolenGoods','mana'],
           canStart:true,
-          effect:(r) => {
+          effect:(r,k,sq) => {
           if (sq) {
             if (getLevelSquirrelAction("Pick Locks")>=2) {
               r.temp2 = (r.temp2 || 0) + 1;
@@ -851,7 +852,7 @@ const Koviko = {
             r.stolenGoods += r.temp2 <= towns[0].goodLocks ? Action.PickLocks.stolenGoodsGain() : 0;
         }}},
         'Take Glasses':{ affected:['stolenGoods'],
-          canStart:(input) => (r.stolenGoods >= 1),
+          canStart:(input) => (input.stolenGoods >= 1),
           effect:(r,k) => {
           r.glasses = true;
           r.stolenGoods-=1;
@@ -1058,7 +1059,7 @@ const Koviko = {
           }},
         'Distill Potions':{ affected:['herbs','potions'],
           canStart:(input) => {
-          return (r.herbs>=10 && r.rep>=10);
+          return (input.herbs>=10 && input.rep>=10);
         }, loop: {
           cost:(p) => segment =>  Math.floor(Math.pow(1.4, p.completed/3)+0.0000001)*40000,
           tick:(p, a, s, k, r) => offset => (r.herbs<10) ? 0 : (getSkillLevelFromExp(k.alchemy) + getSkillLevelFromExp(k.brewing)/2) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
@@ -1125,7 +1126,7 @@ const Koviko = {
           }},
         'Concoct Potions':{ affected:['rep','darkEssences','darkPotions'],
           canStart:(input) => {
-            return (r.rep<=-10 && r.darkEssences>=10);
+            return (input.rep<=-10 && input.darkEssences>=10);
           }, loop: {
           cost:(p) => segment =>  precision3(Math.pow(1.4, p.completed/3))*50000,
           tick:(p, a, s, k, r) => offset => r.darkEssences<10?0: (getSkillLevelFromExp(k.alchemy)/2 + getSkillLevelFromExp(k.brewing)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
@@ -1661,7 +1662,7 @@ const Koviko = {
        * @var {Koviko.Predictor~State}
        */
       let state = {
-        resources: { mana: 500, town: 0, guild: "", squirrel:0, deadSquirrel:0},
+        resources: { mana: 500, town: 0, guild: "", totalTicks:0,  squirrel:0, deadSquirrel:0},
         stats: Koviko.globals.statList.reduce((stats, name) => (stats[name] = getExpOfLevel(buffs.Imbuement2.amt*(Koviko.globals.skills.Wunderkind.exp>=100?2:1)), stats), {}),
         talents:  Koviko.globals.statList.reduce((talents, name) => (talents[name] = stats[name].talent, talents), {}),
         skills: Object.assign(Object.entries(skills).reduce((skills, x) => (skills[x[0].toLowerCase()] = x[1].exp, skills), {}),Object.entries(skillsSquirrel).reduce((skills, x) => (skills[x[0].toLowerCase()+"Squirrel"] = x[1].exp, skills), {})),
@@ -1982,8 +1983,14 @@ const Koviko = {
           return 'LEAD';
         case "assassin":
           return 'ASSA';
+        case "squirrelTrust":
+          return 'TRUST';
+        case "squirrelTrust":
+          return 'SCOMB';
+        case "squirrelTrust":
+          return 'SMAGE';
         default:
-          return name.toUpperCase();
+          return name.toUpperCase().substring(5);
       }
     }
 
