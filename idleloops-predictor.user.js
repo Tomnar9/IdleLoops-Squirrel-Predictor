@@ -933,7 +933,7 @@ const Koviko = {
           }},
         'Warrior Lessons':{ affected:[''],
           canStart:(input) => input.rep >= 2,
-          effect:(r, k) => {
+          effect:(r, k,sq) => {
           if (sq) {
             if (getLevelSquirrelAction("Warrior Lessons")<=1) {
               return; 
@@ -947,7 +947,7 @@ const Koviko = {
         }},
         'Mage Lessons':{ affected:[''],
           canStart:(input) => input.rep >= 2,
-          effect:(r, k) => { 
+          effect:(r, k, sq) => { 
           if (sq) {
             if (getLevelSquirrelAction("Mage Lessons")<=1) {
               return; 
@@ -962,7 +962,7 @@ const Koviko = {
         'Heal The Sick':{ affected:['rep'],
           canStart:(input) => (input.rep >= 1), loop: {
           cost:(p, a) => segment =>  fibonacci(2 + Math.floor((p.completed + segment) / a.segments + .0000001)) * 10000,
-          tick:(p, a, s, k, sq) => offset =>  sq ? 0 : getSkillLevelFromExp(k.magic) * Math.max( getSkillLevelFromExp(k.restoration) / 50, 1) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
+          tick:(p, a, s, k, r,	 sq) => offset =>  sq ? 0 : getSkillLevelFromExp(k.magic) * Math.max( getSkillLevelFromExp(k.restoration) / 50, 1) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
           effect:{loop:(r,k) => (r.rep += 3, k.magic+=50)}
         }},
         'Fight Monsters':{ affected:['gold'],
@@ -1694,7 +1694,7 @@ const Koviko = {
         stats: new Koviko.Snapshot(state.stats),
         skills: new Koviko.Snapshot(state.skills),
         currProgress: new Koviko.Snapshot({"Fight Monsters": 0, "Heal The Sick": 0, "Small Dungeon": 0, "Large Dungeon": 0, "Hunt Trolls": 0, "Tidy Up":0,"Fight Frost Giants":0, "The Spire":0, "Fight Jungle Monsters":0,"Rescue Survivors":0,"Heroes Trial":0,
-          "Dead Trial":0, "Secret Trial":0, "Gods Trial":0, "Challenge Gods":0})
+          "Dead Trial":0, "Secret Trial":0, "Gods Trial":0, "Challenge Gods":0, "Magic Fighter":0})
       };
 
       /**
@@ -1990,7 +1990,7 @@ const Koviko = {
         case "squirrelTrust":
           return 'SMAGE';
         default:
-          return name.toUpperCase().substring(5);
+          return name.toUpperCase().substring(0,5);
       }
     }
 
@@ -2090,6 +2090,9 @@ const Koviko = {
               break;
             case "Challenge Gods":
               tooltip += 'CHAL';
+              break;
+            case "Magic Fighter":
+              tooltip += "M FI";
               break;
             default:
               tooltip += i.toUpperCase();

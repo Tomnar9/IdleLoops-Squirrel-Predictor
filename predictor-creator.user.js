@@ -1677,7 +1677,7 @@ creatorCache['Warrior Lessons'].effect.game=\`finish() {
 		}
         
     }\`;
-creatorCache['Warrior Lessons'].effect.pred=\`(r, k) => {
+creatorCache['Warrior Lessons'].effect.pred=\`(r, k, sq) => {
           if (sq) {
             if (getLevelSquirrelAction("Warrior Lessons")<=1) {
               return; 
@@ -1729,7 +1729,7 @@ creatorCache['Mage Lessons'].effect.game=\`finish() {
 			handleSkillExp(this.skills);
 		}
     }\`;
-creatorCache['Mage Lessons'].effect.pred=\`(r, k) => { 
+creatorCache['Mage Lessons'].effect.pred=\`(r, k, sq) => { 
           if (sq) {
             if (getLevelSquirrelAction("Mage Lessons")<=1) {
               return; 
@@ -1762,7 +1762,7 @@ creatorCache['Heal The Sick'].loop.tick.game=\`tickProgress(offset) {
 		if(this.squirrelAction) return 0;
         return getSkillLevel("Magic") * Math.max(getSkillLevel("Restoration") / 50, 1) * (1 + getLevel(this.loopStats[(towns[BEGINNERSVILLE].HealLoopCounter + offset) % this.loopStats.length]) / 100) * Math.sqrt(1 + towns[BEGINNERSVILLE].totalHeal / 100);
     }\`;
-creatorCache['Heal The Sick'].loop.tick.pred=\`(p, a, s, k, sq) => offset =>  sq ? 0 : getSkillLevelFromExp(k.magic) * Math.max( getSkillLevelFromExp(k.restoration) / 50, 1) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100)\`;
+creatorCache['Heal The Sick'].loop.tick.pred=\`(p, a, s, k, r, sq) => offset =>  sq ? 0 : getSkillLevelFromExp(k.magic) * Math.max( getSkillLevelFromExp(k.restoration) / 50, 1) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100)\`;
 creatorCache['Heal The Sick'].loop.end={};
 creatorCache['Heal The Sick'].loop.end.game=\`finish() {
 		if(this.squirrelAction){
