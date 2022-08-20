@@ -519,7 +519,7 @@ creatorCache['Throw Party'].effect={};
 creatorCache['Throw Party'].effect.game=\`finish() {
         towns[0].finishProgress("Met", 3200);
     }\`;
-creatorCache['Throw Party'].effect.pred=\`\`;
+creatorCache['Throw Party'].effect.pred=\`(r,k) => r.rep-=2\`;
 creatorCache['Warrior Lessons']={};
 creatorCache['Warrior Lessons'].affected=[''];
 creatorCache['Warrior Lessons'].canStart={};
