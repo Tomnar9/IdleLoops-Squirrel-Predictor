@@ -2,7 +2,7 @@
 // @name         IdleLoops Predictor Makro
 // @namespace    https://github.com/MakroCZ/
 // @downloadURL  https://raw.githubusercontent.com/MakroCZ/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      2.2.2
+// @version      2.2.3
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://lloyd-delacroix.github.io/omsi-loops/
@@ -697,6 +697,7 @@ const Koviko = {
 
 
 
+ 
         'RuinsZ1':{ affected:['']},
         'RuinsZ3':{ affected:['']},
         'RuinsZ5':{ affected:['']},
@@ -811,7 +812,7 @@ const Koviko = {
         }},
         'Throw Party':{ affected:['rep'],
           canStart:true,
-          effect: (r,k) => r.rep-=2},
+          effect:(r,k) => r.rep-=2},
         'Warrior Lessons':{ affected:[''],
           canStart:(input) => input.rep >= 2,
           effect:(r, k) => k.combat += 100*(1+getBuffLevel("Heroism") * 0.02)},
@@ -1117,7 +1118,7 @@ const Koviko = {
           tick:(p, a, s, k) => offset => ( getSkillLevelFromExp(k.magic) +  getSkillLevelFromExp(k.practical) +  getSkillLevelFromExp(k.dark) +
                                            getSkillLevelFromExp(k.chronomancy) +  getSkillLevelFromExp(k.pyromancy) +  getSkillLevelFromExp(k.restoration) +  getSkillLevelFromExp(k.spatiomancy)) *
                                           h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000),
-          effect:{segment:(r, k) => (r.wizard++)}
+          effect:{ end:(r) => {r.gold -= 500; r.favor -=10;}, segment:(r, k) => (r.wizard++)}
         }},
         'Restoration':{ affected:[''], manaCost:(r,k)=>(15000 / h.getWizardRankBonus(r)),
           effect:(r, k) => k.restoration += 100*(1+getBuffLevel("Heroism") * 0.02)},
