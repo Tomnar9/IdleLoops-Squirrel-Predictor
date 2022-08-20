@@ -1003,7 +1003,7 @@ const Koviko = {
           effect:(r,k,sq) => {
           if (sq) {
             if (getLevelSquirrelAction("Haggle")<2) return;
-            input.squirrelHaggle=true;
+            r.squirrelHaggle=true;
           } else {
             r.rep--;
           }
