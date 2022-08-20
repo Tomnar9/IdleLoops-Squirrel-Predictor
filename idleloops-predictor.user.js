@@ -484,6 +484,7 @@ const Koviko = {
       ul.koviko .herbs{color:#4caf50}
       ul.koviko .hide{color:#663300}
       ul.koviko .potions{color:#00b2ee}
+      ul.koviko .darkPotions{color:#00b2ee}
       ul.koviko .lpotions{color:#436ef7}
       ul.koviko .blood{color:#8b0000}
       ul.koviko .crafts{color:#777777}
@@ -696,6 +697,8 @@ const Koviko = {
        */
       const predictions = {
  
+
+
         'RuinsZ1':{ affected:['']},
         'RuinsZ3':{ affected:['']},
         'RuinsZ5':{ affected:['']},
@@ -764,90 +767,253 @@ const Koviko = {
             r.stone=1;
           }
         }},
-        'Map':{ affected:['gold','map'],
-          canStart:(input)=>(input.gold>=15),
-          effect:(r)=>(r.map++,r.gold-=15)},
-        'Wander':{ affected:['']},
+        'Look Around':{ affected:[''],
+          canStart:(input) => (input.glasses)},
+        'Absorb Mana':{ affected:[''],
+          effect:(r,k) => {
+          const manaBase = 100000;
+          const exponent = 1 + (getBuffLevel("SpiritBlessing") * 0.02);
+          r.manaAbsorb = (r.manaAbsorb || 0)+1;
+          r.mana += r.manaAbsorb <= towns[SANCTUARY].goodManaSpots ?  Math.floor(manaBase * Math.pow(exponent, r.manaAbsorb -1)) : 0;
+        }},
+        'Imbue Squirrel':{ affected:['ImbueSoulStone'],
+          effect:(r,k) => {
+            k.magicSquirrel+=Math.pow(4, getBuffLevel("SpiritBlessing"));
+        }},
+        'Imbue Soulstones':{ affected:[''],
+          canStart:(input) => {
+          return Action.ImbueSoulstones.getMinimumSoulstones();
+        },
+          effect:(r,k) => {
+          r.ImbueSoulStone=1;
+        }},
+        'Balance Soulstones':{ affected:['']},
+        'Mysterious Voice':{ affected:['blessing'],
+          effect:(r,k,sq) => {
+		  switch(getBuffLevel("SpiritBlessing")){
+            case 0: r.blessing=1;
+            case 1: if(sq) r.blessing=1;
+            case 2: if(r.stolenGoods >= 10) r.blessing=1;
+            case 3: if(r.herbs >= 100) r.blessing=1;
+            case 4: break;
+          }
+        }},
+        'Wander':{ affected:[''],
+          canStart:true,
+          effect:(r,k,sq)=>{
+          if (sq && getLevelSquirrelAction("Wander")==0)
+            h.killSquirrel();
+        }},
         'Smash Pots':{ affected:['mana'],
-          effect:(r) => {
+          canStart:true,
+          effect:(r,k,sq) => {
+          if (sq && getLevelSquirrelAction("Smash Pots")<3) {
+            return; //No effect
+          }
           r.temp1 = (r.temp1 || 0) + 1;
           r.mana += r.temp1 <= towns[0].goodPots ?  Action.SmashPots.goldCost() : 0;
         }},
-        'Pick Locks':{ affected:['gold'],
-          effect:(r) => {
-          r.temp2 = (r.temp2 || 0) + 1;
-          r.gold += r.temp2 <= towns[0].goodLocks ?  Action.PickLocks.goldCost() : 0;
+        'Pet Squirrel':{ affected:[''], manaCost:(r,k,sq) => {
+          if(sq && getLevelSquirrelAction("Pet Squirrel") >= 3) return 2500;
+          return 100 + getSkillSquirrelLevelFromExp(k.trustSquirrel) * 100;
+        },
+          canStart:(input,sq) => {
+          if(sq){
+		    if(getLevelSquirrelAction("Pet Squirrel") >= 3) return (input.reputation >= 2)
+            return true;
+          }
+          if(getLevelSquirrelAction("Pet Squirrel") >= 2 && !input.squirrel ) return false;
+          if(getLevelSquirrelAction("Pet Squirrel") < 2 && !input.squirrel && input.deadSquirrel) return false;
+		return true;
+        },
+          effect:(r,k,sq) => {
+          if (sq) {
+            if (getLevelSquirrelAction("Pet Squirrel")>=3) {
+              k.trustSquirrel+=200;
+            }
+          } else {
+            k.trustSquirrel+=100;
+            r.squirrel=1;
+          }
         }},
-        'Buy Glasses':{ affected:['gold','glassess'],
-          canStart:(r)=>(r.gold>=10),
-          effect:(r) => (r.gold -= 10, r.glasses = true)},
-        'Found Glasses':{ affected:['']},
-        'Buy Mana Z1':{ affected:['mana','gold','manaBought'],
+        'Pick Locks':{ affected:['gold','stolenGoods','mana'],
+          canStart:true,
           effect:(r) => {
-          if (r.isManaDrought) {
-            let spendGold = Math.min(r.gold, 300);
-            let buyMana = Math.min(spendGold *  Action.BuyManaZ1.goldCost(), r.manaBought);
-            r.mana+=buyMana;
-            r.manaBought-=buyMana;
-            r.gold-=spendGold; 
-          } else { 
-            r.mana += r.gold *  Action.BuyManaZ1.goldCost();
-            r.gold = 0;
+          if (sq) {
+            if (getLevelSquirrelAction("Pick Locks")>=2) {
+              r.temp2 = (r.temp2 || 0) + 1;
+              r.mana += r.temp2 <= towns[0].goodLocks ? Action.PickLocks.stolenGoodsGain() * Action.PickLocks.goldCost() : 0;
+            } else {
+              h.killSquirrel(r);
+            }
+          } else {
+            r.temp2 = (r.temp2 || 0) + 1;
+            r.stolenGoods += r.temp2 <= towns[0].goodLocks ? Action.PickLocks.stolenGoodsGain() : 0;
         }}},
-        'Meet People':{ affected:['']},
-        'Train Strength':{ affected:['']},
-        'Short Quest':{ affected:['gold'],
-          effect:(r) => {
-          r.temp3 = (r.temp3 || 0) + 1;
-          r.gold += r.temp3 <= towns[0].goodSQuests ?  Action.ShortQuest.goldCost() : 0;
+        'Take Glasses':{ affected:['stolenGoods'],
+          canStart:(input) => (r.stolenGoods >= 1),
+          effect:(r,k) => {
+          r.glasses = true;
+          r.stolenGoods-=1;
         }},
-        'Investigate':{ affected:['']},
+        'Found Glasses':{ affected:[''],
+          effect:(r,k) => {
+          r.glasses = true;
+        }},
+        'Buy Mana Z1':{ affected:['mana','gold','stolenGoods'],
+          canStart:true,
+          effect:(r,k, sq) => {
+          if (sq) {
+            switch(getLevelSquirrelAction("Buy Mana Z1")) {
+              case 3:
+                r.mana+=1400;
+              case 2:
+                r.mana+=100;
+                h.killSquirrel(r);
+              case 1:
+            }
+          }
+          r.gold+=r.stolenGoods * Action.BuyManaZ1.stolenGoodsValue()
+          r.mana += r.gold *  Action.BuyManaZ1.goldCost();
+          r.gold = 0;
+          r.stolenGoods=0;
+          
+        }},
+        'Meet People':{ affected:[''],
+          canStart:true},
+        'Train Strength':{ affected:[''],
+          canStart:true},
+        'Short Quest':{ affected:['gold'],
+          canStart:true,
+          effect:(r,k,sq) => {
+          let gCost=Action.ShortQuest.goldCost();
+          if (sq) {
+            switch(getLevelSquirrelAction("Short Quest")) {
+              case 1: 
+                return;
+              case 3:
+                gCost=gCost*1.1;
+            }
+          }
+          r.temp3 = (r.temp3 || 0) + 1;
+          r.gold += r.temp3 <= towns[0].goodSQuests ?  gCost : 0;
+        }},
+        'Investigate':{ affected:[''],
+          canStart:true},
         'Long Quest':{ affected:['gold','rep'],
-          effect:(r) => {
+          canStart:true,
+          effect:(r,k,sq) => {
           r.temp4 = (r.temp4 || 0) + 1;
-          r.gold += r.temp4 <= towns[0].goodLQuests ?  Action.LongQuest.goldCost() : 0;
-          r.rep += r.temp4 <= towns[0].goodLQuests ? 1 : 0;
+          if (r.temp4 <= towns[0].goodLQuests) {
+            let goldGain=Action.LongQuest.goldCost();
+            let repGain=1;
+            if (sq) {
+              switch(getLevelSquirrelAction("Long Quest")) {
+                case 0:
+                case 1:
+                  return;
+                case 2:
+                  goldGain*=1.1;
+                  repGain=0;
+                  break;
+                case 3:
+                  goldGain*=1.2;
+                  break;
+              }
+            }
+            r.gold += goldGain;
+            r.rep += repGain;
+          }
         }},
         'Throw Party':{ affected:['rep'],
-          canStart:true},
+          canStart:(input)=>(input.rep>=2),
+          effect:(r,k,sq)=>{
+            r.rep-=2;
+          }},
         'Warrior Lessons':{ affected:[''],
           canStart:(input) => input.rep >= 2,
-          effect:(r, k) => k.combat += 100*(1+getBuffLevel("Heroism") * 0.02)},
+          effect:(r, k) => {
+          if (sq) {
+            if (getLevelSquirrelAction("Warrior Lessons")<=1) {
+              return; 
+            } else {
+              k.combat += 300*(1+getBuffLevel("Heroism") * 0.02)
+              h.killSquirrel(r);
+            }
+          } else {
+            k.combat += 100*(1+getBuffLevel("Heroism") * 0.02)
+          }
+        }},
         'Mage Lessons':{ affected:[''],
           canStart:(input) => input.rep >= 2,
-          effect:(r, k) => k.magic += 100 * (1 +  getSkillLevelFromExp(k.alchemy) / 100)},
+          effect:(r, k) => { 
+          if (sq) {
+            if (getLevelSquirrelAction("Mage Lessons")<=1) {
+              return; 
+            } else {
+              k.magic += 300 * (1 +  getSkillLevelFromExp(k.alchemy) / 100)
+              h.killSquirrel(r);
+            }
+          } else {
+            k.magic += 100 * (1 +  getSkillLevelFromExp(k.alchemy) / 100);
+          }
+        }},
         'Heal The Sick':{ affected:['rep'],
           canStart:(input) => (input.rep >= 1), loop: {
-          cost:(p, a) => segment =>  fibonacci(2 + Math.floor((p.completed + segment) / a.segments + .0000001)) * 5000,
-          tick:(p, a, s, k) => offset =>  getSkillLevelFromExp(k.magic) * Math.max( getSkillLevelFromExp(k.restoration) / 50, 1) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
-          effect:{ end:(r, k) => k.magic += 10, loop:(r) => r.rep += 3}
+          cost:(p, a) => segment =>  fibonacci(2 + Math.floor((p.completed + segment) / a.segments + .0000001)) * 10000,
+          tick:(p, a, s, k, sq) => offset =>  sq ? 0 : getSkillLevelFromExp(k.magic) * Math.max( getSkillLevelFromExp(k.restoration) / 50, 1) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
+          effect:{loop:(r,k) => (r.rep += 3, k.magic+=50)}
         }},
         'Fight Monsters':{ affected:['gold'],
           canStart:(input) => (input.rep >= 2), loop: {
-          cost:(p, a) => segment =>  fibonacci(Math.floor((p.completed + segment) - p.completed / a.segments + .0000001)) * 10000,
-          tick:(p, a, s, k, r) => offset => h.getSelfCombat(r, k) * Math.sqrt(1 + p.total / 100) * h.getStatProgress(p, a, s, offset),
-          effect:{ end:(r, k) => k.combat += 10*(1+getBuffLevel("Heroism") * 0.02), segment:(r) => r.gold += 20}
+          cost:(p, a) => segment =>  fibonacci(Math.floor((p.completed + segment) - p.completed / a.segments + .0000001)) * 20000,
+          tick:(p, a, s, k, r, sq) => offset => sq ? 0 : h.getSelfCombat(r, k) * Math.sqrt(1 + p.total / 100) * h.getStatProgress(p, a, s, offset),
+          effect:{ end:(r, k, sq) => {if (sq) h.killSquirrel(r);}, segment:(r,k) => (r.gold += 20,k.combat += 50*(1+getBuffLevel("Heroism") * 0.02))}
+        }},
+        'Magic Fighter':{ affected:[''],
+          canStart:(input) => {
+          return input.rep>=2;
+        }, loop: {
+          max:()=>4,
+          cost:(p) => segment =>  precision3(Math.floor(Math.pow(4, p.completed/9)+ 0.0000001)*200000),
+          tick:(p, a, s, k, r, sq) => offset => sq ? 0 : (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
+          effect:{segment:(r,k) => {k.combat += 50*(1+getBuffLevel("Heroism") * 0.02); k.magic += 50;}, loop:(r,k) => {k.combat += 50*(1+getBuffLevel("Heroism") * 0.02); k.magic += 50;}}
         }},
         'Small Dungeon':{ affected:['soul'],
           canStart:(input) => input.rep >= 2, loop: {
           max:(a) =>  dungeons[a.dungeonNum].length,
-          cost:(p, a) => segment =>  precision3(Math.pow(2, Math.floor((p.completed + segment) / a.segments + .0000001)) * 15000),
-          tick:(p, a, s, k, r) => offset => {
-            let floor = Math.floor(p.completed / a.segments + .0000001);
+          cost:(p, a) => segment =>  precision3(Math.pow(2.5, Math.floor((p.completed + segment) / a.segments + .0000001)) * 30000),
+          tick:(p, a, s, k, r, sq) => offset => {
+            let floor = sq? -1: Math.floor(p.completed / a.segments + .0000001);
 
             return floor in  dungeons[a.dungeonNum] ? (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 +  dungeons[a.dungeonNum][floor].completed / 200) : 0;
           },
-          effect:{ end:(r, k) => (k.combat += 5*(1+getBuffLevel("Heroism") * 0.02), k.magic += 5), loop:(r) => r.soul+=h.getRewardSS(0)}
+          effect:{loop:(r,k) => {r.soul+=h.getRewardSS(0);k.combat += 100*(1+getBuffLevel("Heroism") * 0.02); k.magic += 100;}}
         }},
         'Buy Supplies':{ affected:['gold'],
-          canStart:(input) => input.gold >= 300 - Math.max((input.supplyDiscount || 0) * 20, 0),
-          effect:(r) => (r.gold -= 300 - Math.max((r.supplyDiscount || 0) * 20, 0), r.supplies = (r.supplies || 0) + 1)},
+          canStart:(input,sq) => sq || (input.gold >= 450 - Math.max((input.supplyDiscount || 0) * 30, 0)),
+          effect:(r,k,sq) => {
+            if (sq) return;
+            r.gold -= 450 - Math.max((r.supplyDiscount || 0) * 30, 0);
+            r.supplies = (r.supplies || 0) + 1;
+          }},
         'Haggle':{ affected:['rep'],
-          canStart:(input) => (input.rep > 0),
-          effect:(r) => (r.rep--, r.supplyDiscount = (r.supplyDiscount >= 15 ? 15 : (r.supplyDiscount || 0) + 1))},
+          canStart:(input, sq) => sq ? !input.squirrelHaggle:(input.rep > 0),
+          effect:(r,k,sq) => {
+          if (sq) {
+            if (getLevelSquirrelAction("Haggle")<2) return;
+            input.squirrelHaggle=true;
+          } else {
+            r.rep--;
+          }
+          r.supplyDiscount = (r.supplyDiscount >= 15 ? 15 : (r.supplyDiscount || 0) + 1)
+}},
         'Start Journey':{ affected:[''],
           canStart:r => r.supplies >= 1,
-          effect:(r) => (r.supplies = (r.supplies || 0) - 1, r.town =1)},
+          effect:(r,k,sq) => {
+            r.supplies = 0;
+            r.town =sq ? SANCTUARY : FORESTPATH;
+          }},
         'Hitch Ride':{ affected:[''],
           canStart:true,
           effect:(r,k) => ( r.town =2)},
@@ -857,52 +1023,116 @@ const Koviko = {
         'Wild Mana':{ affected:['mana'],
           effect:(r) => {
           r.temp5 = (r.temp5 || 0) + 1;
-          r.mana += r.temp5 <= towns[1].goodWildMana ?  Action.WildMana.goldCost() : 0;
+          r.mana += r.temp5 <= towns[FORESTPATH].goodWildMana ?  Action.WildMana.goldCost() : 0;
         }},
         'Gather Herbs':{ affected:['herbs'],
           effect:(r) => {
           r.temp6 = (r.temp6 || 0) + 1;
-          r.herbs += r.temp6 <= towns[1].goodHerbs ? 1 : 0;
+          r.herbs += r.temp6 <= towns[FORESTPATH].goodHerbs ? 1 : 0;
         }},
         'Hunt':{ affected:['hide'],
           effect:(r) => {
           r.temp7 = (r.temp7 || 0) + 1;
-          r.hide += r.temp7 <= towns[1].goodHunt ? 1 : 0;
+          r.hide += r.temp7 <= towns[FORESTPATH].goodHunt ? 1 : 0;
         }},
         'Sit By Waterfall':{ affected:['']},
         'Old Shortcut':{ affected:['']},
         'Talk To Hermit':{ affected:['']},
-        'Practical Magic':{ affected:[''],
-          effect:(r, k) => k.practical += 100},
+        'Practice Yang':{ affected:['rep'],
+          effect:(r,k) => {
+          k.yang+=100 + (r.rep >= 0 ? r.rep * 25 : 0);
+        }},
         'Learn Alchemy':{ affected:['herbs'],
           canStart:(input) => (input.herbs >= 10),
-          effect:(r, k) => (r.herbs -= 10, k.alchemy += 50, k.magic += 50)},
-        'Brew Potions':{ affected:['herbs','potions'],
-          canStart:(input) => (input.herbs >= 10 && input.rep >= 5),
-          effect:(r, k) => (r.herbs -= 10, r.potions++, k.alchemy += 25, k.magic += 50)},
-        'Train Dexterity':{ affected:['']},
-        'Train Speed':{ affected:['']},
-        'Follow Flowers':{ affected:['']},
+          effect:(r, k) => {
+            r.herbs -= 10;
+            let brewingLevel = getSkillLevelFromExp(k.brewing);
+			let brewingMultiplier = 0;			
+			for(let levelsNeededForBoost = 1; brewingLevel > 0; levelsNeededForBoost++) {
+				for (let i = 0; i < 10 && brewingLevel > 0; i++){
+					brewingMultiplier += 1;
+					brewingLevel -= levelsNeededForBoost;				
+				}
+			}
+            k.alchemy += 100 + brewingMultiplier * 10;
+          }},
+        'Distill Potions':{ affected:['herbs','potions'],
+          canStart:(input) => {
+          return (r.herbs>=10 && r.rep>=10);
+        }, loop: {
+          cost:(p) => segment =>  Math.floor(Math.pow(1.4, p.completed/3)+0.0000001)*40000,
+          tick:(p, a, s, k, r) => offset => (r.herbs<10) ? 0 : (getSkillLevelFromExp(k.alchemy) + getSkillLevelFromExp(k.brewing)/2) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
+          effect:{loop:(r,k) => {r.herbs-=10;r.potions++}}
+        }},
+        'Train Squirrel':{ affected:[''],
+          effect:(r,k) => {
+          k.combatSquirrel+=4* h.getSelfCombat(r, k);
+        }},
+        'Feed Animals':{ affected:['herb'],
+          canStart:(input) => {
+          return input.herb>=10;
+        },
+          effect:(r,k) => {
+          r.herb-=10;
+        }},
+        'Pot Fairy':{ affected:['rep'],
+          effect:(r,k) => {
+          if (r.temp1>0) { //Smashed any pots...
+            r.rep*=-1;
+          } else {
+			const multPots = towns[BEGINNERSVILLE].goodPots/10;
+			r.rep+=multPots;
+			r.mana+=multPots * 2000;
+          }
+        }},
+        'Burn Forest':{ affected:['herbs','darkEssences'],
+          canStart:(input) => {
+          return (input.rep<0 && input.herbs>=10)
+        }, loop: {
+          cost:(p) => segment => 60000,
+          tick:(p, a, s, k, r) => offset => r.herbs<10 ? 0 : r.herbs *  (1 +  getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 1000) * Math.sqrt(1 + p.total / 1000),
+          effect:{loop:(r,k) => {r.mana+=4000;r.herbs-=10;r.darkEssences+=Math.floor(towns[FORESTPATH].getLevel("DarkForest")/10 + 0.000001);}}
+        }},
         'Bird Watching':{ affected:[''],
           canStart:(input) => input.glasses},
-        'Clear Thicket':{ affected:['']},
-        'Talk To Witch':{ affected:['']},
-        'Dark Magic':{ affected:['rep'],
-          canStart:(input) => (input.rep <= 0),
-          effect:(r, k) => (r.rep--, k.dark += Math.floor(100 * (1 + buffs.Ritual.amt / 100)))},
-        'Dark Ritual':{ affected:['ritual'],
-          canStart:(input) => (input.rep <= -5), loop: {
-          max:() => 1,
-          cost:(p) => segment => 1000000 * (segment * 2 + 1),
-          tick:(p, a, s, k) => offset => {
-            let attempt = Math.floor(p.completed / a.segments + .0000001);
-
-            return attempt < 1 ? ( getSkillLevelFromExp(k.dark) * h.getStatProgress(p, a, s, offset)) / (1 - towns[1].getLevel("Witch") * .005) : 0;
-          },
-          effect:{loop:(r) => r.ritual++}
+        'Dark Forest':{ affected:[''],
+          canStart:(input) => {
+          return input.rep<0;
+        },
+          effect:(r,k) => {
+        }},
+        'Talk To Witch':{ affected:[''],
+          canStart:true},
+        'Practice Yin':{ affected:['rep'],
+          effect:(r,k) => {
+          k.yang+=100 + (r.rep <= 0 ? r.rep * (-25) : 0);
+        }},
+        'Learn Brewing':{ affected:['darkEssences'],
+          canStart:(input) => {
+          return input.darkEssences>=10;
+        },
+          effect:(r,k) => {
+            r.darkEssences-=10;
+            let alchemyLevel = getSkillLevelFromExp(k.alchemy);
+			let alchemyMultiplier = 0;			
+			for(let levelsNeededForBoost = 1; alchemyLevel > 0; levelsNeededForBoost++) {
+				for (let i = 0; i < 10 && alchemyLevel > 0; i++){
+					alchemyMultiplier += 1;
+					alchemyLevel -= levelsNeededForBoost;				
+				}
+			}
+            k.brewing += 100 + alchemyMultiplier * 10;
+          }},
+        'Concoct Potions':{ affected:['rep','darkEssences','darkPotions'],
+          canStart:(input) => {
+            return (r.rep<=-10 && r.darkEssences>=10);
+          }, loop: {
+          cost:(p) => segment =>  precision3(Math.pow(1.4, p.completed/3))*50000,
+          tick:(p, a, s, k, r) => offset => r.darkEssences<10?0: (getSkillLevelFromExp(k.alchemy)/2 + getSkillLevelFromExp(k.brewing)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
+          effect:{loop:(r,k) => {r.darkEssences-=10;r.darkPotions++}}
         }},
         'Continue On':{ affected:[''],
-          effect:(r) => r.town = 2},
+          effect:(r,k,sq) => r.town = (sq?SANCTUARY:2)},
         'Explore City':{ affected:['']},
         'Gamble':{ affected:['gold','rep'],
           canStart:(input) => (input.rep >= -5 && input.gold >= 20),
@@ -912,7 +1142,8 @@ const Koviko = {
           r.rep--;
         }},
         'Get Drunk':{ affected:['rep'],
-          canStart:(input) => (input.rep >= -3)},
+          canStart:(input) => (input.rep >= -3),
+          effect:(r) => r.rep--},
         'Buy Mana Z3':{ affected:['mana','gold'],
           canStart:true,
           effect:(r) => (r.mana += r.gold *  Action.BuyManaZ3.goldCost(), r.gold = 0)},
@@ -963,7 +1194,7 @@ const Koviko = {
         'Heroes Trial':{ affected:['heroism'],
           canStart:true, loop: {
           max:(a) => trialFloors[a.trialNum],
-          cost:(p, a) => segment => precision3(Math.pow(a.baseScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.exponentScaling * getSkillBonus("Assassin")),
+          cost:(p, a) => segment => precision3(Math.pow(a.floorScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.baseScaling),
           tick:(p, a, s, k, r) => offset => {
             const floor = Math.floor(p.completed / a.segments + .0000001);
             return floor in trials[a.trialNum] ? h.getTeamCombat(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
@@ -1002,7 +1233,7 @@ const Koviko = {
         'Hunt Trolls':{ affected:['blood'], loop: {
           cost:(p, a) => segment =>  precision3(Math.pow(2, Math.floor((p.completed + segment) / a.segments+.0000001)) * 1e6),
           tick:(p, a, s, k, r) => offset => (h.getSelfCombat(r, k) * Math.sqrt(1 + p.total/100) * (1 +  getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]])/100)),
-          effect:{loop:(r, k) => (r.blood++, k.combat += 1000*(1+getBuffLevel("Heroism") * 0.02))}
+          effect:{segment:(r,k) => (k.combat += 1000*(1+getBuffLevel("Heroism") * 0.02)), loop:(r, k) => (r.blood++, k.combat += 1000*(1+getBuffLevel("Heroism") * 0.02))}
         }},
         'Check Walls':{ affected:['']},
         'Take Artifacts':{ affected:['artifacts'],
@@ -1033,14 +1264,15 @@ const Koviko = {
           effect:{loop:(r) => r.body++}
         }},
         'Face Judgement':{ affected:[''],
-          effect:(r) => (r.town = r.rep>=50?4:5)},
+          effect:(r) => (r.town = r.rep>=50?4:(r.rep<=-50?5:r.town))},
         'Guru':{ affected:['herbs'],
           canStart:(input)=>(input.herbs>=1000),
           effect:(r) => (r.town = 4,r.herbs-=1000)},
         'Guided Tour':{ affected:['gold'],
           canStart:(input) => {
           return (input.gold >= 10);
-        }},
+        },
+          effect:(r,k)=>(r.gold -= 10)},
         'Canvass':{ affected:['']},
         'Donate':{ affected:['gold','rep'],
           canStart:(input) => {
@@ -1063,7 +1295,7 @@ const Koviko = {
         }},
         'Tidy Up':{ affected:['gold','rep'], loop: {
           cost:(p, a) => segment =>  fibonacci(Math.floor((p.completed + segment) - p.completed / 3 + .0000001)) * 1000000,
-          tick:(p, a, s, k) => offset =>  getSkillLevelFromExp(k.practical) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
+          tick:(p, a, s, k) => offset =>  h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
           effect:{loop:(r) => {
               r.gold += 5;
               r.rep += 1;
@@ -1110,7 +1342,7 @@ const Koviko = {
           return (input.gold >= 500 && input.favor >= 10);
         }, loop: {
           cost:(p) => segment =>  precision3(Math.pow(1.3, p.completed + segment)) * 1e7,
-          tick:(p, a, s, k) => offset => ( getSkillLevelFromExp(k.magic) +  getSkillLevelFromExp(k.practical) +  getSkillLevelFromExp(k.dark) +
+          tick:(p, a, s, k) => offset => ( getSkillLevelFromExp(k.magic) +
                                            getSkillLevelFromExp(k.chronomancy) +  getSkillLevelFromExp(k.pyromancy) +  getSkillLevelFromExp(k.restoration) +  getSkillLevelFromExp(k.spatiomancy)) *
                                           h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000),
           effect:{segment:(r, k) => (r.wizard++)}
@@ -1144,15 +1376,15 @@ const Koviko = {
           max:() => 1,
           cost:(p) => segment => 1000000000 * (segment * 5 + 1),
           tick:(p, a, s, k) => offset => {
-            return  getSkillLevelFromExp(k.practical) * h.getStatProgress(p, a, s, offset);
+            return   h.getStatProgress(p, a, s, offset);
           },
           effect:{loop:(r) => r.feast++}
         }},
         'Fight Frost Giants':{ affected:[''],
           canStart:(input) => (input.pegasus), loop: {
           cost:(p, a) => segment => precision3(Math.pow(1.3, (p.completed + a.segments)) * 1e7),
-          tick:(p, a, s, k, r) => offset => h.getSelfCombat(r, k) * Math.sqrt(1 + p.total / 100) * h.getStatProgress(p, a, s, offset),
-          effect:{segment:(r) => r.giants= (r.giants||0)+1, loop:(r,k) => {(k.combat += 1500*(1+getBuffLevel("Heroism") * 0.02))}}
+          tick:(p, a, s, k, r) => offset => h.getSelfCombat(r, k) * Math.sqrt(1 + p.total / 1000) * h.getStatProgress(p, a, s, offset),
+          effect:{segment:(r,k) => (r.giants=(r.giants||0)+1 ,k.combat+=1250*(1+getBuffLevel("Heroism") * 0.02)), loop:(r,k) => {(k.combat += 1500*(1+getBuffLevel("Heroism") * 0.02))}}
         }},
         'Seek Blessing':{ affected:[''],
           canStart:(input) => {
@@ -1173,7 +1405,7 @@ const Koviko = {
           canStart:true,
           effect:(r,k)=> {
             r.wellLoot = (r.wellLoot || 0) + 1;
-            r.mana += r.wellLoot <= towns[5].goodWells ? Math.max(5000 - Math.floor(r.totalTicks/5),0) : 0;
+            r.mana += r.wellLoot <= towns[5].goodWells ? Math.max(5000 - Math.floor(r.totalTicks/10),0) : 0;
           }},
         'Destroy Pylons':{ affected:['pylons'],
           effect:(r) => {
@@ -1191,7 +1423,9 @@ const Koviko = {
         'Dark Sacrifice':{ affected:['blood'],
           canStart:(input) => (input.blood >= 1),
           effect:(r,k) => (r.blood -=1,k.commune+=100)},
-        'The Spire':{ affected:['soul'],
+        'The Spire':{ affected:['soul'], manaCost:(r,k) => {
+           return 100000 * Math.pow(0.9,r.pylons)
+        },
           canStart:true, loop: {
           max:(a) =>  dungeons[a.dungeonNum].length,
           cost:(p, a) => segment =>  precision3(Math.pow(2, Math.floor((p.completed + segment) / a.segments + .0000001)) * 10000000),
@@ -1200,7 +1434,6 @@ const Koviko = {
 
             return floor in  dungeons[a.dungeonNum] ?
                 h.getTeamCombat(r, k) *
-                (1 + 0.1 * (r.pylons||0)) *
                 h.getStatProgress(p, a, s, offset) *
                 Math.sqrt(1 +  dungeons[a.dungeonNum][floor].completed / 200) : 0;
           },
@@ -1215,7 +1448,7 @@ const Koviko = {
         'Dead Trial':{ affected:['zombie'],
           canStart:true, loop: {
           max:(a) => trialFloors[a.trialNum],
-          cost:(p, a) => segment => precision3(Math.pow(a.baseScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.exponentScaling * getSkillBonus("Assassin")),
+          cost:(p, a) => segment => precision3(Math.pow(a.floorScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.baseScaling),
           tick:(p, a, s, k, r) => offset => {
             const floor = Math.floor(p.completed / a.segments + .0000001);
             return floor in trials[a.trialNum] ? h.getZombieStrength(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
@@ -1230,12 +1463,12 @@ const Koviko = {
         }},
         'Explore Jungle':{ affected:['herbs'],
           effect:(r) => (r.herbs++)},
-        'Fight Jungle Monsters':{ affected:['blood'],
+        'Fight Jungle Monsters':{ affected:['hide'],
           canStart:true, loop: {
           cost:(p, a) => segment =>  precision3(Math.pow(1.3, p.completed + segment)) * 1e8,
           tick:(p, a, s, k, r) => offset => h.getSelfCombat(r, k) * h.getStatProgress(p, a, s, offset) *
                                              Math.sqrt(1 + p.total / 1000),
-          effect:{segment:(r) => r.blood=(r.blood||0)+1, loop:(r,k)=> (k.combat+=2000*(1+getBuffLevel("Heroism") * 0.02))}
+          effect:{segment:(r) => r.hide=(r.hide||0)+1, loop:(r,k)=> (k.combat+=2000*(1+getBuffLevel("Heroism") * 0.02))}
         }},
         'Rescue Survivors':{ affected:[''],
           canStart:true, loop: {
@@ -1243,10 +1476,10 @@ const Koviko = {
           tick:(p, a, s, k) => offset =>  getSkillLevelFromExp(k.magic) * Math.max( getSkillLevelFromExp(k.restoration) / 100, 1) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
           effect:{ end:(r,k) => { (k.restoration += 25*(1+getBuffLevel("Heroism") * 0.02))}, loop:(r) => (r.survivor= (r.survivor||0)+1,r.rep+=4)}
         }},
-        'Prepare Buffet':{ affected:['herbs','blood'],
-          canStart:(input) => ((input.herbs>=10) && (input.blood>=1)),
+        'Prepare Buffet':{ affected:['herbs','hide'],
+          canStart:(input) => ((input.herbs>=10) && (input.hide>=1)),
           effect:(r,k) => {
-            r.herbs-=10;
+            r.hide-=10;
             r.blood--;
             k.gluttony+=5*r.survivor;
           }},
@@ -1254,58 +1487,51 @@ const Koviko = {
           canStart:(input)=>(input.lpotions>0),
           effect:(r,k)=>(r.lpotions--,k.wunderkind+=100)},
         'Escape':{ affected:[''],
-          canStart:(input) => (input.totalTicks<=50*60),
+          canStart:(input) => (input.totalTicks<=100*60),
           effect:(r) => (r.town=7)},
         'Open Portal':{ affected:[''],
           effect:(r,k) => (r.town=1,k.restoration+=2500*(1+getBuffLevel("Heroism") * 0.02))},
         'Excursion':{ affected:['gold'],
           canStart:(input) => {
-          return input.gold>=(((input.guild==='explorer')||(input.guild==='thieves')) >= 0 ? 2 : 10);
+          return input.gold>=(((input.guild==='thieves')) >= 0 ? 2 : 10);
         },
           effect:(r, k) => {
-          r.gold -= (((r.guild==='explorer')||(r.guild==='thieves')) ? 2 : 10);
+          r.gold -= (((r.guild==='thieves')) ? 2 : 10);
         }},
         'Explorers Guild':{ affected:['map','completedMap'],
           canStart:(input) => (input.guild==''),
           effect:(r,k) => {
-          r.completedMap=0;
           r.guild='explorer';
+          /*r.completedMap=0;
           if (r.map==0) {
             r.map=30;
-          }
+          }*/
         }},
         'Thieves Guild':{ affected:['gold','thieves'],
           canStart:(input) => {
           return ((input.rep < 0) && (input.guild==''));
         }, loop: {
           cost:(p) => segment =>  precision3(Math.pow(1.2, p.completed + segment)) * 5e8,
-          tick:(p, a, s, k, r) => offset => ( getSkillLevelFromExp(k.practical) +  getSkillLevelFromExp(k.thievery)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000),
-          effect:{ end:(r, k) => (r.guild='thieves',k.practical+=50,k.thievery+=50), segment:(r,k) => (r.gold += 10, r.thieves=( r.thieves||0)+1,k.practical+=50,k.thievery+=50)}
+          tick:(p, a, s, k, r) => offset => (getSkillLevelFromExp(k.thievery)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000),
+          effect:{ end:(r, k) => (r.guild='thieves',k.thievery+=50), segment:(r,k) => (r.gold += 10, r.thieves=( r.thieves||0)+1,k.practical+=50,k.thievery+=50)}
         }},
         'Pick Pockets':{ affected:[''],
           canStart:(input) => (input.guild==='thieves'),
           effect:(r, k) => {
-          r.gold += Math.floor(Math.floor(2 * h.getSkillBonusInc(k.thievery)) * h.getGuildRankBonus(r.thieves));
-          k.thievery+=10 * (1 + towns[7].getLevel("PickPockets") / 100);
+          r.gold += Math.floor(Math.floor(1 * h.getSkillBonusInc(k.thievery)) * h.getGuildRankBonus(r.thieves));
+          k.thievery+=10 * (1 + towns[COMMERCEVILLE].getLevel("PickPockets") / 100);
         }},
         'Rob Warehouse':{ affected:[''],
           canStart:(input) => (input.guild==='thieves'),
           effect:(r, k) => {
-          r.gold += Math.floor(Math.floor(20 * h.getSkillBonusInc(k.thievery)) * h.getGuildRankBonus(r.thieves));
-          k.thievery+=20 * (1 + towns[7].getLevel("RobWarehouse") / 100);
+          r.gold += Math.floor(Math.floor(10 * h.getSkillBonusInc(k.thievery)) * h.getGuildRankBonus(r.thieves));
+          k.thievery+=20 * (1 + towns[COMMERCEVILLE].getLevel("RobWarehouse") / 100);
         }},
         'Insurance Fraud':{ affected:[''],
           canStart:(input) => (input.guild==='thieves'),
           effect:(r, k) => {
-          r.gold += Math.floor(Math.floor(200 * h.getSkillBonusInc(k.thievery)) * h.getGuildRankBonus(r.thieves));
-          k.thievery+=40 * (1 + towns[7].getLevel("InsuranceFraud") / 100);
-        }},
-        'Guild Assassin':{ affected:['heart'],
-          canStart:(input) => (input.guild==''),
-          effect:(r,k) => {
-          k.assassin+=100*Math.pow(r.heart,2);
-          r.heart=0;
-          r.guild='assassin';
+          r.gold += Math.floor(Math.floor(100 * h.getSkillBonusInc(k.thievery)) * h.getGuildRankBonus(r.thieves));
+          k.thievery+=40 * (1 + towns[COMMERCEVILLE].getLevel("InsuranceFraud") / 100);
         }},
         'Invest':{ affected:['gold'],
           canStart:(input)=>(input.gold>0),
@@ -1319,12 +1545,6 @@ const Koviko = {
            k.mercantilism+=50;
            r.gold+=Math.floor(goldInvested * .001);
         }},
-        'Seminar':{ affected:['gold'],
-          canStart:(input)=>(input.gold>=1000),
-          effect:(r,k)=> {
-           k.leadership+=200;
-           r.gold-=1000;
-        }},
         'Purchase Key':{ affected:['gold'],
           canStart:(input)=>(input.gold>=1000000),
           effect:(r,k)=> {
@@ -1334,7 +1554,7 @@ const Koviko = {
         'Secret Trial':{ affected:['zombie'],
           canStart:true, loop: {
           max:(a) => trialFloors[a.trialNum],
-          cost:(p, a) => segment => precision3(Math.pow(a.baseScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.exponentScaling * getSkillBonus("Assassin")),
+          cost:(p, a) => segment => precision3(Math.pow(a.floorScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.baseScaling),
           tick:(p, a, s, k, r) => offset => {
             const floor = Math.floor(p.completed / a.segments + .0000001);
             return floor in trials[a.trialNum] ? h.getTeamCombat(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
@@ -1364,7 +1584,7 @@ const Koviko = {
         'Gods Trial':{ affected:['power'],
           canStart:true, loop: {
           max:(a) => trialFloors[a.trialNum],
-          cost:(p, a) => segment => precision3(Math.pow(a.baseScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.exponentScaling * getSkillBonus("Assassin")),
+          cost:(p, a) => segment => precision3(Math.pow(a.floorScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.baseScaling),
           tick:(p, a, s, k, r) => offset => {
             const floor = Math.floor(p.completed / a.segments + .0000001);
             return floor in trials[a.trialNum] ? h.getTeamCombat(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
@@ -1379,7 +1599,7 @@ const Koviko = {
         'Challenge Gods':{ affected:['power'],
           canStart:(input)=>(input.power>0), loop: {
           max:(a) => trialFloors[a.trialNum],
-          cost:(p, a) => segment => precision3(Math.pow(a.baseScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.exponentScaling * getSkillBonus("Assassin")),
+          cost:(p, a) => segment => precision3(Math.pow(a.floorScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.baseScaling ),
           tick:(p, a, s, k, r) => offset => {
             const floor = Math.floor(p.completed / a.segments + .0000001);
             return floor in trials[a.trialNum] ? h.getSelfCombat(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
@@ -1403,7 +1623,7 @@ const Koviko = {
         'SurveyZ7': surveyBase,
         'SurveyZ8': surveyBase,
 
-        //assasin Actions;
+/*        //assasin Actions;
         'AssassinZ0': assassinBase,
         'AssassinZ1': assassinBase,
         'AssassinZ2': assassinBase,
@@ -1412,7 +1632,7 @@ const Koviko = {
         'AssassinZ5': assassinBase,
         'AssassinZ6': assassinBase,
         'AssassinZ7': assassinBase,
-
+*/
 // END OF ACTIONS*/
       };
 
@@ -1444,7 +1664,7 @@ const Koviko = {
         resources: { mana: 500, town: 0, guild: "", squirrel:0, deadSquirrel:0},
         stats: Koviko.globals.statList.reduce((stats, name) => (stats[name] = getExpOfLevel(buffs.Imbuement2.amt*(Koviko.globals.skills.Wunderkind.exp>=100?2:1)), stats), {}),
         talents:  Koviko.globals.statList.reduce((talents, name) => (talents[name] = stats[name].talent, talents), {}),
-        skills: Object.assign(Object.entries(Koviko.globals.skills).reduce((skills, x) => (skills[x[0].toLowerCase()] = x[1].exp, skills), {}),Object.entries(Koviko.globals.skillsSquirrel).reduce((skills, x) => (skills[x[0].toLowerCase()+"Squirrel"] = x[1].exp, skills), {})),
+        skills: Object.assign(Object.entries(skills).reduce((skills, x) => (skills[x[0].toLowerCase()] = x[1].exp, skills), {}),Object.entries(skillsSquirrel).reduce((skills, x) => (skills[x[0].toLowerCase()+"Squirrel"] = x[1].exp, skills), {})),
         progress: {},
         currProgress: {}
       };
