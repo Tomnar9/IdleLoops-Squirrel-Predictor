@@ -811,7 +811,7 @@ const Koviko = {
         }},
         'Throw Party':{ affected:['rep'],
           canStart:true,
-          (r,k) => r.rep-=2},
+          effect: (r,k) => r.rep-=2},
         'Warrior Lessons':{ affected:[''],
           canStart:(input) => input.rep >= 2,
           effect:(r, k) => k.combat += 100*(1+getBuffLevel("Heroism") * 0.02)},
