@@ -3,6 +3,7 @@
 // @version  1
 // @description Author script for the predictor. To use: 1.call crUpdatePredictions in the console 2. copy the result into the script, replacing everything between the "CACHE File" markers 3. Fix any TODOs in the copied cache, those are actions that changed and (maybe) need attention, if a function shouldn't be in the output replace it with '' (or\`\`) 4. call crOutputPredictions 5. paste the output into the main script, replacing the content of the "predictions" object EXEPT those after "SPECIAL ACTIONS" those are special cases that should be done by hand  // @match https://lloyd-delacroix.github.io/omsi-loops/
 // @author Tomnar <Tomnar#4672 on discord>
+// @match https://mopatissier.github.io/IdleLoopsReworked/
 // @grant    none
 // ==/UserScript==
 
@@ -2262,20 +2263,20 @@ creatorCache['Train Squirrel'].effect.pred=\`(r,k) => {
           k.combatSquirrel+=4* h.getSelfCombat(r, k);
         }\`;
 creatorCache['Feed Animals']={};
-creatorCache['Feed Animals'].affected=['herb'];
+creatorCache['Feed Animals'].affected=['herbs'];
 creatorCache['Feed Animals'].canStart={};
 creatorCache['Feed Animals'].canStart.game=\`canStart() {
         return resources.herbs >= 10;
     }\`;
 creatorCache['Feed Animals'].canStart.pred=\`(input) => {
-          return input.herb>=10;
+          return input.herbs>=10;
         }\`;
 creatorCache['Feed Animals'].effect={};
 creatorCache['Feed Animals'].effect.game=\`finish() {
        towns[FORESTPATH].finishProgress(this.varName, 100 * (1 + resources.herbs * 0.02));
     }\`;
 creatorCache['Feed Animals'].effect.pred=\`(r,k) => {
-          r.herb-=10;
+          r.herbs-=10;
         }\`;
 creatorCache['Pot Fairy']={};
 creatorCache['Pot Fairy'].affected=['rep'];

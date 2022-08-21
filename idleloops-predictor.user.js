@@ -1069,12 +1069,12 @@ const Koviko = {
           effect:(r,k) => {
           k.combatSquirrel+=4* h.getSelfCombat(r, k);
         }},
-        'Feed Animals':{ affected:['herb'],
+        'Feed Animals':{ affected:['herbs'],
           canStart:(input) => {
-          return input.herb>=10;
+          return input.herbs>=10;
         },
           effect:(r,k) => {
-          r.herb-=10;
+          r.herbs-=10;
         }},
         'Pot Fairy':{ affected:['rep'],
           effect:(r,k) => {
