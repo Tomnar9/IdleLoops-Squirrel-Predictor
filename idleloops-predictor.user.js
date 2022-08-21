@@ -2,7 +2,7 @@
 // @name         IdleLoops Squirrel Predictor Makro
 // @namespace    https://github.com/Tomnar9/
 // @downloadURL  https://raw.githubusercontent.com/Tomnar9/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      0.1.0
+// @version      0.1.1
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://mopatissier.github.io/IdleLoopsReworked/
@@ -1844,7 +1844,7 @@ const Koviko = {
 
 
               // Calculate time spent
-              let temp = (currentMana - state.resources.mana) / getSpeedMult(state.resources.town);
+              let temp = (currentMana - state.resources.mana) / this.getSpeedMult(state.resources,state.skills);
               state.resources.totalTicks += temp;
               state.resources.actionTicks+=temp;
 
@@ -1947,6 +1947,30 @@ const Koviko = {
         });
       }
       this.state = state;
+    }
+
+    getSpeedMult(r, k) {
+      let speedMult = 1;
+
+      // Yin and Yang
+      let bonusYin = Math.min(100, getSkillLevelFromExp(k.yin) * 0.5);
+      const capYinReputation = Math.max(getBuffLevel("YinYang"), r.rep * (-1)) * 2;
+      bonusYin = Math.min(capYinReputation, bonusYin);
+
+      let bonusYang = Math.min(100, getSkillLevelFromExp(k.yang) * 0.5);
+      const capYangReputation = Math.max(getBuffLevel("YinYang"), r.rep) * 2;
+      bonusYang = Math.min(capYangReputation, bonusYang);
+
+	  speedMult *= (1 + bonusYin/100) * (1 + bonusYang/100);
+
+      // chronomancy
+      speedMult *= Math.pow(1 + getSkillLevelFromExp(k.chronomancy) / 60, 0.25);
+    
+      //Imbue Soul
+      speedMult += 0.5 * getBuffLevel("Imbuement3");
+
+      return speedMult;
+
     }
 
     getShortSkill(name) {
