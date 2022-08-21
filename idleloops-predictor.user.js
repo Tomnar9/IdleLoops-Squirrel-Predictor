@@ -1750,7 +1750,7 @@ const Koviko = {
         // If the cache hit the last time
         if(cache && i !== finalIndex) {
           // Pull out all the variables we would usually expensivly calculate
-          cache = this.cache.next([listedAction.name, listedAction.loops, listedAction.disabled]);
+          cache = this.cache.next([listedAction.name, listedAction.squirrelAction, listedAction.loops, listedAction.disabled]);
           if(cache) {
             [state, total, isValid] = cache
             
@@ -1791,7 +1791,7 @@ const Koviko = {
             // Complicated mess of ifs to use the cache for 90% of the last action 
 
             if(i == finalIndex && cache){
-              let key = [listedAction.name, listedAction.disabled];
+              let key = [listedAction.name, listedAction.squirrelAction, listedAction.disabled];
               key['last'] = true;
               let lastcache = this.cache.next(key);
 
@@ -1867,7 +1867,7 @@ const Koviko = {
 
               // Add to cache 90% through the final action
               if(i==finalIndex && loop === Math.floor(listedAction.loops * 0.9)){
-                let key = [listedAction.name, listedAction.disabled];
+                let key = [listedAction.name, listedAction.squirrelAction, listedAction.disabled];
                 key['last'] = true;
                 this.cache.add(key, [state, loop + 1, total, isValid]);
               }
@@ -1882,7 +1882,7 @@ const Koviko = {
             if(prediction.name in state.progress)
               state.currProgress[prediction.name] = state.progress[prediction.name].completed / prediction.action.segments;
             // Update the cache
-            if(i!==finalIndex) this.cache.add([listedAction.name, listedAction.loops, listedAction.disabled], [state, total, isValid]);
+            if(i!==finalIndex) this.cache.add([listedAction.name, listedAction.squirrelAction, listedAction.loops, listedAction.disabled], [state, total, isValid]);
           }
           // Update the snapshots
           for (let i in snapshots) {
