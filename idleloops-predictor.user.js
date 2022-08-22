@@ -2,7 +2,7 @@
 // @name         IdleLoops Predictor Makro
 // @namespace    https://github.com/MakroCZ/
 // @downloadURL  https://raw.githubusercontent.com/MakroCZ/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      2.2.3
+// @version      2.2.4
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://lloyd-delacroix.github.io/omsi-loops/
@@ -1153,18 +1153,19 @@ const Koviko = {
           },
           effect:{loop:(r) => r.feast++}
         }},
-        'Fight Frost Giants':{ affected:[''],
+        'Fight Frost Giants':{ affected:['giants'],
           canStart:(input) => (input.pegasus), loop: {
           cost:(p, a) => segment => precision3(Math.pow(1.3, (p.completed + a.segments)) * 1e7),
           tick:(p, a, s, k, r) => offset => h.getSelfCombat(r, k) * Math.sqrt(1 + p.total / 100) * h.getStatProgress(p, a, s, offset),
           effect:{segment:(r) => r.giants= (r.giants||0)+1, loop:(r,k) => {(k.combat += 1500*(1+getBuffLevel("Heroism") * 0.02))}}
         }},
-        'Seek Blessing':{ affected:[''],
+        'Seek Blessing':{ affected:['giants'],
           canStart:(input) => {
           return (input.pegasus);
         },
           effect:(r, k) => {
           k.divine+= (r.giants>62? 10: precision3(1 + 0.05 * Math.pow(r.giants||0, 1.05)) ) *50;
+          r.giants=0;
         }},
         'Fall From Grace':{ affected:[''],
           effect:(r) => {

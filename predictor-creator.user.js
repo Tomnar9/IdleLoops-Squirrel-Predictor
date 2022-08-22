@@ -1947,7 +1947,7 @@ creatorCache['Great Feast'].loop.loop.game=\`loopsFinished() {
 creatorCache['Great Feast'].loop.loop.pred=\`(r) => r.feast++\`;
 creatorCache['Great Feast'].loop.max=\`() => 1\`;
 creatorCache['Fight Frost Giants']={};
-creatorCache['Fight Frost Giants'].affected=[''];
+creatorCache['Fight Frost Giants'].affected=['giants'];
 creatorCache['Fight Frost Giants'].canStart={};
 creatorCache['Fight Frost Giants'].canStart.game=\`canStart() {
         return resources.pegasus;
@@ -1983,7 +1983,7 @@ creatorCache['Fight Frost Giants'].loop.loop.game=\`loopsFinished() {
 creatorCache['Fight Frost Giants'].loop.loop.pred=\`(r,k) => {(k.combat += 1500*(1+getBuffLevel("Heroism") * 0.02))}\`;
 creatorCache['Fight Frost Giants'].loop.max=\`\`;
 creatorCache['Seek Blessing']={};
-creatorCache['Seek Blessing'].affected=[''];
+creatorCache['Seek Blessing'].affected=['giants'];
 creatorCache['Seek Blessing'].canStart={};
 creatorCache['Seek Blessing'].canStart.game=\`canStart() {
         return resources.pegasus;
@@ -1998,6 +1998,7 @@ creatorCache['Seek Blessing'].effect.game=\`finish() {
     }\`;
 creatorCache['Seek Blessing'].effect.pred=\`(r, k) => {
           k.divine+= (r.giants>62? 10: precision3(1 + 0.05 * Math.pow(r.giants||0, 1.05)) ) *50;
+          r.giants=0;
         }\`;
 creatorCache['Fall From Grace']={};
 creatorCache['Fall From Grace'].affected=[''];
