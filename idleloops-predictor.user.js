@@ -498,6 +498,7 @@ const Koviko = {
       ul.koviko .completedMap{color:#45e5ff}
       ul.koviko .finLoops{color:#777777}
       ul.koviko .heart{color:#ca0b0b}
+      ul.koviko .giants{color:#6ba9c4}
       \`;
       document.getElementById("actionsColumn").style.width="500px";
       document.getElementById("nextActionsListContainer").style.width="380px";
