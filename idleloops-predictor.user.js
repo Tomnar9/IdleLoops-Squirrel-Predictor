@@ -853,8 +853,8 @@ const Koviko = {
         }}},
         'Take Glasses':{ affected:['stolenGoods'],
           canStart:(input) => (input.stolenGoods >= 1),
-          effect:(r,k) => {
-          r.glasses = true;
+          effect:(r,k,sq) => {
+          if (!sq) r.glasses = true;
           r.stolenGoods-=1;
         }},
         'Found Glasses':{ affected:[''],

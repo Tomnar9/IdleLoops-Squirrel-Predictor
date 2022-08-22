@@ -1238,8 +1238,8 @@ creatorCache['Take Glasses'].effect.game=\`finish() {
 		}
         
     }\`;
-creatorCache['Take Glasses'].effect.pred=\`(r,k) => {
-          r.glasses = true;
+creatorCache['Take Glasses'].effect.pred=\`(r,k,sq) => {
+          if (!sq) r.glasses = true;
           r.stolenGoods-=1;
         }\`;
 creatorCache['Found Glasses']={};
