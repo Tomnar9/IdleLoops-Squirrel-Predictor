@@ -2,7 +2,7 @@
 // @name         IdleLoops Squirrel Predictor Makro
 // @namespace    https://github.com/Tomnar9/
 // @downloadURL  https://raw.githubusercontent.com/Tomnar9/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      0.1.1
+// @version      0.1.2
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://mopatissier.github.io/IdleLoopsReworked/
@@ -1662,7 +1662,7 @@ const Koviko = {
        * @var {Koviko.Predictor~State}
        */
       let state = {
-        resources: { mana: (500+50*getBuffLevel("ImbueSoulstones")), town: 0, guild: "", totalTicks:0,  squirrel:0, deadSquirrel:0},
+        resources: { mana: (500+50*getBuffLevel("ImbueSoulstones")), town: 0, guild: "", total:0, totalTicks:0,  squirrel:0, deadSquirrel:0},
         stats: Koviko.globals.statList.reduce((stats, name) => (stats[name] = getExpOfLevel(buffs.Imbuement2.amt*(Koviko.globals.skills.Wunderkind.exp>=100?2:1)), stats), {}),
         talents:  Koviko.globals.statList.reduce((talents, name) => (talents[name] = stats[name].talent, talents), {}),
         skills: Object.assign(Object.entries(skills).reduce((skills, x) => (skills[x[0].toLowerCase()] = x[1].exp, skills), {}),Object.entries(skillsSquirrel).reduce((skills, x) => (skills[x[0].toLowerCase()+"Squirrel"] = x[1].exp, skills), {})),
@@ -1696,13 +1696,6 @@ const Koviko = {
         currProgress: new Koviko.Snapshot({"Fight Monsters": 0, "Heal The Sick": 0, "Small Dungeon": 0, "Large Dungeon": 0, "Hunt Trolls": 0, "Tidy Up":0,"Fight Frost Giants":0, "The Spire":0, "Fight Jungle Monsters":0,"Rescue Survivors":0,"Heroes Trial":0,
           "Dead Trial":0, "Secret Trial":0, "Gods Trial":0, "Challenge Gods":0, "Magic Fighter":0})
       };
-
-      /**
-       * Total mana used for the action list
-       * @var {number}
-       */
-      let total = 0;
-
 
       /**
        * All affected resources of the current action list
@@ -1752,7 +1745,7 @@ const Koviko = {
           // Pull out all the variables we would usually expensivly calculate
           cache = this.cache.next([listedAction.name, listedAction.squirrelAction, listedAction.loops, listedAction.disabled]);
           if(cache) {
-            [state, total, isValid] = cache
+            [state, isValid] = cache
             
           }
         }
@@ -1796,7 +1789,7 @@ const Koviko = {
               let lastcache = this.cache.next(key);
 
               if(lastcache && lastcache[1] < listedAction.loops){
-                [state, loop, total, isValid] = lastcache;
+                [state, loop, isValid] = lastcache;
 
                 // Invalidate the entry if it's from less than 90% through (it'll be set again once it gets to 90%)
                 if(loop <= Math.floor(listedAction.loops * 0.9)){
@@ -1820,9 +1813,24 @@ const Koviko = {
               // Save the mana prior to the prediction
               currentMana = state.resources.mana;
 
+              // Special case for the Squirrel sanctuary (no exp, massive speed boost)
+              if (state.resources.town==SANCTUARY) {
+                const multiTick=Math.pow(4, getBuffLevel("SpiritBlessing"));
+                const ticks=Math.ceil(prediction.updateTicks(prediction.action, state.stats, state, listedAction.squirrelAction)/multiTick);
+                const actionDuration=ticks/this.getSpeedMult(state.resources,state.skills);
+                state.resources.totalTicks += actionDuration;
+                state.resources.actionTicks+= actionDuration;
+                state.resources.mana-=ticks*multiTick;
+
               // Skip EXP calculations for the last element, when no longer necessary (only costs 1 mana)
-              if ((i==finalIndex) && (prediction.ticks()==1) &&(!prediction.loop) &&(loop>0)) {
+              } else if ((i==finalIndex) && (prediction.ticks()==1) &&(!prediction.loop) &&(loop>0)) {
                 state.resources.mana--;
+                const tickDuration=1/this.getSpeedMult(state.resources,state.skills);
+                state.resources.totalTicks += tickDuration;
+                state.resources.actionTicks+= tickDuration;
+                state.resources.total++;
+
+                //Special case for loops that are already at maximum progress
               } else if (prediction.loop && prediction.loop.max &&((prediction.loop.max(prediction.action)*prediction.action.segments)<=state.progress[prediction.name].completed)) {
                 break;
               } else {
@@ -1833,26 +1841,6 @@ const Koviko = {
               // Check if the amount of mana used was too much
               isValid = isValid && state.resources.mana >= 0;
 
-              // Only for Adventure Guild
-              if ( listedAction.name == "Adventure Guild" ) {
-                state.resources.mana -= state.resources.adventures * 200;
-              }
-
-              // Calculate the total amount of mana used in the prediction and add it to the total
-              total += currentMana - state.resources.mana;
-
-
-
-              // Calculate time spent
-              let temp = (currentMana - state.resources.mana) / this.getSpeedMult(state.resources,state.skills);
-              state.resources.totalTicks += temp;
-              state.resources.actionTicks+=temp;
-
-              // Only for Adventure Guild
-              if ( listedAction.name == "Adventure Guild" ) {
-                state.resources.mana += state.resources.adventures * 200;
-              }
-              
               if (repeatLoop&& !isValid) {break;}
 
               // Run the effect, now that the mana checks are complete
@@ -1869,7 +1857,7 @@ const Koviko = {
               if(i==finalIndex && loop === Math.floor(listedAction.loops * 0.9)){
                 let key = [listedAction.name, listedAction.squirrelAction, listedAction.disabled];
                 key['last'] = true;
-                this.cache.add(key, [state, loop + 1, total, isValid]);
+                this.cache.add(key, [state, loop + 1, isValid]);
               }
 
             }
@@ -1882,7 +1870,7 @@ const Koviko = {
             if(prediction.name in state.progress)
               state.currProgress[prediction.name] = state.progress[prediction.name].completed / prediction.action.segments;
             // Update the cache
-            if(i!==finalIndex) this.cache.add([listedAction.name, listedAction.squirrelAction, listedAction.loops, listedAction.disabled], [state, total, isValid]);
+            if(i!==finalIndex) this.cache.add([listedAction.name, listedAction.squirrelAction, listedAction.loops, listedAction.disabled], [state, isValid]);
           }
           // Update the snapshots
           for (let i in snapshots) {
@@ -1901,8 +1889,9 @@ const Koviko = {
         }
       });
 
-      // Update the display for the total amount of mana used by the action list
-      let totalTicks = state.resources.totalTicks
+      // Update the display for the total amount of mana/time used by the action list
+      let total = state.resources.total;
+      let totalTicks = state.resources.totalTicks;
       totalTicks /= 100;
       var h = Math.floor(totalTicks / 3600);
       var m = Math.floor(totalTicks % 3600 / 60);
@@ -2147,6 +2136,12 @@ const Koviko = {
 
       // Handle the loop if it exists
       if (prediction.loop) {
+
+        const tickDuration=1/this.getSpeedMult(state.resources,state.skills)
+        state.resources.totalTicks += tickDuration;
+        state.resources.actionTicks+= tickDuration;
+        state.resources.total++;
+
         /** @var {Koviko.Predictor~Progression} */
         const progression = state.progress[prediction.name];
 
@@ -2229,6 +2224,14 @@ const Koviko = {
     predict(prediction, state, isSquirrel) {
       // Update the amount of ticks necessary to complete the action, but only once at the start of the action
       prediction.updateTicks(prediction.action, state.stats, state, isSquirrel);
+
+      //update statistic parameters, only if not in a looping action 
+      if (!prediction.loop) {
+        const actionDuration=prediction.ticks()/this.getSpeedMult(state.resources,state.skills);
+        state.resources.totalTicks += actionDuration;
+        state.resources.actionTicks+= actionDuration;
+        state.resources.total+=prediction.ticks();
+      }
 
       // Perform all ticks in succession
       for (let ticks = 0; ticks < prediction.ticks(); ticks++) {
