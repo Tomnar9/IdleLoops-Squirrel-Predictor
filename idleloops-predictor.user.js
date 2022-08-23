@@ -463,7 +463,7 @@ const Koviko = {
       .nextActionContainer[style~='flex;'] {display: grid!important;}
       .nextActionContainer > div:first-child { width: 70px; }
       .nextActionContainer > div:nth-child(2) {text-align: right; grid-area: c }
-      .koviko.valid { grid-area: b; }
+      .koviko.valid, .koviko.invalid  { grid-area: b;pointer-events:auto }
       #nextActionsList{height:100%!important; overflow-y:scroll;}
       #curActionsListContainer{width:120px!important; z-index: 100;}
       #nextActionsList:hover{margin-left:-40%;padding-left:40%}
@@ -2264,7 +2264,7 @@ const Koviko = {
       tooltip+= '<tr><td><b>TIME</b></td><td>' + precision3(resources.totalTicks/100, 1) + '</td><td>(+' + precision3(resources.actionTicks/100, 1) + ')</td></tr>';
 
       var Affec = affected.map(name => {
-        if ( resources[name] != 0 ) return ('<li class='+name+'>'+resources[name].toLocaleString('en', {useGrouping:true})+'</li>');
+        if ( resources[name] != 0 ) return ('<li class='+name+' title='+name.charAt(0).toUpperCase() + name.slice(1)+'>'+resources[name].toLocaleString('en', {useGrouping:true})+'</li>');
         else return "";
       }).join('');
       return \`<ul class='koviko \${isValid}'>\` + Affec + \`</ul><div class='koviko showthis'><table>\${tooltip || '<b>N/A</b>'}</table></div>\`;
