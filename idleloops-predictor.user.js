@@ -1092,7 +1092,7 @@ const Koviko = {
         }, loop: {
           cost:(p) => segment => 60000,
           tick:(p, a, s, k, r) => offset => r.herbs<10 ? 0 : r.herbs *  (1 +  getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 1000) * Math.sqrt(1 + p.total / 1000),
-          effect:{loop:(r,k) => {r.mana+=4000;r.herbs-=10;r.darkEssences+=Math.floor(towns[FORESTPATH].getLevel("DarkForest")/10 + 0.000001);r.forestBurn=(r.forestBurn||0)+1;if(r.forestBurn%2) r.rep-1 }}
+          effect:{loop:(r,k) => {r.mana+=4000;r.herbs-=10;r.darkEssences+=Math.floor(towns[FORESTPATH].getLevel("DarkForest")/10 + 0.000001);r.forestBurn=(r.forestBurn||0)+1; if(r.forestBurn%2==0) r.rep-=1;}}
         }},
         'Bird Watching':{ affected:[''],
           canStart:(input) => input.glasses},
