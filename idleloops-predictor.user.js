@@ -2,7 +2,7 @@
 // @name         IdleLoops Predictor Makro
 // @namespace    https://github.com/MakroCZ/
 // @downloadURL  https://raw.githubusercontent.com/MakroCZ/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      2.2.4
+// @version      2.2.5
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
 // @author       Koviko <koviko.net@gmail.com>
 // @match        https://lloyd-delacroix.github.io/omsi-loops/
@@ -1214,7 +1214,7 @@ const Koviko = {
           effect:{ end:(r,k) => {(k.combat += 100*(1+getBuffLevel("Heroism") * 0.02))}, loop:(r) => r.soul += h.getRewardSS(2)}
         }},
         'Purchase Supplies':{ affected:['gold'],
-          canStart:(input) => (input.gold >= 500 && input.supplies === 0),
+          canStart:(input) => (input.gold >= 500 && !input.supplies),
           effect:(r) => {
           r.gold -= 500;
           r.supplies = (r.supplies || 0) + 1;

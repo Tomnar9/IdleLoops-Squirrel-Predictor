@@ -2141,7 +2141,7 @@ creatorCache['Purchase Supplies'].canStart={};
 creatorCache['Purchase Supplies'].canStart.game=\`canStart() {
         return resources.gold >= 500 && !resources.supplies;
     }\`;
-creatorCache['Purchase Supplies'].canStart.pred=\`(input) => (input.gold >= 500 && input.supplies === 0)\`;
+creatorCache['Purchase Supplies'].canStart.pred=\`(input) => (input.gold >= 500 && !input.supplies)\`;
 creatorCache['Purchase Supplies'].effect={};
 creatorCache['Purchase Supplies'].effect.game=\`finish() {
         addResource("supplies", true);
