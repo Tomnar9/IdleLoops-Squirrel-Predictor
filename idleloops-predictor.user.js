@@ -1996,11 +1996,11 @@ const Koviko = {
           return 'LEAD';
         case "assassin":
           return 'ASSA';
-        case "squirrelTrust":
+        case "trustSquirrel":
           return 'TRUST';
-        case "squirrelCombat":
+        case "combatSquirrel":
           return 'SCOMB';
-        case "squirrelMagic":
+        case "magicSquirrel":
           return 'SMAGE';
         default:
           return name.toUpperCase().substring(0,5);
