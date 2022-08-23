@@ -2009,9 +2009,9 @@ const Koviko = {
           return 'ASSA';
         case "squirrelTrust":
           return 'TRUST';
-        case "squirrelTrust":
+        case "squirrelCombat":
           return 'SCOMB';
-        case "squirrelTrust":
+        case "squirrelMagic":
           return 'SMAGE';
         default:
           return name.toUpperCase().substring(0,5);
