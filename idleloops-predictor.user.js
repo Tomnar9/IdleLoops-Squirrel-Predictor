@@ -575,6 +575,11 @@ const Koviko = {
           \$('#trackedStat').append("<option value="+skillList[i].toLowerCase()+">(S) "+skillList[i]+"</option>");
         }
       }
+      for (let i in skillSquirrelList) {
+        if (skillsSquirrel[skillSquirrelList[i]].exp>0) {
+          \$('#trackedStat').append("<option value="+skillSquirrelList[i].toLowerCase()+"Squirrel>(Q) "+skillSquirrelList[i]+"</option>");
+        }
+      }
       for (let i in statList) {
         \$('#trackedStat').append("<option value="+statList[i]+">(T) "+_txt('stats>'+statList[i]+'>long_form')+"</option>");
       }
