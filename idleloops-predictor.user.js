@@ -470,6 +470,7 @@ const Koviko = {
       #curActionsListContainer{width:120px!important; z-index: 100;}
       #nextActionsList:hover{margin-left:-40%;padding-left:40%}
       #actionList>div:nth-child(2){left: 53px !important}
+      #nextActionsList.disabled ul.koviko{display:none;}
       .nextActionContainer:nth-child(1n+9) .showthis {bottom: 5px; top: unset;}
       span.koviko{font-weight:bold;color:#8293ff;}
       div.koviko{top:-5px;left:auto;right:100%}
