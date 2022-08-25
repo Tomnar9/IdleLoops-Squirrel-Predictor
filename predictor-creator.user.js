@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name     Squirrel Predictor Creator
-// @version  1
+// @version  1.1
 // @description Author script for the predictor. To use: 1.call crUpdatePredictions in the console 2. copy the result into the script, replacing everything between the "CACHE File" markers 3. Fix any TODOs in the copied cache, those are actions that changed and (maybe) need attention, if a function shouldn't be in the output replace it with '' (or\`\`) 4. call crOutputPredictions 5. paste the output into the main script, replacing the content of the "predictions" object EXEPT those after "SPECIAL ACTIONS" those are special cases that should be done by hand  // @match https://lloyd-delacroix.github.io/omsi-loops/
 // @author Tomnar <Tomnar#4672 on discord>
 // @match https://mopatissier.github.io/IdleLoopsReworked/
@@ -221,6 +221,8 @@ function crUpdatePredictions() {
 
 
 
+
+
 creatorCache['RuinsZ1']={};
 creatorCache['RuinsZ1'].affected=[''];
 creatorCache['RuinsZ1'].effect={};
@@ -365,714 +367,8 @@ creatorCache['HaulZ6'].effect.pred=\`(r) => {
             r.stone=1;
           }
         }\`;
-creatorCache['Hitch Ride']={};
-creatorCache['Hitch Ride'].affected=[''];
-creatorCache['Hitch Ride'].canStart={};
-creatorCache['Hitch Ride'].canStart.game=\`canStart() {
-        return true;
-    }\`;
-creatorCache['Hitch Ride'].canStart.pred=\`true\`;
-creatorCache['Hitch Ride'].effect={};
-creatorCache['Hitch Ride'].effect.game=\`finish() {
-        unlockTown(2);
-    }\`;
-creatorCache['Hitch Ride'].effect.pred=\`(r,k) => ( r.town =2)\`;
-creatorCache['Open Rift']={};
-creatorCache['Open Rift'].affected=[''];
-creatorCache['Open Rift'].effect={};
-creatorCache['Open Rift'].effect.game=\`finish() {
-        handleSkillExp(this.skills);
-        addResource("supplies", false);
-        unlockTown(5);
-    }\`;
-creatorCache['Open Rift'].effect.pred=\`(r,k) => (r.supplies = 0, r.town =5, k.dark+=1000)\`;
-creatorCache['Sit By Waterfall']={};
-creatorCache['Sit By Waterfall'].affected=[''];
-creatorCache['Sit By Waterfall'].effect={};
-creatorCache['Sit By Waterfall'].effect.game=\`finish() {
-        unlockStory("satByWaterfall");
-    }\`;
-creatorCache['Sit By Waterfall'].effect.pred=\`\`;
-creatorCache['Bird Watching']={};
-creatorCache['Bird Watching'].affected=[''];
-creatorCache['Bird Watching'].canStart={};
-creatorCache['Bird Watching'].canStart.game=\`canStart() {
-        return resources.glasses;
-    }\`;
-creatorCache['Bird Watching'].canStart.pred=\`(input) => input.glasses\`;
-creatorCache['Bird Watching'].effect={};
-creatorCache['Bird Watching'].effect.game=\`finish() {
-        unlockStory("birdsWatched");
-    }\`;
-creatorCache['Bird Watching'].effect.pred=\`\`;
-creatorCache['Buy Mana Z3']={};
-creatorCache['Buy Mana Z3'].affected=['mana','gold'];
-creatorCache['Buy Mana Z3'].canStart={};
-creatorCache['Buy Mana Z3'].canStart.game=\`canStart() {
-        return !portalUsed;
-    }\`;
-creatorCache['Buy Mana Z3'].canStart.pred=\`true\`;
-creatorCache['Buy Mana Z3'].effect={};
-creatorCache['Buy Mana Z3'].effect.game=\`finish() {
-        addMana(resources.gold * this.goldCost());
-        resetResource("gold");
-    }\`;
-creatorCache['Buy Mana Z3'].effect.pred=\`(r) => (r.mana += r.gold *  Action.BuyManaZ3.goldCost(), r.gold = 0)\`;
-creatorCache['Sell Potions']={};
-creatorCache['Sell Potions'].affected=['gold','potions'];
-creatorCache['Sell Potions'].effect={};
-creatorCache['Sell Potions'].effect.game=\`finish() {
-        if (resources.potions >= 20) unlockStory("sell20PotionsInALoop");
-        addResource("gold", resources.potions * getSkillLevel("Alchemy"));
-        resetResource("potions");
-        unlockStory("potionSold");
-        if (getSkillLevel("Alchemy") >= 100) unlockStory("sellPotionFor100Gold");
-    }\`;
-creatorCache['Sell Potions'].effect.pred=\`(r, k) => (r.gold += r.potions *  getSkillLevelFromExp(k.alchemy), r.potions = 0)\`;
-creatorCache['Gather Team']={};
-creatorCache['Gather Team'].affected=['team','gold'];
-creatorCache['Gather Team'].canStart={};
-creatorCache['Gather Team'].canStart.game=\`canStart() {
-        return guild === "Adventure" && resources.gold >= (resources.teamMembers + 1) * 100;
-    }\`;
-creatorCache['Gather Team'].canStart.pred=\`(input) => ((input.guild=='adventure')&&(input.gold>=(input.team+1) * 100))\`;
-creatorCache['Gather Team'].effect={};
-creatorCache['Gather Team'].effect.game=\`finish() {
-        addResource("teamMembers", 1);
-        unlockStory("teammateGathered");
-        if (resources.teamMembers >= 5) unlockStory("fullParty");
-    }\`;
-creatorCache['Gather Team'].effect.pred=\`(r) => (r.team = (r.team || 0) + 1, r.gold -= r.team * 100)\`;
-creatorCache['Craft Armor']={};
-creatorCache['Craft Armor'].affected=['hide'];
-creatorCache['Craft Armor'].canStart={};
-creatorCache['Craft Armor'].canStart.game=\`canStart() {
-        return resources.hide >= 2;
-    }\`;
-creatorCache['Craft Armor'].canStart.pred=\`(input) => (input.hide >= 2)\`;
-creatorCache['Craft Armor'].effect={};
-creatorCache['Craft Armor'].effect.game=\`finish() {
-        addResource("armor", 1);
-        unlockStory("armorCrafted");
-        if (resources.armor >= 10) unlockStory("craft10Armor");
-    }\`;
-creatorCache['Craft Armor'].effect.pred=\`(r) => (r.hide -= 2, r.armor = (r.armor || 0) + 1)\`;
-creatorCache['Read Books']={};
-creatorCache['Read Books'].affected=[''];
-creatorCache['Read Books'].canStart={};
-creatorCache['Read Books'].canStart.game=\`canStart() {
-        return resources.glasses;
-    }\`;
-creatorCache['Read Books'].canStart.pred=\`(input) => input.glasses\`;
-creatorCache['Read Books'].effect={};
-creatorCache['Read Books'].effect.game=\`finish() {
-        unlockStory("booksRead");
-    }\`;
-creatorCache['Read Books'].effect.pred=\`\`;
-creatorCache['Buy Pickaxe']={};
-creatorCache['Buy Pickaxe'].affected=['gold'];
-creatorCache['Buy Pickaxe'].canStart={};
-creatorCache['Buy Pickaxe'].canStart.game=\`canStart() {
-        return resources.gold >= 200;
-    }\`;
-creatorCache['Buy Pickaxe'].canStart.pred=\`(input) =>(input.gold>=200)\`;
-creatorCache['Buy Pickaxe'].effect={};
-creatorCache['Buy Pickaxe'].effect.game=\`finish() {
-        addResource("pickaxe", true);
-        unlockStory("pickaxeBought");
-    }\`;
-creatorCache['Buy Pickaxe'].effect.pred=\`(r) => (r.gold -= 200, r.pickaxe = true)\`;
-creatorCache['Start Trek']={};
-creatorCache['Start Trek'].affected=[''];
-creatorCache['Start Trek'].manaCost={};
-creatorCache['Start Trek'].manaCost.game=\`manaCost() {
-        return Math.ceil(12000);
-    }\`;
-creatorCache['Start Trek'].manaCost.pred=\`\`;
-creatorCache['Start Trek'].effect={};
-creatorCache['Start Trek'].effect.game=\`finish() {
-        unlockTown(3);
-    }\`;
-creatorCache['Start Trek'].effect.pred=\`(r) => r.town = 3\`;
-creatorCache['Underworld']={};
-creatorCache['Underworld'].affected=['gold'];
-creatorCache['Underworld'].canStart={};
-creatorCache['Underworld'].canStart.game=\`canStart() {
-        return resources.gold >= 500;
-    }\`;
-creatorCache['Underworld'].canStart.pred=\`(input)=>(input.gold>=500)\`;
-creatorCache['Underworld'].effect={};
-creatorCache['Underworld'].effect.game=\`finish() {
-        unlockTown(7);
-    }\`;
-creatorCache['Underworld'].effect.pred=\`(r) => (r.town = 7,r.gold-=500)\`;
-creatorCache['Looping Potion']={};
-creatorCache['Looping Potion'].affected=['herbs','lpotions'];
-creatorCache['Looping Potion'].manaCost={};
-creatorCache['Looping Potion'].manaCost.game=\`manaCost() {
-        return Math.ceil(30000);
-    }\`;
-creatorCache['Looping Potion'].manaCost.pred=\`\`;
-creatorCache['Looping Potion'].canStart={};
-creatorCache['Looping Potion'].canStart.game=\`canStart() {
-        return resources.herbs >= 400;
-    }\`;
-creatorCache['Looping Potion'].canStart.pred=\`(input) => (input.herbs>=400)\`;
-creatorCache['Looping Potion'].effect={};
-creatorCache['Looping Potion'].effect.game=\`finish() {
-        addResource("loopingPotion", true);
-        handleSkillExp(this.skills);
-        unlockStory("loopingPotionMade");
-    }\`;
-creatorCache['Looping Potion'].effect.pred=\`(r, k) => (r.herbs -= 400, r.lpotions++, k.alchemy += 100)\`;
-creatorCache['Guru']={};
-creatorCache['Guru'].affected=['herbs'];
-creatorCache['Guru'].canStart={};
-creatorCache['Guru'].canStart.game=\`canStart() {
-        return resources.herbs >= 1000;
-    }\`;
-creatorCache['Guru'].canStart.pred=\`(input)=>(input.herbs>=1000)\`;
-creatorCache['Guru'].effect={};
-creatorCache['Guru'].effect.game=\`finish() {
-        unlockTown(4);
-    }\`;
-creatorCache['Guru'].effect.pred=\`(r) => (r.town = 4,r.herbs-=1000)\`;
-creatorCache['Donate']={};
-creatorCache['Donate'].affected=['gold','rep'];
-creatorCache['Donate'].canStart={};
-creatorCache['Donate'].canStart.game=\`canStart() {
-        return resources.gold >= 20;
-    }\`;
-creatorCache['Donate'].canStart.pred=\`(input) => {
-          return (input.gold >= 20);
-        }\`;
-creatorCache['Donate'].effect={};
-creatorCache['Donate'].effect.game=\`finish() {
-        addResource("gold", -20);
-        addResource("reputation", 1);
-    }\`;
-creatorCache['Donate'].effect.pred=\`(r) => {
-          r.gold -= 20;
-          r.rep += 1;
-        }\`;
-creatorCache['Buy Mana Z5']={};
-creatorCache['Buy Mana Z5'].affected=['mana','gold'];
-creatorCache['Buy Mana Z5'].canStart={};
-creatorCache['Buy Mana Z5'].canStart.game=\`canStart() {
-        return !portalUsed;
-    }\`;
-creatorCache['Buy Mana Z5'].canStart.pred=\`true\`;
-creatorCache['Buy Mana Z5'].effect={};
-creatorCache['Buy Mana Z5'].effect.game=\`finish() {
-        addMana(resources.gold * this.goldCost());
-        resetResource("gold");
-    }\`;
-creatorCache['Buy Mana Z5'].effect.pred=\`(r) => (r.mana += r.gold *  Action.BuyManaZ5.goldCost(), r.gold = 0)\`;
-creatorCache['Sell Artifact']={};
-creatorCache['Sell Artifact'].affected=['gold','artifacts'];
-creatorCache['Sell Artifact'].canStart={};
-creatorCache['Sell Artifact'].canStart.game=\`canStart() {
-        return resources.artifacts >= 1;
-    }\`;
-creatorCache['Sell Artifact'].canStart.pred=\`(input) => {
-          return (input.artifacts >= 1);
-        }\`;
-creatorCache['Sell Artifact'].effect={};
-creatorCache['Sell Artifact'].effect.game=\`finish() {
-        addResource("gold", 50);
-    }\`;
-creatorCache['Sell Artifact'].effect.pred=\`(r) => {
-          r.gold += 50;
-          r.artifacts -= 1;
-        }\`;
-creatorCache['Gift Artifact']={};
-creatorCache['Gift Artifact'].affected=['artifacts'];
-creatorCache['Gift Artifact'].canStart={};
-creatorCache['Gift Artifact'].canStart.game=\`canStart() {
-        return resources.artifacts >= 1;
-    }\`;
-creatorCache['Gift Artifact'].canStart.pred=\`(input) => {
-          return (input.artifacts >= 1);
-        }\`;
-creatorCache['Gift Artifact'].effect={};
-creatorCache['Gift Artifact'].effect.game=\`finish() {
-        addResource("favors", 1);
-    }\`;
-creatorCache['Gift Artifact'].effect.pred=\`(r) => {
-          r.artifacts -= 1;
-          r.favor += 1;
-        }\`;
-creatorCache['Charm School']={};
-creatorCache['Charm School'].affected=[''];
-creatorCache['Charm School'].effect={};
-creatorCache['Charm School'].effect.game=\`finish() {
-        // empty
-    }\`;
-creatorCache['Charm School'].effect.pred=\`\`;
-creatorCache['Oracle']={};
-creatorCache['Oracle'].affected=[''];
-creatorCache['Oracle'].effect={};
-creatorCache['Oracle'].effect.game=\`finish() {
-		
-    }\`;
-creatorCache['Oracle'].effect.pred=\`\`;
-creatorCache['Enchant Armor']={};
-creatorCache['Enchant Armor'].affected=['armor','favor','enchantments'];
-creatorCache['Enchant Armor'].canStart={};
-creatorCache['Enchant Armor'].canStart.game=\`canStart() {
-        return resources.favors >= 1 && resources.armor >= 1;
-    }\`;
-creatorCache['Enchant Armor'].canStart.pred=\`(input) => {
-          return (input.armor >= 0 && input.favor >= 0);
-        }\`;
-creatorCache['Enchant Armor'].effect={};
-creatorCache['Enchant Armor'].effect.game=\`finish() {
-        handleSkillExp(this.skills);
-        addResource("enchantments", 1);
-    }\`;
-creatorCache['Enchant Armor'].effect.pred=\`(r) => {
-          r.armor -= 1;
-          r.favor -= 1;
-          r.enchantments += 1;
-        }\`;
-creatorCache['Restoration']={};
-creatorCache['Restoration'].affected=[''];
-creatorCache['Restoration'].manaCost={};
-creatorCache['Restoration'].manaCost.game=\`manaCost() {
-        return 15000 / getWizCollegeRank().bonus;
-    }\`;
-creatorCache['Restoration'].manaCost.pred=\`(r,k)=>(15000 / h.getWizardRankBonus(r))\`;
-creatorCache['Restoration'].effect={};
-creatorCache['Restoration'].effect.game=\`finish() {
-        handleSkillExp(this.skills);
-    }\`;
-creatorCache['Restoration'].effect.pred=\`(r, k) => k.restoration += 100*(1+getBuffLevel("Heroism") * 0.02)\`;
-creatorCache['Collect Taxes']={};
-creatorCache['Collect Taxes'].affected=[''];
-creatorCache['Collect Taxes'].canStart={};
-creatorCache['Collect Taxes'].canStart.game=\`canStart() {
-        return resources.houses > 0;
-    }\`;
-creatorCache['Collect Taxes'].canStart.pred=\`(input) => (input.houses > 0)\`;
-creatorCache['Collect Taxes'].effect={};
-creatorCache['Collect Taxes'].effect.game=\`finish() {
-        const goldGain = Math.floor(resources.houses * getSkillLevel("Mercantilism") / 10);
-        addResource("gold", goldGain);
-        return goldGain;
-    }\`;
-creatorCache['Collect Taxes'].effect.pred=\`(r, k) => {
-          r.gold += Math.floor(r.houses *  getSkillLevelFromExp(k.mercantilism) / 10);
-        }\`;
-creatorCache['Pegasus']={};
-creatorCache['Pegasus'].affected=['gold','favor'];
-creatorCache['Pegasus'].canStart={};
-creatorCache['Pegasus'].canStart.game=\`canStart() {
-        return resources.gold >= 200 && resources.favors >= 20;
-    }\`;
-creatorCache['Pegasus'].canStart.pred=\`(input) => {
-          return (input.gold >= 200 && input.favor >= 20);
-        }\`;
-creatorCache['Pegasus'].effect={};
-creatorCache['Pegasus'].effect.game=\`finish() {
-        addResource("pegasus", true);
-    }\`;
-creatorCache['Pegasus'].effect.pred=\`(r) => {
-          r.gold -= 200;
-          r.favor -= 20;
-          r.pegasus = true;
-        }\`;
-creatorCache['Seek Blessing']={};
-creatorCache['Seek Blessing'].affected=[''];
-creatorCache['Seek Blessing'].canStart={};
-creatorCache['Seek Blessing'].canStart.game=\`canStart() {
-        return resources.pegasus;
-    }\`;
-creatorCache['Seek Blessing'].canStart.pred=\`(input) => {
-          return (input.pegasus);
-        }\`;
-creatorCache['Seek Blessing'].effect={};
-creatorCache['Seek Blessing'].effect.game=\`finish() {
-        this.skills.Divine = Math.floor(50 * getFrostGiantsRank().bonus);
-        handleSkillExp(this.skills);
-    }\`;
-creatorCache['Seek Blessing'].effect.pred=\`(r, k) => {
-          k.divine+= (r.giants>62? 10: precision3(1 + 0.05 * Math.pow(r.giants||0, 1.05)) ) *50;
-        }\`;
-creatorCache['Raise Zombie']={};
-creatorCache['Raise Zombie'].affected=['blood','zombie'];
-creatorCache['Raise Zombie'].canStart={};
-creatorCache['Raise Zombie'].canStart.game=\`canStart() {
-        return resources.blood >= 1;
-    }\`;
-creatorCache['Raise Zombie'].canStart.pred=\`(input) => (input.blood >= 1)\`;
-creatorCache['Raise Zombie'].effect={};
-creatorCache['Raise Zombie'].effect.game=\`finish() {
-        handleSkillExp(this.skills);
-        addResource("zombie", 1);
-    }\`;
-creatorCache['Raise Zombie'].effect.pred=\`(r) => {
-            r.blood -= 1;
-            r.zombie += 1;
-          }\`;
-creatorCache['Dark Sacrifice']={};
-creatorCache['Dark Sacrifice'].affected=['blood'];
-creatorCache['Dark Sacrifice'].canStart={};
-creatorCache['Dark Sacrifice'].canStart.game=\`canStart() {
-        return resources.blood >= 1;
-    }\`;
-creatorCache['Dark Sacrifice'].canStart.pred=\`(input) => (input.blood >= 1)\`;
-creatorCache['Dark Sacrifice'].effect={};
-creatorCache['Dark Sacrifice'].effect.game=\`finish() {
-        handleSkillExp(this.skills);
-        //view.adjustGoldCost("DarkRitual", Action.DarkRitual.goldCost());
-    }\`;
-creatorCache['Dark Sacrifice'].effect.pred=\`(r,k) => (r.blood -=1,k.commune+=100)\`;
-creatorCache['Purchase Supplies']={};
-creatorCache['Purchase Supplies'].affected=['gold'];
-creatorCache['Purchase Supplies'].canStart={};
-creatorCache['Purchase Supplies'].canStart.game=\`canStart() {
-        return resources.gold >= 500 && !resources.supplies;
-    }\`;
-creatorCache['Purchase Supplies'].canStart.pred=\`(input) => (input.gold >= 500 && input.supplies === 0)\`;
-creatorCache['Purchase Supplies'].effect={};
-creatorCache['Purchase Supplies'].effect.game=\`finish() {
-        addResource("supplies", true);
-    }\`;
-creatorCache['Purchase Supplies'].effect.pred=\`(r) => {
-          r.gold -= 500;
-          r.supplies = (r.supplies || 0) + 1;
-        }\`;
-creatorCache['Journey Forth']={};
-creatorCache['Journey Forth'].affected=[''];
-creatorCache['Journey Forth'].canStart={};
-creatorCache['Journey Forth'].canStart.game=\`canStart() {
-        return resources.supplies;
-    }\`;
-creatorCache['Journey Forth'].canStart.pred=\`(input) => (input.supplies >= 1)\`;
-creatorCache['Journey Forth'].effect={};
-creatorCache['Journey Forth'].effect.game=\`finish() {
-        unlockTown(6);
-    }\`;
-creatorCache['Journey Forth'].effect.pred=\`(r) => {
-            r.supplies--;
-            r.town=6;
-        }\`;
-creatorCache['Totem']={};
-creatorCache['Totem'].affected=['lpotions'];
-creatorCache['Totem'].canStart={};
-creatorCache['Totem'].canStart.game=\`canStart() {
-        return resources.loopingPotion;
-    }\`;
-creatorCache['Totem'].canStart.pred=\`(input)=>(input.lpotions>0)\`;
-creatorCache['Totem'].effect={};
-creatorCache['Totem'].effect.game=\`finish() {
-        handleSkillExp(this.skills);
-    }\`;
-creatorCache['Totem'].effect.pred=\`(r,k)=>(r.lpotions--,k.wunderkind+=100)\`;
-creatorCache['Open Portal']={};
-creatorCache['Open Portal'].affected=[''];
-creatorCache['Open Portal'].effect={};
-creatorCache['Open Portal'].effect.game=\`finish() {
-        portalUsed = true;
-        handleSkillExp(this.skills);
-        unlockTown(1);
-    }\`;
-creatorCache['Open Portal'].effect.pred=\`(r,k) => (r.town=1,k.restoration+=2500*(1+getBuffLevel("Heroism") * 0.02))\`;
-creatorCache['Invest']={};
-creatorCache['Invest'].affected=['gold'];
-creatorCache['Invest'].canStart={};
-creatorCache['Invest'].canStart.game=\`canStart() {
-        return resources.gold > 0;
-    }\`;
-creatorCache['Invest'].canStart.pred=\`(input)=>(input.gold>0)\`;
-creatorCache['Invest'].effect={};
-creatorCache['Invest'].effect.game=\`finish() {
-        handleSkillExp(this.skills);
-        goldInvested += resources.gold;
-        if (goldInvested > 999999999999) goldInvested = 999999999999;
-        resetResource("gold");
-    }\`;
-creatorCache['Invest'].effect.pred=\`(r,k)=> {
-           k.mercantilism+=100;
-           r.gold=0;
-        }\`;
-creatorCache['Collect Interest']={};
-creatorCache['Collect Interest'].affected=['gold'];
-creatorCache['Collect Interest'].canStart={};
-creatorCache['Collect Interest'].canStart.game=\`canStart() {
-        return true;
-    }\`;
-creatorCache['Collect Interest'].canStart.pred=\`true\`;
-creatorCache['Collect Interest'].effect={};
-creatorCache['Collect Interest'].effect.game=\`finish() {
-        handleSkillExp(this.skills);
-        let interestGold = Math.floor(goldInvested * .001);
-        addResource("gold", interestGold);
-        return interestGold;
-    }\`;
-creatorCache['Collect Interest'].effect.pred=\`(r,k)=> {
-           k.mercantilism+=50;
-           r.gold+=Math.floor(goldInvested * .001);
-        }\`;
-creatorCache['Purchase Key']={};
-creatorCache['Purchase Key'].affected=['gold'];
-creatorCache['Purchase Key'].canStart={};
-creatorCache['Purchase Key'].canStart.game=\`canStart() {
-        return resources.gold >= 1000000 && !resources.key;
-    }\`;
-creatorCache['Purchase Key'].canStart.pred=\`(input)=>(input.gold>=1000000)\`;
-creatorCache['Purchase Key'].effect={};
-creatorCache['Purchase Key'].effect.game=\`finish() {
-        addResource("key", true);
-    }\`;
-creatorCache['Purchase Key'].effect.pred=\`(r,k)=> {
-           r.gold-=1000000;
-           r.key=1;
-        }\`;
-creatorCache['Leave City']={};
-creatorCache['Leave City'].affected=[''];
-creatorCache['Leave City'].canStart={};
-creatorCache['Leave City'].canStart.game=\`canStart() {
-        return resources.key;
-    }\`;
-creatorCache['Leave City'].canStart.pred=\`(input)=>(input.key>0)\`;
-creatorCache['Leave City'].effect={};
-creatorCache['Leave City'].effect.game=\`finish() {
-        unlockTown(8);
-    }\`;
-creatorCache['Leave City'].effect.pred=\`(r,k)=> {
-           r.key=0;
-           r.town=8;
-        }\`;
-//TODO Liste
-creatorCache['Look Around']={};
-creatorCache['Look Around'].affected=[];
-creatorCache['Look Around'].manaCost={};
-creatorCache['Look Around'].manaCost.game=\`manaCost() {
-        return 30000 * (Math.pow(2, towns[SANCTUARY].getLevel(this.varName))) / (Math.pow(6, getBuffLevel("SpiritBlessing")));
-    }\`;
-creatorCache['Look Around'].manaCost.pred=\`\`;
-creatorCache['Look Around'].canStart={};
-creatorCache['Look Around'].canStart.game=\`canStart() {
-        return resources.glasses;
-    }\`;
-creatorCache['Look Around'].canStart.pred=\`(input) => (input.glasses)\`;
-creatorCache['Look Around'].effect={};
-creatorCache['Look Around'].effect.game=\`finish() {
-		towns[SANCTUARY].finishProgress(this.varName, 100);
-		view.adjustManaCost("Look Around");
-		
-    }\`;
-creatorCache['Look Around'].effect.pred=\`\`;
-creatorCache['Absorb Mana']={};
-creatorCache['Absorb Mana'].affected=[];
-creatorCache['Absorb Mana'].effect={};
-creatorCache['Absorb Mana'].effect.game=\`finish() {
-		const manaGain = this.goldCost();
-		towns[SANCTUARY].finishRegular(this.varName, 10, () => {
-			addMana(manaGain);	
-			return manaGain;
-		});
-		view.adjustGoldCost("ManaSpots", this.goldCost());
-    }\`;
-creatorCache['Absorb Mana'].effect.pred=\`(r,k) => {
-          const manaBase = 100000;
-          const exponent = 1 + (getBuffLevel("SpiritBlessing") * 0.02);
-          r.manaAbsorb = (r.manaAbsorb || 0)+1;
-          r.mana += r.manaAbsorb <= towns[SANCTUARY].goodManaSpots ?  Math.floor(manaBase * Math.pow(exponent, r.manaAbsorb -1)) : 0;
-        }\`;
-creatorCache['Imbue Squirrel']={};
-creatorCache['Imbue Squirrel'].affected=['ImbueSoulStone'];
-creatorCache['Imbue Squirrel'].manaCost={};
-creatorCache['Imbue Squirrel'].manaCost.game=\`manaCost() {
-        return 3500 * Math.pow(3, getBuffLevel("SpiritBlessing"));
-    }\`;
-creatorCache['Imbue Squirrel'].manaCost.pred=\`\`;
-creatorCache['Imbue Squirrel'].effect={};
-creatorCache['Imbue Squirrel'].effect.game=\`finish() {
-		handleSkillSquirrelExp(this.skillsSquirrel);
-    }\`;
-creatorCache['Imbue Squirrel'].effect.pred=\`(r,k) => {
-            k.magicSquirrel+=Math.pow(4, getBuffLevel("SpiritBlessing"));
-        }\`;
-creatorCache['Imbue Soulstones']={};
-creatorCache['Imbue Soulstones'].affected=[];
-creatorCache['Imbue Soulstones'].canStart={};
-creatorCache['Imbue Soulstones'].canStart.game=\`canStart() {
-		return this.getMinimumSoulstones();
-    }\`;
-creatorCache['Imbue Soulstones'].canStart.pred=\`(input) => {
-          return Action.ImbueSoulstones.getMinimumSoulstones();
-        }\`;
-creatorCache['Imbue Soulstones'].effect={};
-creatorCache['Imbue Soulstones'].effect.game=\`finish() {
-		addBuffAmt("ImbueSoulstones", 1);
-		view.updateStartingMana();
-		view.adjustGoldCost(this.varName, this.goldCost());
-    }\`;
-creatorCache['Imbue Soulstones'].effect.pred=\`(r,k) => {
-          r.ImbueSoulStone=1;
-        }\`;
-creatorCache['Balance Soulstones']={};
-creatorCache['Balance Soulstones'].affected=[];
-creatorCache['Balance Soulstones'].effect={};
-creatorCache['Balance Soulstones'].effect.game=\`finish() {
-		let statWithLessSoulstones = "Dex";
-		let statWithMostSoulstones = "Dex";
-		
-		for (const stat of statList) {
-			if(stats[stat].soulstone > stats[statWithMostSoulstones].soulstone) statWithMostSoulstones = stat;
-			if(stats[stat].soulstone < stats[statWithLessSoulstones].soulstone) statWithLessSoulstones = stat;
-		}
-		
-		stats[statWithMostSoulstones].soulstone --;
-		stats[statWithLessSoulstones].soulstone ++;
-		
-		view.updateSoulstones();
-		
-    }\`;
-creatorCache['Balance Soulstones'].effect.pred=\`\`;
-creatorCache['Mysterious Voice']={};
-creatorCache['Mysterious Voice'].affected=['blessing'];
-creatorCache['Mysterious Voice'].effect={};
-creatorCache['Mysterious Voice'].effect.game=\`finish() {
-		switch(getBuffLevel("SpiritBlessing")){
-			
-			case 0: addBuffAmt("SpiritBlessing", 1);
-				break;
-			case 1: if(this.squirrelAction) addBuffAmt("SpiritBlessing", 1);
-				break;
-			case 2: if(resources.stolenGoods >= 10) addBuffAmt("SpiritBlessing", 1);
-				break;
-			case 3: if(resources.herbs >= 100) addBuffAmt("SpiritBlessing", 1);
-				break;
-			case 4: break;
-		}
-		view.updateActionTooltips();
-		view.adjustManaCost("Look Around");
-		view.adjustManaCost("Imbue Squirrel");
-		view.adjustGoldCost("ImbueSquirrel", Action.ImbueSquirrel.goldCost());
-		view.updateBuffCaps();
-    }\`;
-creatorCache['Mysterious Voice'].effect.pred=\`(r,k,sq) => {
-		  switch(getBuffLevel("SpiritBlessing")){
-            case 0: r.blessing=1;
-            case 1: if(sq) r.blessing=1;
-            case 2: if(r.stolenGoods >= 10) r.blessing=1;
-            case 3: if(r.herbs >= 100) r.blessing=1;
-            case 4: break;
-          }
-        }\`;
-creatorCache['Wander']={};
-creatorCache['Wander'].affected=[''];
-creatorCache['Wander'].canStart={};
-creatorCache['Wander'].canStart.game=\`canStart() {
-        if(this.squirrelAction) return resources.squirrel;
-		return true;
-    }\`;
-creatorCache['Wander'].canStart.pred=\`true\`;
-creatorCache['Wander'].effect={};
-creatorCache['Wander'].effect.game=\`finish() {
-		if(this.squirrelAction){
-			
-			switch(getLevelSquirrelAction("Wander")){
-				
-				case 0: levelUpSquirrelAction("Wander");
-					break;
-					
-				case 1: if(getSkillSquirrelLevel("Trust") >= 5) levelUpSquirrelAction("Wander");
-					break;
-					
-				case 2: if(getSkillSquirrelLevel("Trust") >= 20) levelUpSquirrelAction("Wander");
-					break;
-			}
-			
-			switch(getLevelSquirrelAction("Wander")){
-						
-				case 1: addResource("squirrel", false);
-						break;
-						
-				case 2: break;
-				
-				case 3: adjustPots();
-						break;
-				
-			}
-		} else {	
-			towns[BEGINNERSVILLE].finishProgress(this.varName, 200 * (resources.glasses ? 4 : 1));
-		}
-		
-    }\`;
-creatorCache['Wander'].effect.pred=\`(r,k,sq)=>{
-          if (sq && getLevelSquirrelAction("Wander")==0)
-            h.killSquirrel();
-        }\`;
-creatorCache['Smash Pots']={};
-creatorCache['Smash Pots'].affected=['mana'];
-creatorCache['Smash Pots'].manaCost={};
-creatorCache['Smash Pots'].manaCost.game=\`manaCost(squirrelTooltip) {
-		const squirrelManaMult = (((this.squirrelAction || squirrelTooltip) && getLevelSquirrelAction("Smash Pots") >= 3) ? 0.8 : 1);
-        return Math.ceil(100 * squirrelManaMult);
-    }\`;
-creatorCache['Smash Pots'].manaCost.pred=\`\`;
-creatorCache['Smash Pots'].canStart={};
-creatorCache['Smash Pots'].canStart.game=\`canStart() {
-        if(this.squirrelAction) return resources.squirrel;
-		return true;
-    }\`;
-creatorCache['Smash Pots'].canStart.pred=\`true\`;
-creatorCache['Smash Pots'].effect={};
-creatorCache['Smash Pots'].effect.game=\`finish() {
-        	
-		if(this.squirrelAction){
-			
-			switch(getLevelSquirrelAction("Smash Pots")){
-				
-				case 0: levelUpSquirrelAction("Smash Pots");
-					break;
-					
-				case 1: if(getSkillSquirrelLevel("Trust") >= 10) levelUpSquirrelAction("Smash Pots");
-					break;
-					
-				case 2: if(getSkillSquirrelLevel("Trust") >= 15){levelUpSquirrelAction("Smash Pots");
-						adjustPots();
-					}
-					break;
-			}
-			
-			switch(getLevelSquirrelAction("Smash Pots")){
-						
-				case 1: break;
-						
-				case 2: break;
-				
-				case 3: view.adjustManaCost("Smash Pots", squirrelMode);
-						towns[BEGINNERSVILLE].finishRegular(this.varName, 10, () => {
-							const manaGain = this.goldCost();
-							addMana(manaGain);
-							return manaGain;
-						});
-						break;
-				
-			}
-		} else {	
-			towns[BEGINNERSVILLE].finishRegular(this.varName, 10, () => {
-				const manaGain = this.goldCost();
-				addMana(manaGain);
-				return manaGain;
-			});
-		}
-		
-    }\`;
-creatorCache['Smash Pots'].effect.pred=\`(r,k,sq) => {
-          if (sq && getLevelSquirrelAction("Smash Pots")<3) {
-            return; //No effect
-          }
-          r.temp1 = (r.temp1 || 0) + 1;
-          r.mana += r.temp1 <= towns[0].goodPots ?  Action.SmashPots.goldCost() : 0;
-        }\`;
 creatorCache['Pet Squirrel']={};
-creatorCache['Pet Squirrel'].affected=[];
+creatorCache['Pet Squirrel'].affected=[''];
 creatorCache['Pet Squirrel'].manaCost={};
 creatorCache['Pet Squirrel'].manaCost.game=\`manaCost(squirrelTooltip) {
 		if((this.squirrelAction || squirrelTooltip) && getLevelSquirrelAction("Pet Squirrel") >= 3) return 2500;
@@ -1496,11 +792,11 @@ creatorCache['Investigate'].effect.game=\`finish() {
 						
 				case 1: break;		
 
-				case 2: towns[BEGINNERSVILLE].finishProgress(this.varName, 500 * this.stolenGoodsMultiplication());
+				case 2: towns[BEGINNERSVILLE].finishProgress(this.varName, 400 * this.stolenGoodsMultiplication());
 					
 			}
 		} else {	
-			towns[BEGINNERSVILLE].finishProgress(this.varName, 500 * this.stolenGoodsMultiplication());
+			towns[BEGINNERSVILLE].finishProgress(this.varName, 400 * this.stolenGoodsMultiplication());
 		}
 		
     }\`;
@@ -1590,265 +886,8 @@ creatorCache['Long Quest'].effect.pred=\`(r,k,sq) => {
             r.rep += repGain;
           }
         }\`;
-creatorCache['Throw Party']={};
-creatorCache['Throw Party'].affected=['rep'];
-creatorCache['Throw Party'].canStart={};
-creatorCache['Throw Party'].canStart.game=\`canStart() {
-		if(this.squirrelAction){
-			return resources.squirrel && resources.reputation >= 2;
-		}
-        return resources.reputation >= 2;
-    }\`;
-creatorCache['Throw Party'].canStart.pred=\`(input)=>(input.rep>=2)\`;
-creatorCache['Throw Party'].effect={};
-creatorCache['Throw Party'].effect.game=\`finish() {
-		
-		if(this.squirrelAction){
-			
-			switch(getLevelSquirrelAction("Throw Party")){
-				
-				case 0: levelUpSquirrelAction("Throw Party");
-					break;		
-
-				case 1: if(getSkillSquirrelLevel("Trust") >= 27) levelUpSquirrelAction("Throw Party");
-					break;
-					
-
-			}
-			
-			switch(getLevelSquirrelAction("Throw Party")){
-						
-				case 1: towns[BEGINNERSVILLE].finishProgress("Met", 3600);
-						unlockStory("partyThrown");
-					break;		
-
-				case 2: adjustSQuests();
-						adjustLQuests();
-						towns[BEGINNERSVILLE].finishProgress("Met", 3600);
-					break;
-					
-			}
-		} else {	
-			towns[BEGINNERSVILLE].finishProgress("Met", 2800);
-			unlockStory("partyThrown");
-		}
-        
-    }\`;
-creatorCache['Throw Party'].effect.pred=\`(r,k,sq)=>{
-            r.rep-=2;
-          }\`;
-creatorCache['Warrior Lessons']={};
-creatorCache['Warrior Lessons'].affected=[''];
-creatorCache['Warrior Lessons'].canStart={};
-creatorCache['Warrior Lessons'].canStart.game=\`canStart() {
-		if(this.squirrelAction){
-			return resources.squirrel && resources.reputation >= 2;
-		}
-        return resources.reputation >= 2;
-    }\`;
-creatorCache['Warrior Lessons'].canStart.pred=\`(input) => input.rep >= 2\`;
-creatorCache['Warrior Lessons'].effect={};
-creatorCache['Warrior Lessons'].effect.game=\`finish() {
-		
-		if(this.squirrelAction){
-			
-			switch(getLevelSquirrelAction("Warrior Lessons")){
-				
-				case 0: levelUpSquirrelAction("Warrior Lessons");
-					break;		
-
-				case 1: if(getSkillSquirrelLevel("Trust") >= 24) levelUpSquirrelAction("Warrior Lessons");
-					break;
-
-			}
-			
-			switch(getLevelSquirrelAction("Warrior Lessons")){
-						
-				case 1:  break;		
-
-				case 2: handleSkillExp(this.skills);
-						handleSkillExp(this.skills);
-						handleSkillExp(this.skills);
-						addResource("squirrel", false);
-					break;
-					
-			}
-		} else {	
-			handleSkillExp(this.skills);
-		}
-        
-    }\`;
-creatorCache['Warrior Lessons'].effect.pred=\`(r, k, sq) => {
-          if (sq) {
-            if (getLevelSquirrelAction("Warrior Lessons")<=1) {
-              return; 
-            } else {
-              k.combat += 300*(1+getBuffLevel("Heroism") * 0.02)
-              h.killSquirrel(r);
-            }
-          } else {
-            k.combat += 100*(1+getBuffLevel("Heroism") * 0.02)
-          }
-        }\`;
-creatorCache['Mage Lessons']={};
-creatorCache['Mage Lessons'].affected=[''];
-creatorCache['Mage Lessons'].canStart={};
-creatorCache['Mage Lessons'].canStart.game=\`canStart() {
-		if(this.squirrelAction){
-			return resources.squirrel && resources.reputation >= 2;
-		}
-        return resources.reputation >= 2;
-    }\`;
-creatorCache['Mage Lessons'].canStart.pred=\`(input) => input.rep >= 2\`;
-creatorCache['Mage Lessons'].effect={};
-creatorCache['Mage Lessons'].effect.game=\`finish() {
-        if(this.squirrelAction){
-			
-			switch(getLevelSquirrelAction("Mage Lessons")){
-				
-				case 0: levelUpSquirrelAction("Mage Lessons");
-					break;		
-
-				case 1: if(getSkillSquirrelLevel("Trust") >= 24) levelUpSquirrelAction("Mage Lessons");
-					break;
-					
-
-			}
-			
-			switch(getLevelSquirrelAction("Mage Lessons")){
-						
-				case 1:  break;		
-
-				case 2: handleSkillExp(this.skills);
-						handleSkillExp(this.skills);
-						handleSkillExp(this.skills);
-						addResource("squirrel", false);
-					break;
-					
-			}
-		} else {	
-			handleSkillExp(this.skills);
-		}
-    }\`;
-creatorCache['Mage Lessons'].effect.pred=\`(r, k, sq) => { 
-          if (sq) {
-            if (getLevelSquirrelAction("Mage Lessons")<=1) {
-              return; 
-            } else {
-              k.magic += 300 * (1 +  getSkillLevelFromExp(k.alchemy) / 100)
-              h.killSquirrel(r);
-            }
-          } else {
-            k.magic += 100 * (1 +  getSkillLevelFromExp(k.alchemy) / 100);
-          }
-        }\`;
-creatorCache['Heal The Sick']={};
-creatorCache['Heal The Sick'].affected=['rep'];
-creatorCache['Heal The Sick'].canStart={};
-creatorCache['Heal The Sick'].canStart.game=\`canStart() {
-		if(this.squirrelAction){
-			return resources.squirrel && resources.reputation >= 1;
-		}
-        return resources.reputation >= 1;
-    }\`;
-creatorCache['Heal The Sick'].canStart.pred=\`(input) => (input.rep >= 1)\`;
-creatorCache['Heal The Sick'].loop={};
-creatorCache['Heal The Sick'].loop.cost={};
-creatorCache['Heal The Sick'].loop.cost.game=\`loopCost(segment) {
-        return fibonacci(2 + Math.floor((towns[BEGINNERSVILLE].HealLoopCounter + segment) / this.segments + 0.0000001)) * 10000;
-    }\`;
-creatorCache['Heal The Sick'].loop.cost.pred=\`(p, a) => segment =>  fibonacci(2 + Math.floor((p.completed + segment) / a.segments + .0000001)) * 10000\`;
-creatorCache['Heal The Sick'].loop.tick={};
-creatorCache['Heal The Sick'].loop.tick.game=\`tickProgress(offset) {
-		if(this.squirrelAction) return 0;
-        return getSkillLevel("Magic") * Math.max(getSkillLevel("Restoration") / 50, 1) * (1 + getLevel(this.loopStats[(towns[BEGINNERSVILLE].HealLoopCounter + offset) % this.loopStats.length]) / 100) * Math.sqrt(1 + towns[BEGINNERSVILLE].totalHeal / 100);
-    }\`;
-creatorCache['Heal The Sick'].loop.tick.pred=\`(p, a, s, k, r, sq) => offset =>  sq ? 0 : getSkillLevelFromExp(k.magic) * Math.max( getSkillLevelFromExp(k.restoration) / 50, 1) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100)\`;
-creatorCache['Heal The Sick'].loop.end={};
-creatorCache['Heal The Sick'].loop.end.game=\`finish() {
-		if(this.squirrelAction){
-			
-			switch(getLevelSquirrelAction("Heal The Sick")){
-				
-				case 0: levelUpSquirrelAction("Heal The Sick");
-					break;		
-
-			}
-			
-			switch(getLevelSquirrelAction("Mage Lessons")){
-						
-				case 1:  break;
-					
-			}
-		} else {	
-			if (towns[BEGINNERSVILLE].HealLoopCounter / 3 + 1 >= 10) unlockStory("heal10PatientsInALoop");
-		}
-        
-    }\`;
-creatorCache['Heal The Sick'].loop.end.pred=\`\`;
-creatorCache['Heal The Sick'].loop.loop={};
-creatorCache['Heal The Sick'].loop.loop.game=\`loopsFinished() {
-        addResource("reputation", 3);
-		handleSkillExp(this.skills);
-    }\`;
-creatorCache['Heal The Sick'].loop.loop.pred=\`(r,k) => (r.rep += 3, k.magic+=50)\`;
-creatorCache['Heal The Sick'].loop.max=\`\`;
-creatorCache['Fight Monsters']={};
-creatorCache['Fight Monsters'].affected=['gold'];
-creatorCache['Fight Monsters'].canStart={};
-creatorCache['Fight Monsters'].canStart.game=\`canStart() {
-		if(this.squirrelAction){
-			return resources.squirrel && resources.reputation >= 2;
-		}
-        return resources.reputation >= 2;
-    }\`;
-creatorCache['Fight Monsters'].canStart.pred=\`(input) => (input.rep >= 2)\`;
-creatorCache['Fight Monsters'].loop={};
-creatorCache['Fight Monsters'].loop.cost={};
-creatorCache['Fight Monsters'].loop.cost.game=\`loopCost(segment) {
-        return fibonacci(Math.floor((towns[BEGINNERSVILLE].FightLoopCounter + segment) - towns[BEGINNERSVILLE].FightLoopCounter / 3 + 0.0000001)) * 20000;
-    }\`;
-creatorCache['Fight Monsters'].loop.cost.pred=\`(p, a) => segment =>  fibonacci(Math.floor((p.completed + segment) - p.completed / a.segments + .0000001)) * 20000\`;
-creatorCache['Fight Monsters'].loop.tick={};
-creatorCache['Fight Monsters'].loop.tick.game=\`tickProgress(offset) {
-		if(this.squirrelAction) return 0;
-        return getSelfCombat() * (1 + getLevel(this.loopStats[(towns[BEGINNERSVILLE].FightLoopCounter + offset) % this.loopStats.length]) / 100) * Math.sqrt(1 + towns[BEGINNERSVILLE].totalFight / 100);
-    }\`;
-creatorCache['Fight Monsters'].loop.tick.pred=\`(p, a, s, k, r, sq) => offset => sq ? 0 : h.getSelfCombat(r, k) * Math.sqrt(1 + p.total / 100) * h.getStatProgress(p, a, s, offset)\`;
-creatorCache['Fight Monsters'].loop.end={};
-creatorCache['Fight Monsters'].loop.end.game=\`finish() {
-		if(this.squirrelAction){
-			
-			switch(getLevelSquirrelAction("Fight Monsters")){
-				
-				case 0: levelUpSquirrelAction("Fight Monsters");
-					break;		
-
-			}
-			
-			switch(getLevelSquirrelAction("Fight Monsters")){
-						
-				case 1: addResource("squirrel", false);
-					break;
-					
-			}
-		}
-    }\`;
-creatorCache['Fight Monsters'].loop.end.pred=\`(r, k, sq) => {if (sq) h.killSquirrel(r);}\`;
-creatorCache['Fight Monsters'].loop.segment={};
-creatorCache['Fight Monsters'].loop.segment.game=\`segmentFinished() {
-        addResource("gold", 20);
-		handleSkillExp(this.skills);
-    }\`;
-creatorCache['Fight Monsters'].loop.segment.pred=\`(r,k) => (r.gold += 20,k.combat += 50*(1+getBuffLevel("Heroism") * 0.02))\`;
-creatorCache['Fight Monsters'].loop.loop={};
-creatorCache['Fight Monsters'].loop.loop.game=\`loopsFinished() {
-        // empty
-    }\`;
-creatorCache['Fight Monsters'].loop.loop.pred=\`\`;
-creatorCache['Fight Monsters'].loop.max=\`\`;
 creatorCache['Magic Fighter']={};
-creatorCache['Magic Fighter'].affected=[];
+creatorCache['Magic Fighter'].affected=[''];
 creatorCache['Magic Fighter'].canStart={};
 creatorCache['Magic Fighter'].canStart.game=\`canStart() {
 		const curPowerLevel = Math.floor((towns[BEGINNERSVILLE].MagFgtLoopCounter) / 9 + 0.0000001);
@@ -1907,72 +946,6 @@ creatorCache['Magic Fighter'].loop.loop.game=\`loopsFinished() {
     }\`;
 creatorCache['Magic Fighter'].loop.loop.pred=\`(r,k) => {k.combat += 50*(1+getBuffLevel("Heroism") * 0.02); k.magic += 50;}\`;
 creatorCache['Magic Fighter'].loop.max=\`()=>4\`;
-creatorCache['Small Dungeon']={};
-creatorCache['Small Dungeon'].affected=['soul'];
-creatorCache['Small Dungeon'].canStart={};
-creatorCache['Small Dungeon'].canStart.game=\`canStart() {
-        const curFloor = Math.floor((towns[this.townNum].SDungeonLoopCounter) / this.segments + 0.0000001);
-		if(this.squirrelAction){
-			return resources.squirrel && resources.reputation >= 2 && curFloor < dungeons[this.dungeonNum].length;
-		}
-        return resources.reputation >= 2 && curFloor < dungeons[this.dungeonNum].length;
-    }\`;
-creatorCache['Small Dungeon'].canStart.pred=\`(input) => input.rep >= 2\`;
-creatorCache['Small Dungeon'].loop={};
-creatorCache['Small Dungeon'].loop.cost={};
-creatorCache['Small Dungeon'].loop.cost.game=\`loopCost(segment) {
-        return precision3(Math.pow(2.5, Math.floor((towns[this.townNum].SDungeonLoopCounter + segment) / this.segments + 0.0000001)) * 30000);
-    }\`;
-creatorCache['Small Dungeon'].loop.cost.pred=\`(p, a) => segment =>  precision3(Math.pow(2.5, Math.floor((p.completed + segment) / a.segments + .0000001)) * 30000)\`;
-creatorCache['Small Dungeon'].loop.tick={};
-creatorCache['Small Dungeon'].loop.tick.game=\`tickProgress(offset) {
-		if(this.squirrelAction) return 0;
-        const floor = Math.floor((towns[this.townNum].SDungeonLoopCounter) / this.segments + 0.0000001);
-        return (getSelfCombat() + getSkillLevel("Magic")) *
-            (1 + getLevel(this.loopStats[(towns[this.townNum].SDungeonLoopCounter + offset) % this.loopStats.length]) / 100) *
-            Math.sqrt(1 + dungeons[this.dungeonNum][floor].completed / 200);
-    }\`;
-creatorCache['Small Dungeon'].loop.tick.pred=\`(p, a, s, k, r, sq) => offset => {
-            let floor = sq? -1: Math.floor(p.completed / a.segments + .0000001);
-
-            return floor in  dungeons[a.dungeonNum] ? (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 +  dungeons[a.dungeonNum][floor].completed / 200) : 0;
-          }\`;
-creatorCache['Small Dungeon'].loop.end={};
-creatorCache['Small Dungeon'].loop.end.game=\`finish() {
-        
-		if(this.squirrelAction){
-			
-			switch(getLevelSquirrelAction("Small Dungeon")){
-				
-				case 0: levelUpSquirrelAction("Small Dungeon");
-					break;		
-
-			}
-			
-			switch(getLevelSquirrelAction("Small Dungeon")){
-						
-				case 1: break;
-					
-			}
-		} else {
-			unlockStory("smallDungeonAttempted");
-        if (towns[BEGINNERSVILLE].SDungeonLoopCounter >= 42) unlockStory("clearSDungeon");
-		}
-    }\`;
-creatorCache['Small Dungeon'].loop.end.pred=\`\`;
-creatorCache['Small Dungeon'].loop.loop={};
-creatorCache['Small Dungeon'].loop.loop.game=\`loopsFinished() {
-        const curFloor = Math.floor((towns[this.townNum].SDungeonLoopCounter) / this.segments + 0.0000001 - 1);
-        const success = finishDungeon(this.dungeonNum, curFloor);
-        if (success === true && storyMax <= 1) {
-            unlockGlobalStory(1);
-        } else if (success === false && storyMax <= 2) {
-            unlockGlobalStory(2);
-        }
-		handleSkillExp(this.skills);
-    }\`;
-creatorCache['Small Dungeon'].loop.loop.pred=\`(r,k) => {r.soul+=h.getRewardSS(0);k.combat += 100*(1+getBuffLevel("Heroism") * 0.02); k.magic += 100;}\`;
-creatorCache['Small Dungeon'].loop.max=\`(a) =>  dungeons[a.dungeonNum].length\`;
 creatorCache['Buy Supplies']={};
 creatorCache['Buy Supplies'].affected=['gold'];
 creatorCache['Buy Supplies'].canStart={};
@@ -2106,26 +1079,98 @@ creatorCache['Start Journey'].effect.pred=\`(r,k,sq) => {
             r.supplies = 0;
             r.town =sq ? SANCTUARY : FORESTPATH;
           }\`;
-creatorCache['Explore Forest']={};
-creatorCache['Explore Forest'].affected=[''];
-creatorCache['Explore Forest'].effect={};
-creatorCache['Explore Forest'].effect.game=\`finish() {
-        towns[FORESTPATH].finishProgress(this.varName, 100 * (resources.glasses ? 4 : 1));
+creatorCache['Hitch Ride']={};
+creatorCache['Hitch Ride'].affected=[''];
+creatorCache['Hitch Ride'].canStart={};
+creatorCache['Hitch Ride'].canStart.game=\`canStart() {
+        return true;
     }\`;
-creatorCache['Explore Forest'].effect.pred=\`\`;
+creatorCache['Hitch Ride'].canStart.pred=\`true\`;
+creatorCache['Hitch Ride'].effect={};
+creatorCache['Hitch Ride'].effect.game=\`finish() {
+        unlockTown(2);
+    }\`;
+creatorCache['Hitch Ride'].effect.pred=\`(r,k) => ( r.town =2)\`;
+creatorCache['Open Rift']={};
+creatorCache['Open Rift'].affected=[''];
+creatorCache['Open Rift'].effect={};
+creatorCache['Open Rift'].effect.game=\`finish() {
+        handleSkillExp(this.skills);
+        addResource("supplies", false);
+        unlockTown(5);
+    }\`;
+creatorCache['Open Rift'].effect.pred=\`(r,k) => (r.supplies = 0, r.town =5, k.dark+=1000)\`;
 creatorCache['Wild Mana']={};
 creatorCache['Wild Mana'].affected=['mana'];
+creatorCache['Wild Mana'].manaCost={};
+creatorCache['Wild Mana'].manaCost.game=\`manaCost(squirrelTooltip) {
+		const squirrelMult = (((this.squirrelAction || squirrelTooltip) && getLevelSquirrelAction("Wild Mana") >= 3) ? 0.85 : 1);
+        return 300 * squirrelMult;
+    }\`;
+creatorCache['Wild Mana'].manaCost.pred=\`\`;
+creatorCache['Wild Mana'].canStart={};
+creatorCache['Wild Mana'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Wild Mana'].canStart.pred=\`true\`;
 creatorCache['Wild Mana'].effect={};
 creatorCache['Wild Mana'].effect.game=\`finish() {
-        towns[FORESTPATH].finishRegular(this.varName, 10, () => {
-            const manaGain = this.goldCost();
-            addMana(manaGain);
-            return manaGain;
-        });
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Wild Mana")){
+				
+				case 0: levelUpSquirrelAction("Wild Mana");
+					break;	
+					
+				case 1: if(getSkillSquirrelLevel("Magic") >= 15) levelUpSquirrelAction("Wild Mana");
+					break;	
+					
+				case 2: if(getSkillSquirrelLevel("Combat") >= 25) levelUpSquirrelAction("Wild Mana");
+					break;
+
+			}
+			
+			switch(getLevelSquirrelAction("Wild Mana")){
+						
+				case 1: towns[FORESTPATH].finishRegular(this.varName, 10, () => {
+							const manaGain = this.goldCost();
+							addMana(manaGain);
+							return manaGain;
+						});
+						break;
+					
+				case 2: towns[FORESTPATH].finishRegular(this.varName, 10, () => {
+							const manaGain = this.goldCost()+100;
+							addMana(manaGain);
+							return manaGain;
+						});
+						break;
+				
+				case 3:towns[FORESTPATH].finishRegular(this.varName, 10, () => {
+							const manaGain = this.goldCost()+100;
+							addMana(manaGain);
+							return manaGain;
+						});
+						view.adjustManaCost("Wild Mana", squirrelMode);
+						break;
+						
+			}
+		} else {
+			towns[FORESTPATH].finishRegular(this.varName, 10, () => {
+				const manaGain = this.goldCost();
+				addMana(manaGain);
+				return manaGain;
+			});
+		}
+		
+        
     }\`;
-creatorCache['Wild Mana'].effect.pred=\`(r) => {
+creatorCache['Wild Mana'].effect.pred=\`(r,k,sq) => {
           r.temp5 = (r.temp5 || 0) + 1;
-          r.mana += r.temp5 <= towns[FORESTPATH].goodWildMana ?  Action.WildMana.goldCost() : 0;
+          const sqBonus= (sq &&getLevelSquirrelAction("Wild Mana")) ? 100:0;
+          r.mana += r.temp5 <= towns[FORESTPATH].goodWildMana ?  Action.WildMana.goldCost()+sqBonus : 0;
         }\`;
 creatorCache['Gather Herbs']={};
 creatorCache['Gather Herbs'].affected=['herbs'];
@@ -2134,64 +1179,277 @@ creatorCache['Gather Herbs'].manaCost.game=\`manaCost() {
         return Math.ceil(400 * (1 - towns[FORESTPATH].getLevel("Hermit") * 0.005));
     }\`;
 creatorCache['Gather Herbs'].manaCost.pred=\`\`;
+creatorCache['Gather Herbs'].canStart={};
+creatorCache['Gather Herbs'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Gather Herbs'].canStart.pred=\`true\`;
 creatorCache['Gather Herbs'].effect={};
 creatorCache['Gather Herbs'].effect.game=\`finish() {
-        towns[FORESTPATH].finishRegular(this.varName, 10, () => {
-            addResource("herbs", 1);
-            return 1;
-        });
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Gather Herbs")){
+				
+				case 0: levelUpSquirrelAction("Gather Herbs");
+					break;	
+					
+				case 1: if(getSkillSquirrelLevel("Trust") >= 34) levelUpSquirrelAction("Gather Herbs");
+					break;	
+					
+				case 2: if(getSkillSquirrelLevel("Magic") >= 35) levelUpSquirrelAction("Gather Herbs");
+					break;
+
+			}
+			
+			switch(getLevelSquirrelAction("Gather Herbs")){
+						
+				case 1:	break;
+					
+				case 2: towns[FORESTPATH].finishRegular(this.varName, 10, () => {
+							const manaGain = 200;
+							addMana(manaGain);
+							return manaGain;
+						});
+						break;
+				
+				case 3: towns[FORESTPATH].finishRegular(this.varName, 10, () => {
+							const manaGain = 250;
+							addMana(manaGain);
+							return manaGain;
+						});
+						break;
+						
+			}
+		} else {
+			 towns[FORESTPATH].finishRegular(this.varName, 10, () => {
+				addResource("herbs", 1);
+				return 1;
+			});
+		}
+		
+       
     }\`;
-creatorCache['Gather Herbs'].effect.pred=\`(r) => {
+creatorCache['Gather Herbs'].effect.pred=\`(r,k,sq) => {
           r.temp6 = (r.temp6 || 0) + 1;
-          r.herbs += r.temp6 <= towns[FORESTPATH].goodHerbs ? 1 : 0;
+          if (r.temp6 > towns[FORESTPATH].goodHerbs) return; // no herbs left
+          if (sq) {
+            switch(getLevelSquirrelAction("Gather Herbs")) {
+              case 0:
+              case 1:
+                return;
+              case 2:
+                r.mana+=200
+                return;
+              case 3:
+                r.mana+=250
+                return;
+            }
+          } else {
+            r.herbs += 1;
+          }
         }\`;
 creatorCache['Hunt']={};
 creatorCache['Hunt'].affected=['hide'];
+creatorCache['Hunt'].manaCost={};
+creatorCache['Hunt'].manaCost.game=\`manaCost(squirrelTooltip) {
+		const squirrelMult = (((this.squirrelAction || squirrelTooltip) && getLevelSquirrelAction("Hunt") >= 2) ? 0.8 : 1);
+        return 1600 * squirrelMult;
+    }\`;
+creatorCache['Hunt'].manaCost.pred=\`\`;
+creatorCache['Hunt'].canStart={};
+creatorCache['Hunt'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Hunt'].canStart.pred=\`true\`;
 creatorCache['Hunt'].effect={};
 creatorCache['Hunt'].effect.game=\`finish() {
-        towns[FORESTPATH].finishRegular(this.varName, 10, () => {
-            addResource("hide", 1);
-            return 1;
-        });
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Hunt")){
+				
+				case 0: levelUpSquirrelAction("Hunt");
+					break;	
+					
+				case 1: if(getSkillSquirrelLevel("Combat") >= 50) levelUpSquirrelAction("Hunt");
+					break;	
+					
+
+			}
+			
+			switch(getLevelSquirrelAction("Hunt")){
+						
+				case 1:	addResource("squirrel", false);
+						break;
+					
+				case 2: towns[FORESTPATH].finishRegular(this.varName, 10, () => {
+							addResource("hide", 1);
+							return 1;
+						});
+						view.adjustManaCost("Hunt", squirrelMode);
+						break;
+				
+						
+			}
+		} else {
+			towns[FORESTPATH].finishRegular(this.varName, 10, () => {
+				addResource("hide", 1);
+				return 1;
+			});
+		}
+		
+       
     }\`;
-creatorCache['Hunt'].effect.pred=\`(r) => {
+creatorCache['Hunt'].effect.pred=\`(r,k,sq) => {
+          if (sq && getLevelSquirrelAction("Hunt")<2) {
+            h.killSquirrel(r);
+            return;
+          }
           r.temp7 = (r.temp7 || 0) + 1;
           r.hide += r.temp7 <= towns[FORESTPATH].goodHunt ? 1 : 0;
         }\`;
+creatorCache['Sit By Waterfall']={};
+creatorCache['Sit By Waterfall'].affected=[''];
+creatorCache['Sit By Waterfall'].canStart={};
+creatorCache['Sit By Waterfall'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Sit By Waterfall'].canStart.pred=\`true\`;
+creatorCache['Sit By Waterfall'].effect={};
+creatorCache['Sit By Waterfall'].effect.game=\`finish() {
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Sit By Waterfall")){
+				
+				case 0: levelUpSquirrelAction("Sit By Waterfall");
+					break;	
+									
+			}
+			
+			switch(getLevelSquirrelAction("Sit By Waterfall")){
+						
+				case 1:	addResource("squirrel", false);
+						break;								
+			}
+		} else {
+			 unlockStory("satByWaterfall");
+		}
+     
+    }\`;
+creatorCache['Sit By Waterfall'].effect.pred=\`(r,k,sq)=>sq?h.killSquirrel(r):0\`;
 creatorCache['Old Shortcut']={};
 creatorCache['Old Shortcut'].affected=[''];
+creatorCache['Old Shortcut'].canStart={};
+creatorCache['Old Shortcut'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Old Shortcut'].canStart.pred=\`true\`;
 creatorCache['Old Shortcut'].effect={};
 creatorCache['Old Shortcut'].effect.game=\`finish() {
-        towns[FORESTPATH].finishProgress(this.varName, 100 * (1 + towns[FORESTPATH].getLevel("Hermit") / 20));
-        view.adjustManaCost("Continue On");
-		view.adjustManaCost("Talk To Hermit");
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Old Shortcut")){
+				
+				case 0: levelUpSquirrelAction("Old Shortcut");
+					break;
+
+				case 1: if(getSkillSquirrelLevel("Magic") >= 5) levelUpSquirrelAction("Old Shortcut");
+					break;
+				
+				case 2: if(getSkillSquirrelLevel("Magic") >= 25) levelUpSquirrelAction("Old Shortcut");
+					break;
+									
+			}
+			
+			switch(getLevelSquirrelAction("Old Shortcut")){
+						
+				case 1:	addResource("squirrel", false);
+						break;
+
+				case 2:	towns[FORESTPATH].finishProgress(this.varName, 100 * (1 + towns[FORESTPATH].getLevel("Hermit") / 25));
+						view.adjustManaCost("Continue On");
+						view.adjustManaCost("Talk To Hermit");
+						break;
+						
+				case 3:	towns[FORESTPATH].finishProgress(this.varName, 100 * (1 + towns[FORESTPATH].getLevel("Hermit") / 20));
+						view.adjustManaCost("Continue On");
+						view.adjustManaCost("Talk To Hermit");
+						break;
+			}
+		} else {
+			towns[FORESTPATH].finishProgress(this.varName, 100 * (1 + towns[FORESTPATH].getLevel("Hermit") / 33.3333333));
+			view.adjustManaCost("Continue On");
+			view.adjustManaCost("Talk To Hermit");
+		}
+		
+		
+        
     }\`;
-creatorCache['Old Shortcut'].effect.pred=\`\`;
+creatorCache['Old Shortcut'].effect.pred=\`(r,k,sq)=>(sq && getLevelSquirrelAction("Old Shortcut")<2)?h.killSquirrel(r):0\`;
 creatorCache['Talk To Hermit']={};
 creatorCache['Talk To Hermit'].affected=[''];
+creatorCache['Talk To Hermit'].canStart={};
+creatorCache['Talk To Hermit'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Talk To Hermit'].canStart.pred=\`true\`;
 creatorCache['Talk To Hermit'].effect={};
 creatorCache['Talk To Hermit'].effect.game=\`finish() {
-        towns[FORESTPATH].finishProgress(this.varName, 50 * (1 + towns[FORESTPATH].getLevel("Shortcut") / 20));
-		view.adjustManaCost("Old Shortcut");
-		view.adjustManaCost("Practice Yang");
-        view.adjustManaCost("Learn Alchemy");
-        view.adjustManaCost("Gather Herbs");
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Talk To Hermit")){
+				
+				case 0: levelUpSquirrelAction("Talk To Hermit");
+					break;
+
+				case 1: if(getSkillSquirrelLevel("Combat") >= 8) levelUpSquirrelAction("Talk To Hermit");
+					break;
+				
+				case 2: if(getSkillSquirrelLevel("Combat") >= 30) levelUpSquirrelAction("Talk To Hermit");
+					break;
+									
+			}
+			
+			switch(getLevelSquirrelAction("Talk To Hermit")){
+						
+				case 1:	addResource("squirrel", false);
+						break;
+
+				case 2:	towns[FORESTPATH].finishProgress(this.varName, 50 * (1 + towns[FORESTPATH].getLevel("Shortcut") / 25));
+						view.adjustManaCost("Old Shortcut");
+						view.adjustManaCost("Practice Yang");
+						view.adjustManaCost("Learn Alchemy");
+						view.adjustManaCost("Gather Herbs");
+						break;
+						
+				case 3:	towns[FORESTPATH].finishProgress(this.varName, 50 * (1 + towns[FORESTPATH].getLevel("Shortcut") / 20));
+						view.adjustManaCost("Old Shortcut");
+						view.adjustManaCost("Practice Yang");
+						view.adjustManaCost("Learn Alchemy");
+						view.adjustManaCost("Gather Herbs");
+						break;
+			}
+		} else {
+			towns[FORESTPATH].finishProgress(this.varName, 50 * (1 + towns[FORESTPATH].getLevel("Shortcut") / 33.3333333));
+			view.adjustManaCost("Old Shortcut");
+			view.adjustManaCost("Practice Yang");
+			view.adjustManaCost("Learn Alchemy");
+			view.adjustManaCost("Gather Herbs");
+		}
+		
+		
+        
     }\`;
-creatorCache['Talk To Hermit'].effect.pred=\`\`;
-creatorCache['Practice Yang']={};
-creatorCache['Practice Yang'].affected=['rep'];
-creatorCache['Practice Yang'].manaCost={};
-creatorCache['Practice Yang'].manaCost.game=\`manaCost() {
-        return Math.ceil(8000 * (1 - towns[FORESTPATH].getLevel("Hermit") * 0.005));
-    }\`;
-creatorCache['Practice Yang'].manaCost.pred=\`\`;
-creatorCache['Practice Yang'].effect={};
-creatorCache['Practice Yang'].effect.game=\`finish() {
-        handleSkillExp(this.skills);
-    }\`;
-creatorCache['Practice Yang'].effect.pred=\`(r,k) => {
-          k.yang+=100 + (r.rep >= 0 ? r.rep * 25 : 0);
-        }\`;
+creatorCache['Talk To Hermit'].effect.pred=\`(r,k,sq)=>(sq && getLevelSquirrelAction("Talk To Hermit")<2)?h.killSquirrel(r):0\`;
 creatorCache['Learn Alchemy']={};
 creatorCache['Learn Alchemy'].affected=['herbs'];
 creatorCache['Learn Alchemy'].manaCost={};
@@ -2201,15 +1459,35 @@ creatorCache['Learn Alchemy'].manaCost.game=\`manaCost() {
 creatorCache['Learn Alchemy'].manaCost.pred=\`\`;
 creatorCache['Learn Alchemy'].canStart={};
 creatorCache['Learn Alchemy'].canStart.game=\`canStart() {
-        return resources.herbs >= 10;
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements && resources.herbs >= 10;
     }\`;
 creatorCache['Learn Alchemy'].canStart.pred=\`(input) => (input.herbs >= 10)\`;
 creatorCache['Learn Alchemy'].effect={};
 creatorCache['Learn Alchemy'].effect.game=\`finish() {
-        handleSkillExp(this.skills);
-		view.adjustExpGain(Action.LearnBrewing);
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Learn Alchemy")){
+				
+				case 0: levelUpSquirrelAction("Learn Alchemy");
+					break;
+									
+			}
+			
+			switch(getLevelSquirrelAction("Learn Alchemy")){
+						
+				case 1:	break;
+
+			}
+		} else {
+			handleSkillExp(this.skills);
+			view.adjustExpGain(Action.LearnBrewing);
+		}	
+    
     }\`;
-creatorCache['Learn Alchemy'].effect.pred=\`(r, k) => {
+creatorCache['Learn Alchemy'].effect.pred=\`(r, k, sq) => {
+            if (sq) return;
             r.herbs -= 10;
             let brewingLevel = getSkillLevelFromExp(k.brewing);
 			let brewingMultiplier = 0;			
@@ -2225,7 +1503,8 @@ creatorCache['Distill Potions']={};
 creatorCache['Distill Potions'].affected=['herbs','potions'];
 creatorCache['Distill Potions'].canStart={};
 creatorCache['Distill Potions'].canStart.game=\`canStart() {
-        return resources.herbs >= 10 && resources.reputation >= 10;
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements && resources.herbs >= 10 && resources.reputation >= 10;
     }\`;
 creatorCache['Distill Potions'].canStart.pred=\`(input) => {
           return (input.herbs>=10 && input.rep>=10);
@@ -2239,13 +1518,30 @@ creatorCache['Distill Potions'].loop.cost.game=\`loopCost(segment) {
 creatorCache['Distill Potions'].loop.cost.pred=\`(p) => segment =>  Math.floor(Math.pow(1.4, p.completed/3)+0.0000001)*40000\`;
 creatorCache['Distill Potions'].loop.tick={};
 creatorCache['Distill Potions'].loop.tick.game=\`tickProgress(offset) {
+		if(this.squirrelAction) return 0;
         return (getSkillLevel("Alchemy") + getSkillLevel("Brewing")/2) * (1 + getLevel(this.loopStats[(towns[FORESTPATH].DistillLoopCounter + offset) % this.loopStats.length]) / 100) * Math.sqrt(1 + towns[FORESTPATH].totalDistill / 100);
     }\`;
-creatorCache['Distill Potions'].loop.tick.pred=\`(p, a, s, k, r) => offset => (r.herbs<10) ? 0 : (getSkillLevelFromExp(k.alchemy) + getSkillLevelFromExp(k.brewing)/2) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100)\`;
+creatorCache['Distill Potions'].loop.tick.pred=\`(p, a, s, k, r,sq) => offset => (r.herbs<10||sq) ? 0 : (getSkillLevelFromExp(k.alchemy) + getSkillLevelFromExp(k.brewing)/2) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100)\`;
 creatorCache['Distill Potions'].loop.end={};
 creatorCache['Distill Potions'].loop.end.game=\`finish() {
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Distill Potions")){
+				
+				case 0: levelUpSquirrelAction("Distill Potions");
+					break;
+									
+			}
+			
+			switch(getLevelSquirrelAction("Distill Potions")){
+						
+				case 1:	break;
+
+			}
+		}
     }\`;
-creatorCache['Distill Potions'].loop.end.pred='';
+creatorCache['Distill Potions'].loop.end.pred=\`\`;
 creatorCache['Distill Potions'].loop.loop={};
 creatorCache['Distill Potions'].loop.loop.game=\`loopsFinished() {
 		addResource("herbs", -10);
@@ -2254,44 +1550,131 @@ creatorCache['Distill Potions'].loop.loop.game=\`loopsFinished() {
 creatorCache['Distill Potions'].loop.loop.pred=\`(r,k) => {r.herbs-=10;r.potions++}\`;
 creatorCache['Distill Potions'].loop.max=\`\`;
 creatorCache['Train Squirrel']={};
-creatorCache['Train Squirrel'].affected=[];
+creatorCache['Train Squirrel'].affected=[''];
+creatorCache['Train Squirrel'].canStart={};
+creatorCache['Train Squirrel'].canStart.game=\`canStart() {
+		return resources.squirrel;
+    }\`;
+creatorCache['Train Squirrel'].canStart.pred=\`true\`;
 creatorCache['Train Squirrel'].effect={};
 creatorCache['Train Squirrel'].effect.game=\`finish() {
-		handleSkillSquirrelExp(this.skillsSquirrel);
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Train Squirrel")){
+				
+				case 0: levelUpSquirrelAction("Train Squirrel");
+					break;
+					
+				case 1: if(getSkillSquirrelLevel("Combat") >= 5) levelUpSquirrelAction("Train Squirrel");
+					break;
+									
+			}
+			
+			switch(getLevelSquirrelAction("Train Squirrel")){
+						
+				case 1:	addResource("squirrel", false);
+					break;
+				
+				case 2: handleSkillSquirrelExp({Combat() {return getSkillSquirrelLevel("Combat") * 10;}});
+						addResource("squirrel", false);
+					break;
+			}
+		} else {
+			handleSkillSquirrelExp(this.skillsSquirrel);
+		}
+		
     }\`;
-creatorCache['Train Squirrel'].effect.pred=\`(r,k) => {
-          k.combatSquirrel+=4* h.getSelfCombat(r, k);
-        }\`;
-creatorCache['Feed Animals']={};
-creatorCache['Feed Animals'].affected=['herbs'];
-creatorCache['Feed Animals'].canStart={};
-creatorCache['Feed Animals'].canStart.game=\`canStart() {
-        return resources.herbs >= 10;
-    }\`;
-creatorCache['Feed Animals'].canStart.pred=\`(input) => {
-          return input.herbs>=10;
-        }\`;
-creatorCache['Feed Animals'].effect={};
-creatorCache['Feed Animals'].effect.game=\`finish() {
-       towns[FORESTPATH].finishProgress(this.varName, 100 * (1 + resources.herbs * 0.02));
-    }\`;
-creatorCache['Feed Animals'].effect.pred=\`(r,k) => {
-          r.herbs-=10;
+creatorCache['Train Squirrel'].effect.pred=\`(r,k,sq) => {
+          let smult=1;
+          if (sq) {
+            h.killSquirrel(r);
+            if (getLevelSquirrelAction("Train Squirrel")<2) {
+              smult=0;
+            } else {
+              smult=10;
+            }
+          }
+          k.combatSquirrel+=smult * 4* h.getSelfCombat(r, k);
         }\`;
 creatorCache['Pot Fairy']={};
-creatorCache['Pot Fairy'].affected=['rep'];
+creatorCache['Pot Fairy'].affected=['rep','mana','herbs'];
+creatorCache['Pot Fairy'].canStart={};
+creatorCache['Pot Fairy'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Pot Fairy'].canStart.pred=\`true\`;
 creatorCache['Pot Fairy'].effect={};
-creatorCache['Pot Fairy'].effect.game=\`finish() {		
-		if(towns[BEGINNERSVILLE].goodTempPots == towns[BEGINNERSVILLE].goodPots){
-			const multPots = towns[BEGINNERSVILLE].goodPots/10;
-			addResource("reputation", multPots);
-			addMana(multPots * 2000);
+creatorCache['Pot Fairy'].effect.game=\`finish() {	
+
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Pot Fairy")){
+				
+				case 0: levelUpSquirrelAction("Pot Fairy");
+					break;
+					
+				case 1: if(getSkillSquirrelLevel("Magic") >= 20) levelUpSquirrelAction("Pot Fairy");
+					break;
+					
+				case 2: if(getSkillSquirrelLevel("Magic") >= 40) levelUpSquirrelAction("Pot Fairy");
+					break;
+									
+			}
+			
+			switch(getLevelSquirrelAction("Pot Fairy")){
+						
+				case 1:	break;
+				
+				case 2: if(towns[BEGINNERSVILLE].goodTempPots == towns[BEGINNERSVILLE].goodPots){
+							const multPots = towns[BEGINNERSVILLE].goodPots/10;
+							addResource("reputation", multPots);
+							addMana(multPots * 2000);
+							
+							const herbsToGather = Math.min(100, towns[FORESTPATH].goodTempHerbs);
+							addResource("herbs", herbsToGather);
+							towns[FORESTPATH].goodTempHerbs -= herbsToGather;
+							view.updateRegular("Herbs", FORESTPATH);
+							
+						} else {
+							if(resources.reputation >= 0) {
+								const reputToRemove = resources.reputation * (-2);
+								addResource("reputation", reputToRemove);
+							}
+						}
+					break;
+					
+				case 3: if(towns[BEGINNERSVILLE].goodTempPots == towns[BEGINNERSVILLE].goodPots){
+							const multPots = towns[BEGINNERSVILLE].goodPots/10;
+							addResource("reputation", multPots);
+							addMana(multPots * 2000);
+							
+							addResource("herbs", towns[FORESTPATH].goodTempHerbs);
+							towns[FORESTPATH].goodTempHerbs  = 0;	
+							view.updateRegular("Herbs", FORESTPATH);
+							
+						} else {
+							if(resources.reputation >= 0) {
+								const reputToRemove = resources.reputation * (-2);
+								addResource("reputation", reputToRemove);
+							}
+						}
+					break;
+			}
 		} else {
-			if(resources.reputation >= 0) {
-				const reputToRemove = resources.reputation * (-2);
-				addResource("reputation", reputToRemove);
+			if(towns[BEGINNERSVILLE].goodTempPots == towns[BEGINNERSVILLE].goodPots){
+				const multPots = towns[BEGINNERSVILLE].goodPots/10;
+				addResource("reputation", multPots);
+				addMana(multPots * 2000);
+			} else {
+				if(resources.reputation >= 0) {
+					const reputToRemove = resources.reputation * (-2);
+					addResource("reputation", reputToRemove);
+				}
 			}
 		}
+		
     }\`;
 creatorCache['Pot Fairy'].effect.pred=\`(r,k) => {
           if (r.temp1>0) { //Smashed any pots...
@@ -2300,74 +1683,159 @@ creatorCache['Pot Fairy'].effect.pred=\`(r,k) => {
 			const multPots = towns[BEGINNERSVILLE].goodPots/10;
 			r.rep+=multPots;
 			r.mana+=multPots * 2000;
+            if (sq) {
+              let herbsToGather=towns[FORESTPATH].goodHerbs;
+              switch(getLevelSquirrelAction("Pot Fairy")) {
+                case 0:
+                case 1:
+                  return;
+                case 2:
+                  herbsToGather=Math.min(herbsToGather,100);
+                case 3:
+                  r.herbs+=herbsToGather;
+                  r.temp6=(r.temp6||0)+herbsToGather;
+             }
+            }
           }
         }\`;
-creatorCache['Burn Forest']={};
-creatorCache['Burn Forest'].affected=['herbs','darkEssences'];
-creatorCache['Burn Forest'].canStart={};
-creatorCache['Burn Forest'].canStart.game=\`canStart() {
-        return resources.herbs >= 10 && resources.reputation < 0;
+creatorCache['Bird Watching']={};
+creatorCache['Bird Watching'].affected=[''];
+creatorCache['Bird Watching'].canStart={};
+creatorCache['Bird Watching'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements && resources.glasses;
     }\`;
-creatorCache['Burn Forest'].canStart.pred=\`(input) => {
-          return (input.rep<0 && input.herbs>=10)
-        }\`;
-creatorCache['Burn Forest'].loop={};
-creatorCache['Burn Forest'].loop.cost={};
-creatorCache['Burn Forest'].loop.cost.game=\`loopCost(segment) {
-        return 60000;
+creatorCache['Bird Watching'].canStart.pred=\`(input) => input.glasses\`;
+creatorCache['Bird Watching'].effect={};
+creatorCache['Bird Watching'].effect.game=\`finish() {
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Bird Watching")){
+				
+				case 0: levelUpSquirrelAction("Bird Watching");
+					break;
+									
+			}
+			
+			switch(getLevelSquirrelAction("Bird Watching")){
+						
+				case 1:	unlockStory("birdsWatched")
+					break;
+			}
+		} else {
+			 unlockStory("birdsWatched");
+		}
     }\`;
-creatorCache['Burn Forest'].loop.cost.pred=\`(p) => segment => 60000\`;
-creatorCache['Burn Forest'].loop.tick={};
-creatorCache['Burn Forest'].loop.tick.game=\`tickProgress(offset) {
-        return resources.herbs * (1 + getLevel(this.loopStats[(towns[FORESTPATH].BurnLoopCounter + offset) % this.loopStats.length]) / 1000) * Math.sqrt(1 + towns[FORESTPATH].totalBurn / 1000);
-    }\`;
-creatorCache['Burn Forest'].loop.tick.pred=\`(p, a, s, k, r) => offset => r.herbs<10 ? 0 : r.herbs *  (1 +  getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 1000) * Math.sqrt(1 + p.total / 1000)\`;
-creatorCache['Burn Forest'].loop.end={};
-creatorCache['Burn Forest'].loop.end.game=\`finish() {
-
-    }\`;
-creatorCache['Burn Forest'].loop.end.pred='';
-creatorCache['Burn Forest'].loop.loop={};
-creatorCache['Burn Forest'].loop.loop.game=\`loopsFinished() {
-		addMana(4000);
-        addResource("darkEssences", Math.floor(towns[FORESTPATH].getLevel("DarkForest")/10 + 0.000001));
-		addResource("herbs", -10);
-		if(towns[FORESTPATH].BurnLoopCounter%4 === 0) addResource("reputation", -1);
-    }\`;
-creatorCache['Burn Forest'].loop.loop.pred=\`(r,k) => {r.mana+=4000;r.herbs-=10;r.darkEssences+=Math.floor(towns[FORESTPATH].getLevel("DarkForest")/10 + 0.000001);r.forestBurn=(r.forestBurn||0)+1; if(r.forestBurn%2==0) r.rep-=1;}\`;
-creatorCache['Burn Forest'].loop.max=\`\`;
+creatorCache['Bird Watching'].effect.pred=\`\`;
 creatorCache['Dark Forest']={};
-creatorCache['Dark Forest'].affected=[];
+creatorCache['Dark Forest'].affected=[''];
 creatorCache['Dark Forest'].canStart={};
 creatorCache['Dark Forest'].canStart.game=\`canStart() {
-        return resources.reputation < 0;
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements && resources.reputation < 0;
     }\`;
 creatorCache['Dark Forest'].canStart.pred=\`(input) => {
           return input.rep<0;
         }\`;
 creatorCache['Dark Forest'].effect={};
 creatorCache['Dark Forest'].effect.game=\`finish() {
-		towns[FORESTPATH].finishProgress(this.varName, 100 * (1 + towns[FORESTPATH].getLevel("Witch") / 20));
-        view.adjustManaCost("Continue On");
-		view.adjustManaCost("Talk To Witch");
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Dark Forest")){
+				
+				case 0: levelUpSquirrelAction("Dark Forest");
+					break;
+					
+				case 1: if(getSkillSquirrelLevel("Combat") >= 12) levelUpSquirrelAction("Dark Forest");
+					break;
+					
+				case 2: if(getSkillSquirrelLevel("Combat") >= 35) levelUpSquirrelAction("Dark Forest");
+					break;
+									
+			}
+			
+			switch(getLevelSquirrelAction("Dark Forest")){
+						
+				case 1:	addResource("squirrel", false);
+					break;
+				
+				case 2: towns[FORESTPATH].finishProgress(this.varName, 100 * (1 + towns[FORESTPATH].getLevel("Witch") / 25));
+						view.adjustManaCost("Continue On");
+						view.adjustManaCost("Talk To Witch");
+					break;
+					
+				case 3: towns[FORESTPATH].finishProgress(this.varName, 100 * (1 + towns[FORESTPATH].getLevel("Witch") / 20));
+						view.adjustManaCost("Continue On");
+						view.adjustManaCost("Talk To Witch");
+					break;
+			}
+		} else {
+			towns[FORESTPATH].finishProgress(this.varName, 100 * (1 + towns[FORESTPATH].getLevel("Witch") / 33.33333333));
+			view.adjustManaCost("Continue On");
+			view.adjustManaCost("Talk To Witch");
+		}
+		
     }\`;
-creatorCache['Dark Forest'].effect.pred=\`(r,k) => {
+creatorCache['Dark Forest'].effect.pred=\`(r,k,sq) => {
+         if (sq && getLevelSquirrelAction("Dark Forest")<2) h.killSquirrel(r);
         }\`;
 creatorCache['Talk To Witch']={};
 creatorCache['Talk To Witch'].affected=[''];
 creatorCache['Talk To Witch'].canStart={};
 creatorCache['Talk To Witch'].canStart.game=\`canStart() {
-        return resources.reputation < 0;
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements && resources.reputation < 0;
     }\`;
-creatorCache['Talk To Witch'].canStart.pred=\`true\`;
+creatorCache['Talk To Witch'].canStart.pred=\`(input)=>(input.rep<0)\`;
 creatorCache['Talk To Witch'].effect={};
 creatorCache['Talk To Witch'].effect.game=\`finish() {
-        towns[FORESTPATH].finishProgress(this.varName, 50 * (1 + towns[FORESTPATH].getLevel("DarkForest") / 20));
-		view.adjustManaCost("Dark Forest");
-		view.adjustManaCost("Practice Yin");
-        view.adjustManaCost("Learn Brewing");
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Talk To Witch")){
+				
+				case 0: levelUpSquirrelAction("Talk To Witch");
+					break;
+					
+				case 1: if(getSkillSquirrelLevel("Magic") >= 8) levelUpSquirrelAction("Talk To Witch");
+					break;
+					
+				case 2: if(getSkillSquirrelLevel("Magic") >= 30) levelUpSquirrelAction("Talk To Witch");
+					break;
+									
+			}
+			
+			switch(getLevelSquirrelAction("Talk To Witch")){
+						
+				case 1:	addResource("squirrel", false);
+					break;
+				
+				case 2: towns[FORESTPATH].finishProgress(this.varName, 50 * (1 + towns[FORESTPATH].getLevel("DarkForest") / 25));
+						view.adjustManaCost("Dark Forest");
+						view.adjustManaCost("Practice Yin");
+						view.adjustManaCost("Learn Brewing");
+					break;
+					
+				case 3: towns[FORESTPATH].finishProgress(this.varName, 50 * (1 + towns[FORESTPATH].getLevel("DarkForest") / 20));
+						view.adjustManaCost("Dark Forest");
+						view.adjustManaCost("Practice Yin");
+						view.adjustManaCost("Learn Brewing");
+					break;
+			}
+		} else {
+			towns[FORESTPATH].finishProgress(this.varName, 50 * (1 + towns[FORESTPATH].getLevel("DarkForest") / 33.33333333));
+			view.adjustManaCost("Dark Forest");
+			view.adjustManaCost("Practice Yin");
+			view.adjustManaCost("Learn Brewing");
+		}
+		
+        
     }\`;
-creatorCache['Talk To Witch'].effect.pred=\`\`;
+creatorCache['Talk To Witch'].effect.pred=\`(r,k,sq) => {
+         if (sq && getLevelSquirrelAction("Talk To Witch")<2) h.killSquirrel(r);
+        }\`;
 creatorCache['Practice Yin']={};
 creatorCache['Practice Yin'].affected=['rep'];
 creatorCache['Practice Yin'].manaCost={};
@@ -2375,12 +1843,51 @@ creatorCache['Practice Yin'].manaCost.game=\`manaCost() {
         return Math.ceil(10000 * (1 - towns[FORESTPATH].getLevel("Witch") * 0.005));
     }\`;
 creatorCache['Practice Yin'].manaCost.pred=\`\`;
+creatorCache['Practice Yin'].canStart={};
+creatorCache['Practice Yin'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Practice Yin'].canStart.pred=\`true\`;
 creatorCache['Practice Yin'].effect={};
 creatorCache['Practice Yin'].effect.game=\`finish() {
-		handleSkillExp(this.skills);
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Practice Yin")){
+				
+				case 0: levelUpSquirrelAction("Practice Yin");
+					break;
+					
+				case 1: if(getSkillSquirrelLevel("Trust") >= 40) levelUpSquirrelAction("Practice Yin");
+					break;
+					
+									
+			}
+			
+			switch(getLevelSquirrelAction("Practice Yin")){
+						
+				case 1:	break;
+				
+				case 2: addResource("reputation", -4);
+						addResource("squirrel", false);
+					break;
+					
+			}
+		} else {
+			handleSkillExp(this.skills);
+		}
+		
     }\`;
-creatorCache['Practice Yin'].effect.pred=\`(r,k) => {
-          k.yang+=100 + (r.rep <= 0 ? r.rep * (-25) : 0);
+creatorCache['Practice Yin'].effect.pred=\`(r,k,sq) => {
+          if (sq) {
+            if (getLevelSquirrelAction("Practice Yin")>=2) {
+              h.killSquirrel(r);
+              r.rep+=4;
+            }
+          } else {
+            k.yin+=100 + (r.rep <= 0 ? r.rep * (-25) : 0);
+          }
         }\`;
 creatorCache['Learn Brewing']={};
 creatorCache['Learn Brewing'].affected=['darkEssences'];
@@ -2391,18 +1898,37 @@ creatorCache['Learn Brewing'].manaCost.game=\`manaCost() {
 creatorCache['Learn Brewing'].manaCost.pred=\`\`;
 creatorCache['Learn Brewing'].canStart={};
 creatorCache['Learn Brewing'].canStart.game=\`canStart() {
-        return resources.darkEssences >= 10;
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements &&  resources.darkEssences >= 10;
     }\`;
 creatorCache['Learn Brewing'].canStart.pred=\`(input) => {
           return input.darkEssences>=10;
         }\`;
 creatorCache['Learn Brewing'].effect={};
 creatorCache['Learn Brewing'].effect.game=\`finish() {
-		handleSkillExp(this.skills);
-		addResource("darkEssences", -10);
-		view.adjustExpGain(Action.LearnAlchemy);
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Learn Brewing")){
+				
+				case 0: levelUpSquirrelAction("Learn Brewing");
+					break;				
+									
+			}
+			
+			switch(getLevelSquirrelAction("Learn Brewing")){
+						
+				case 1:	break;
+					
+			}
+		} else {
+			handleSkillExp(this.skills);
+			addResource("darkEssences", -10);
+			view.adjustExpGain(Action.LearnAlchemy);
+		}	
     }\`;
-creatorCache['Learn Brewing'].effect.pred=\`(r,k) => {
+creatorCache['Learn Brewing'].effect.pred=\`(r,k,sq) => {
+            if (sq) return;
             r.darkEssences-=10;
             let alchemyLevel = getSkillLevelFromExp(k.alchemy);
 			let alchemyMultiplier = 0;			
@@ -2418,7 +1944,8 @@ creatorCache['Concoct Potions']={};
 creatorCache['Concoct Potions'].affected=['rep','darkEssences','darkPotions'];
 creatorCache['Concoct Potions'].canStart={};
 creatorCache['Concoct Potions'].canStart.game=\`canStart() {
-        return resources.darkEssences >= 10 && resources.reputation <= -10;
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements && resources.darkEssences >= 10 && resources.reputation <= -10;
     }\`;
 creatorCache['Concoct Potions'].canStart.pred=\`(input) => {
             return (input.rep<=-10 && input.darkEssences>=10);
@@ -2432,13 +1959,30 @@ creatorCache['Concoct Potions'].loop.cost.game=\`loopCost(segment) {
 creatorCache['Concoct Potions'].loop.cost.pred=\`(p) => segment =>  precision3(Math.pow(1.4, p.completed/3))*50000\`;
 creatorCache['Concoct Potions'].loop.tick={};
 creatorCache['Concoct Potions'].loop.tick.game=\`tickProgress(offset) {
+		if(this.squirrelAction) return 0;
         return (getSkillLevel("Brewing") + getSkillLevel("Alchemy")/2) * (1 + getLevel(this.loopStats[(towns[FORESTPATH].ConcoctLoopCounter + offset) % this.loopStats.length]) / 100) * Math.sqrt(1 + towns[FORESTPATH].totalConcoct / 100);
     }\`;
-creatorCache['Concoct Potions'].loop.tick.pred=\`(p, a, s, k, r) => offset => r.darkEssences<10?0: (getSkillLevelFromExp(k.alchemy)/2 + getSkillLevelFromExp(k.brewing)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100)\`;
+creatorCache['Concoct Potions'].loop.tick.pred=\`(p, a, s, k, r, sq) => offset => (sq || r.darkEssences<10)?0: (getSkillLevelFromExp(k.alchemy)/2 + getSkillLevelFromExp(k.brewing)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100)\`;
 creatorCache['Concoct Potions'].loop.end={};
 creatorCache['Concoct Potions'].loop.end.game=\`finish() {
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Concoct Potions")){
+				
+				case 0: levelUpSquirrelAction("Concoct Potions");
+					break;				
+									
+			}
+			
+			switch(getLevelSquirrelAction("Concoct Potions")){
+						
+				case 1:	break;
+					
+			}
+		} 	
     }\`;
-creatorCache['Concoct Potions'].loop.end.pred='';
+creatorCache['Concoct Potions'].loop.end.pred=\`\`;
 creatorCache['Concoct Potions'].loop.loop={};
 creatorCache['Concoct Potions'].loop.loop.game=\`loopsFinished() {
 		addResource("darkEssences", -10);
@@ -2467,12 +2011,38 @@ creatorCache['Continue On'].manaCost.game=\`manaCost() {
         return Math.ceil(70000 - shortcutReduce - darkForestReduce);
     }\`;
 creatorCache['Continue On'].manaCost.pred=\`\`;
+creatorCache['Continue On'].canStart={};
+creatorCache['Continue On'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Continue On'].canStart.pred=\`true\`;
 creatorCache['Continue On'].effect={};
 creatorCache['Continue On'].effect.game=\`finish() {
-        //unlockTown(2);
 		
 		if(this.squirrelAction){
-			unlockTown(SANCTUARY);
+			
+			switch(getLevelSquirrelAction("Continue On")){
+				
+				case 0: levelUpSquirrelAction("Continue On");
+					break;
+					
+				case 1: if(getSkillSquirrelLevel("Magic") >= 10) levelUpSquirrelAction("Continue On");
+					break;
+					
+									
+			}
+			
+			switch(getLevelSquirrelAction("Continue On")){
+						
+				case 1:	break;
+				
+				case 2: unlockTown(SANCTUARY);
+					break;
+			
+			}
+		} else {
+			//unlockTown(2);
 		}
     }\`;
 creatorCache['Continue On'].effect.pred=\`(r,k,sq) => r.town = (sq?SANCTUARY:2)\`;
@@ -2515,6 +2085,30 @@ creatorCache['Get Drunk'].effect.game=\`finish() {
         towns[MERCHANTON].finishProgress(this.varName, 100);
     }\`;
 creatorCache['Get Drunk'].effect.pred=\`(r) => r.rep--\`;
+creatorCache['Buy Mana Z3']={};
+creatorCache['Buy Mana Z3'].affected=['mana','gold'];
+creatorCache['Buy Mana Z3'].canStart={};
+creatorCache['Buy Mana Z3'].canStart.game=\`canStart() {
+        return !portalUsed;
+    }\`;
+creatorCache['Buy Mana Z3'].canStart.pred=\`true\`;
+creatorCache['Buy Mana Z3'].effect={};
+creatorCache['Buy Mana Z3'].effect.game=\`finish() {
+        addMana(resources.gold * this.goldCost());
+        resetResource("gold");
+    }\`;
+creatorCache['Buy Mana Z3'].effect.pred=\`(r) => (r.mana += r.gold *  Action.BuyManaZ3.goldCost(), r.gold = 0)\`;
+creatorCache['Sell Potions']={};
+creatorCache['Sell Potions'].affected=['gold','potions'];
+creatorCache['Sell Potions'].effect={};
+creatorCache['Sell Potions'].effect.game=\`finish() {
+        if (resources.potions >= 20) unlockStory("sell20PotionsInALoop");
+        addResource("gold", resources.potions * getSkillLevel("Alchemy"));
+        resetResource("potions");
+        unlockStory("potionSold");
+        if (getSkillLevel("Alchemy") >= 100) unlockStory("sellPotionFor100Gold");
+    }\`;
+creatorCache['Sell Potions'].effect.pred=\`(r, k) => (r.gold += r.potions *  getSkillLevelFromExp(k.alchemy), r.potions = 0)\`;
 creatorCache['Adventure Guild']={};
 creatorCache['Adventure Guild'].affected=['gold','adventures'];
 creatorCache['Adventure Guild'].canStart={};
@@ -2561,6 +2155,20 @@ creatorCache['Adventure Guild'].loop.loop.game=\`loopsFinished() {
     }\`;
 creatorCache['Adventure Guild'].loop.loop.pred=\`\`;
 creatorCache['Adventure Guild'].loop.max=\`\`;
+creatorCache['Gather Team']={};
+creatorCache['Gather Team'].affected=['team','gold'];
+creatorCache['Gather Team'].canStart={};
+creatorCache['Gather Team'].canStart.game=\`canStart() {
+        return guild === "Adventure" && resources.gold >= (resources.teamMembers + 1) * 100;
+    }\`;
+creatorCache['Gather Team'].canStart.pred=\`(input) => ((input.guild=='adventure')&&(input.gold>=(input.team+1) * 100))\`;
+creatorCache['Gather Team'].effect={};
+creatorCache['Gather Team'].effect.game=\`finish() {
+        addResource("teamMembers", 1);
+        unlockStory("teammateGathered");
+        if (resources.teamMembers >= 5) unlockStory("fullParty");
+    }\`;
+creatorCache['Gather Team'].effect.pred=\`(r) => (r.team = (r.team || 0) + 1, r.gold -= r.team * 100)\`;
 creatorCache['Large Dungeon']={};
 creatorCache['Large Dungeon'].affected=['team','soul'];
 creatorCache['Large Dungeon'].canStart={};
@@ -2647,6 +2255,20 @@ creatorCache['Crafting Guild'].loop.loop.game=\`loopsFinished() {
     }\`;
 creatorCache['Crafting Guild'].loop.loop.pred=\`\`;
 creatorCache['Crafting Guild'].loop.max=\`\`;
+creatorCache['Craft Armor']={};
+creatorCache['Craft Armor'].affected=['hide'];
+creatorCache['Craft Armor'].canStart={};
+creatorCache['Craft Armor'].canStart.game=\`canStart() {
+        return resources.hide >= 2;
+    }\`;
+creatorCache['Craft Armor'].canStart.pred=\`(input) => (input.hide >= 2)\`;
+creatorCache['Craft Armor'].effect={};
+creatorCache['Craft Armor'].effect.game=\`finish() {
+        addResource("armor", 1);
+        unlockStory("armorCrafted");
+        if (resources.armor >= 10) unlockStory("craft10Armor");
+    }\`;
+creatorCache['Craft Armor'].effect.pred=\`(r) => (r.hide -= 2, r.armor = (r.armor || 0) + 1)\`;
 creatorCache['Apprentice']={};
 creatorCache['Apprentice'].affected=[''];
 creatorCache['Apprentice'].canStart={};
@@ -2687,6 +2309,31 @@ creatorCache['Architect'].effect.game=\`finish() {
         handleSkillExp(this.skills);
     }\`;
 creatorCache['Architect'].effect.pred=\`(r, k) => Math.min((r.architect = (r.architect || towns[2].expArchitect) + 10 * h.getGuildRankBonus(r.crafts || 0),505000), k.crafting += 40 * (1 + h.getTownLevelFromExp(r.architect) / 100))\`;
+creatorCache['Read Books']={};
+creatorCache['Read Books'].affected=[''];
+creatorCache['Read Books'].canStart={};
+creatorCache['Read Books'].canStart.game=\`canStart() {
+        return resources.glasses;
+    }\`;
+creatorCache['Read Books'].canStart.pred=\`(input) => input.glasses\`;
+creatorCache['Read Books'].effect={};
+creatorCache['Read Books'].effect.game=\`finish() {
+        unlockStory("booksRead");
+    }\`;
+creatorCache['Read Books'].effect.pred=\`\`;
+creatorCache['Buy Pickaxe']={};
+creatorCache['Buy Pickaxe'].affected=['gold'];
+creatorCache['Buy Pickaxe'].canStart={};
+creatorCache['Buy Pickaxe'].canStart.game=\`canStart() {
+        return resources.gold >= 200;
+    }\`;
+creatorCache['Buy Pickaxe'].canStart.pred=\`(input) =>(input.gold>=200)\`;
+creatorCache['Buy Pickaxe'].effect={};
+creatorCache['Buy Pickaxe'].effect.game=\`finish() {
+        addResource("pickaxe", true);
+        unlockStory("pickaxeBought");
+    }\`;
+creatorCache['Buy Pickaxe'].effect.pred=\`(r) => (r.gold -= 200, r.pickaxe = true)\`;
 creatorCache['Heroes Trial']={};
 creatorCache['Heroes Trial'].affected=['heroism'];
 creatorCache['Heroes Trial'].canStart={};
@@ -2728,6 +2375,30 @@ creatorCache['Heroes Trial'].loop.loop.game=\`function() {
 }\`;
 creatorCache['Heroes Trial'].loop.loop.pred=\`(r) => (r.heroism=(r.heroism||0)+1)\`;
 creatorCache['Heroes Trial'].loop.max=\`(a) => trialFloors[a.trialNum]\`;
+creatorCache['Start Trek']={};
+creatorCache['Start Trek'].affected=[''];
+creatorCache['Start Trek'].manaCost={};
+creatorCache['Start Trek'].manaCost.game=\`manaCost() {
+        return Math.ceil(12000);
+    }\`;
+creatorCache['Start Trek'].manaCost.pred=\`\`;
+creatorCache['Start Trek'].effect={};
+creatorCache['Start Trek'].effect.game=\`finish() {
+        unlockTown(3);
+    }\`;
+creatorCache['Start Trek'].effect.pred=\`(r) => r.town = 3\`;
+creatorCache['Underworld']={};
+creatorCache['Underworld'].affected=['gold'];
+creatorCache['Underworld'].canStart={};
+creatorCache['Underworld'].canStart.game=\`canStart() {
+        return resources.gold >= 500;
+    }\`;
+creatorCache['Underworld'].canStart.pred=\`(input)=>(input.gold>=500)\`;
+creatorCache['Underworld'].effect={};
+creatorCache['Underworld'].effect.game=\`finish() {
+        unlockTown(7);
+    }\`;
+creatorCache['Underworld'].effect.pred=\`(r) => (r.town = 7,r.gold-=500)\`;
 creatorCache['Climb Mountain']={};
 creatorCache['Climb Mountain'].affected=[''];
 creatorCache['Climb Mountain'].effect={};
@@ -2779,6 +2450,25 @@ creatorCache['Chronomancy'].effect.game=\`finish() {
         handleSkillExp(this.skills);
     }\`;
 creatorCache['Chronomancy'].effect.pred=\`(r, k) => k.chronomancy += 100\`;
+creatorCache['Looping Potion']={};
+creatorCache['Looping Potion'].affected=['herbs','lpotions'];
+creatorCache['Looping Potion'].manaCost={};
+creatorCache['Looping Potion'].manaCost.game=\`manaCost() {
+        return Math.ceil(30000);
+    }\`;
+creatorCache['Looping Potion'].manaCost.pred=\`\`;
+creatorCache['Looping Potion'].canStart={};
+creatorCache['Looping Potion'].canStart.game=\`canStart() {
+        return resources.herbs >= 400;
+    }\`;
+creatorCache['Looping Potion'].canStart.pred=\`(input) => (input.herbs>=400)\`;
+creatorCache['Looping Potion'].effect={};
+creatorCache['Looping Potion'].effect.game=\`finish() {
+        addResource("loopingPotion", true);
+        handleSkillExp(this.skills);
+        unlockStory("loopingPotionMade");
+    }\`;
+creatorCache['Looping Potion'].effect.pred=\`(r, k) => (r.herbs -= 400, r.lpotions++, k.alchemy += 100)\`;
 creatorCache['Pyromancy']={};
 creatorCache['Pyromancy'].affected=[''];
 creatorCache['Pyromancy'].manaCost={};
@@ -2965,6 +2655,18 @@ creatorCache['Face Judgement'].effect.game=\`finish() {
         }
     }\`;
 creatorCache['Face Judgement'].effect.pred=\`(r) => (r.town = r.rep>=50?4:(r.rep<=-50?5:r.town))\`;
+creatorCache['Guru']={};
+creatorCache['Guru'].affected=['herbs'];
+creatorCache['Guru'].canStart={};
+creatorCache['Guru'].canStart.game=\`canStart() {
+        return resources.herbs >= 1000;
+    }\`;
+creatorCache['Guru'].canStart.pred=\`(input)=>(input.herbs>=1000)\`;
+creatorCache['Guru'].effect={};
+creatorCache['Guru'].effect.game=\`finish() {
+        unlockTown(4);
+    }\`;
+creatorCache['Guru'].effect.pred=\`(r) => (r.town = 4,r.herbs-=1000)\`;
 creatorCache['Guided Tour']={};
 creatorCache['Guided Tour'].affected=['gold'];
 creatorCache['Guided Tour'].canStart={};
@@ -2986,6 +2688,24 @@ creatorCache['Canvass'].effect.game=\`finish() {
         towns[VALHALLA].finishProgress(this.varName, 50);
     }\`;
 creatorCache['Canvass'].effect.pred=\`\`;
+creatorCache['Donate']={};
+creatorCache['Donate'].affected=['gold','rep'];
+creatorCache['Donate'].canStart={};
+creatorCache['Donate'].canStart.game=\`canStart() {
+        return resources.gold >= 20;
+    }\`;
+creatorCache['Donate'].canStart.pred=\`(input) => {
+          return (input.gold >= 20);
+        }\`;
+creatorCache['Donate'].effect={};
+creatorCache['Donate'].effect.game=\`finish() {
+        addResource("gold", -20);
+        addResource("reputation", 1);
+    }\`;
+creatorCache['Donate'].effect.pred=\`(r) => {
+          r.gold -= 20;
+          r.rep += 1;
+        }\`;
 creatorCache['Accept Donations']={};
 creatorCache['Accept Donations'].affected=['gold','rep'];
 creatorCache['Accept Donations'].canStart={};
@@ -3042,6 +2762,53 @@ creatorCache['Tidy Up'].loop.loop.pred=\`(r) => {
               r.rep += 1;
             }\`;
 creatorCache['Tidy Up'].loop.max=\`\`;
+creatorCache['Buy Mana Z5']={};
+creatorCache['Buy Mana Z5'].affected=['mana','gold'];
+creatorCache['Buy Mana Z5'].canStart={};
+creatorCache['Buy Mana Z5'].canStart.game=\`canStart() {
+        return !portalUsed;
+    }\`;
+creatorCache['Buy Mana Z5'].canStart.pred=\`true\`;
+creatorCache['Buy Mana Z5'].effect={};
+creatorCache['Buy Mana Z5'].effect.game=\`finish() {
+        addMana(resources.gold * this.goldCost());
+        resetResource("gold");
+    }\`;
+creatorCache['Buy Mana Z5'].effect.pred=\`(r) => (r.mana += r.gold *  Action.BuyManaZ5.goldCost(), r.gold = 0)\`;
+creatorCache['Sell Artifact']={};
+creatorCache['Sell Artifact'].affected=['gold','artifacts'];
+creatorCache['Sell Artifact'].canStart={};
+creatorCache['Sell Artifact'].canStart.game=\`canStart() {
+        return resources.artifacts >= 1;
+    }\`;
+creatorCache['Sell Artifact'].canStart.pred=\`(input) => {
+          return (input.artifacts >= 1);
+        }\`;
+creatorCache['Sell Artifact'].effect={};
+creatorCache['Sell Artifact'].effect.game=\`finish() {
+        addResource("gold", 50);
+    }\`;
+creatorCache['Sell Artifact'].effect.pred=\`(r) => {
+          r.gold += 50;
+          r.artifacts -= 1;
+        }\`;
+creatorCache['Gift Artifact']={};
+creatorCache['Gift Artifact'].affected=['artifacts'];
+creatorCache['Gift Artifact'].canStart={};
+creatorCache['Gift Artifact'].canStart.game=\`canStart() {
+        return resources.artifacts >= 1;
+    }\`;
+creatorCache['Gift Artifact'].canStart.pred=\`(input) => {
+          return (input.artifacts >= 1);
+        }\`;
+creatorCache['Gift Artifact'].effect={};
+creatorCache['Gift Artifact'].effect.game=\`finish() {
+        addResource("favors", 1);
+    }\`;
+creatorCache['Gift Artifact'].effect.pred=\`(r) => {
+          r.artifacts -= 1;
+          r.favor += 1;
+        }\`;
 creatorCache['Mercantilism']={};
 creatorCache['Mercantilism'].affected=[''];
 creatorCache['Mercantilism'].canStart={};
@@ -3059,6 +2826,39 @@ creatorCache['Mercantilism'].effect.game=\`finish() {
 creatorCache['Mercantilism'].effect.pred=\`(r, k) => {
           k.mercantilism += 100;
           r.rep--;
+        }\`;
+creatorCache['Charm School']={};
+creatorCache['Charm School'].affected=[''];
+creatorCache['Charm School'].effect={};
+creatorCache['Charm School'].effect.game=\`finish() {
+        // empty
+    }\`;
+creatorCache['Charm School'].effect.pred=\`\`;
+creatorCache['Oracle']={};
+creatorCache['Oracle'].affected=[''];
+creatorCache['Oracle'].effect={};
+creatorCache['Oracle'].effect.game=\`finish() {
+		
+    }\`;
+creatorCache['Oracle'].effect.pred=\`\`;
+creatorCache['Enchant Armor']={};
+creatorCache['Enchant Armor'].affected=['armor','favor','enchantments'];
+creatorCache['Enchant Armor'].canStart={};
+creatorCache['Enchant Armor'].canStart.game=\`canStart() {
+        return resources.favors >= 1 && resources.armor >= 1;
+    }\`;
+creatorCache['Enchant Armor'].canStart.pred=\`(input) => {
+          return (input.armor >= 0 && input.favor >= 0);
+        }\`;
+creatorCache['Enchant Armor'].effect={};
+creatorCache['Enchant Armor'].effect.game=\`finish() {
+        handleSkillExp(this.skills);
+        addResource("enchantments", 1);
+    }\`;
+creatorCache['Enchant Armor'].effect.pred=\`(r) => {
+          r.armor -= 1;
+          r.favor -= 1;
+          r.enchantments += 1;
         }\`;
 creatorCache['Wizard College']={};
 creatorCache['Wizard College'].affected=['gold','favor','wizard'];
@@ -3104,6 +2904,18 @@ creatorCache['Wizard College'].loop.loop.game=\`loopsFinished() {
     }\`;
 creatorCache['Wizard College'].loop.loop.pred=\`\`;
 creatorCache['Wizard College'].loop.max=\`\`;
+creatorCache['Restoration']={};
+creatorCache['Restoration'].affected=[''];
+creatorCache['Restoration'].manaCost={};
+creatorCache['Restoration'].manaCost.game=\`manaCost() {
+        return 15000 / getWizCollegeRank().bonus;
+    }\`;
+creatorCache['Restoration'].manaCost.pred=\`(r,k)=>(15000 / h.getWizardRankBonus(r))\`;
+creatorCache['Restoration'].effect={};
+creatorCache['Restoration'].effect.game=\`finish() {
+        handleSkillExp(this.skills);
+    }\`;
+creatorCache['Restoration'].effect.pred=\`(r, k) => k.restoration += 100*(1+getBuffLevel("Heroism") * 0.02)\`;
 creatorCache['Spatiomancy']={};
 creatorCache['Spatiomancy'].affected=[''];
 creatorCache['Spatiomancy'].manaCost={};
@@ -3147,6 +2959,40 @@ creatorCache['Build Housing'].effect.game=\`finish() {
         handleSkillExp(this.skills);
     }\`;
 creatorCache['Build Housing'].effect.pred=\`(r) => (r.houses = (r.houses ? r.houses+1 : 1))\`;
+creatorCache['Collect Taxes']={};
+creatorCache['Collect Taxes'].affected=[''];
+creatorCache['Collect Taxes'].canStart={};
+creatorCache['Collect Taxes'].canStart.game=\`canStart() {
+        return resources.houses > 0;
+    }\`;
+creatorCache['Collect Taxes'].canStart.pred=\`(input) => (input.houses > 0)\`;
+creatorCache['Collect Taxes'].effect={};
+creatorCache['Collect Taxes'].effect.game=\`finish() {
+        const goldGain = Math.floor(resources.houses * getSkillLevel("Mercantilism") / 10);
+        addResource("gold", goldGain);
+        return goldGain;
+    }\`;
+creatorCache['Collect Taxes'].effect.pred=\`(r, k) => {
+          r.gold += Math.floor(r.houses *  getSkillLevelFromExp(k.mercantilism) / 10);
+        }\`;
+creatorCache['Pegasus']={};
+creatorCache['Pegasus'].affected=['gold','favor'];
+creatorCache['Pegasus'].canStart={};
+creatorCache['Pegasus'].canStart.game=\`canStart() {
+        return resources.gold >= 200 && resources.favors >= 20;
+    }\`;
+creatorCache['Pegasus'].canStart.pred=\`(input) => {
+          return (input.gold >= 200 && input.favor >= 20);
+        }\`;
+creatorCache['Pegasus'].effect={};
+creatorCache['Pegasus'].effect.game=\`finish() {
+        addResource("pegasus", true);
+    }\`;
+creatorCache['Pegasus'].effect.pred=\`(r) => {
+          r.gold -= 200;
+          r.favor -= 20;
+          r.pegasus = true;
+        }\`;
 creatorCache['Great Feast']={};
 creatorCache['Great Feast'].affected=['feast'];
 creatorCache['Great Feast'].canStart={};
@@ -3218,6 +3064,23 @@ creatorCache['Fight Frost Giants'].loop.loop.game=\`loopsFinished() {
     }\`;
 creatorCache['Fight Frost Giants'].loop.loop.pred=\`(r,k) => {(k.combat += 1500*(1+getBuffLevel("Heroism") * 0.02))}\`;
 creatorCache['Fight Frost Giants'].loop.max=\`\`;
+creatorCache['Seek Blessing']={};
+creatorCache['Seek Blessing'].affected=[''];
+creatorCache['Seek Blessing'].canStart={};
+creatorCache['Seek Blessing'].canStart.game=\`canStart() {
+        return resources.pegasus;
+    }\`;
+creatorCache['Seek Blessing'].canStart.pred=\`(input) => {
+          return (input.pegasus);
+        }\`;
+creatorCache['Seek Blessing'].effect={};
+creatorCache['Seek Blessing'].effect.game=\`finish() {
+        this.skills.Divine = Math.floor(50 * getFrostGiantsRank().bonus);
+        handleSkillExp(this.skills);
+    }\`;
+creatorCache['Seek Blessing'].effect.pred=\`(r, k) => {
+          k.divine+= (r.giants>62? 10: precision3(1 + 0.05 * Math.pow(r.giants||0, 1.05)) ) *50;
+        }\`;
 creatorCache['Fall From Grace']={};
 creatorCache['Fall From Grace'].affected=[''];
 creatorCache['Fall From Grace'].effect={};
@@ -3280,6 +3143,35 @@ creatorCache['Destroy Pylons'].effect.pred=\`(r) => {
             r.pylons += 1;
           }
         }\`;
+creatorCache['Raise Zombie']={};
+creatorCache['Raise Zombie'].affected=['blood','zombie'];
+creatorCache['Raise Zombie'].canStart={};
+creatorCache['Raise Zombie'].canStart.game=\`canStart() {
+        return resources.blood >= 1;
+    }\`;
+creatorCache['Raise Zombie'].canStart.pred=\`(input) => (input.blood >= 1)\`;
+creatorCache['Raise Zombie'].effect={};
+creatorCache['Raise Zombie'].effect.game=\`finish() {
+        handleSkillExp(this.skills);
+        addResource("zombie", 1);
+    }\`;
+creatorCache['Raise Zombie'].effect.pred=\`(r) => {
+            r.blood -= 1;
+            r.zombie += 1;
+          }\`;
+creatorCache['Dark Sacrifice']={};
+creatorCache['Dark Sacrifice'].affected=['blood'];
+creatorCache['Dark Sacrifice'].canStart={};
+creatorCache['Dark Sacrifice'].canStart.game=\`canStart() {
+        return resources.blood >= 1;
+    }\`;
+creatorCache['Dark Sacrifice'].canStart.pred=\`(input) => (input.blood >= 1)\`;
+creatorCache['Dark Sacrifice'].effect={};
+creatorCache['Dark Sacrifice'].effect.game=\`finish() {
+        handleSkillExp(this.skills);
+        //view.adjustGoldCost("DarkRitual", Action.DarkRitual.goldCost());
+    }\`;
+creatorCache['Dark Sacrifice'].effect.pred=\`(r,k) => (r.blood -=1,k.commune+=100)\`;
 creatorCache['The Spire']={};
 creatorCache['The Spire'].affected=['soul'];
 creatorCache['The Spire'].manaCost={};
@@ -3330,6 +3222,21 @@ creatorCache['The Spire'].loop.loop.game=\`loopsFinished() {
     }\`;
 creatorCache['The Spire'].loop.loop.pred=\`(r) => r.soul += h.getRewardSS(2)\`;
 creatorCache['The Spire'].loop.max=\`(a) =>  dungeons[a.dungeonNum].length\`;
+creatorCache['Purchase Supplies']={};
+creatorCache['Purchase Supplies'].affected=['gold'];
+creatorCache['Purchase Supplies'].canStart={};
+creatorCache['Purchase Supplies'].canStart.game=\`canStart() {
+        return resources.gold >= 500 && !resources.supplies;
+    }\`;
+creatorCache['Purchase Supplies'].canStart.pred=\`(input) => (input.gold >= 500 && input.supplies === 0)\`;
+creatorCache['Purchase Supplies'].effect={};
+creatorCache['Purchase Supplies'].effect.game=\`finish() {
+        addResource("supplies", true);
+    }\`;
+creatorCache['Purchase Supplies'].effect.pred=\`(r) => {
+          r.gold -= 500;
+          r.supplies = (r.supplies || 0) + 1;
+        }\`;
 creatorCache['Dead Trial']={};
 creatorCache['Dead Trial'].affected=['zombie'];
 creatorCache['Dead Trial'].canStart={};
@@ -3368,6 +3275,21 @@ creatorCache['Dead Trial'].loop.loop.game=\`function() {
 }\`;
 creatorCache['Dead Trial'].loop.loop.pred=\`(r) => (r.zombie++)\`;
 creatorCache['Dead Trial'].loop.max=\`(a) => trialFloors[a.trialNum]\`;
+creatorCache['Journey Forth']={};
+creatorCache['Journey Forth'].affected=[''];
+creatorCache['Journey Forth'].canStart={};
+creatorCache['Journey Forth'].canStart.game=\`canStart() {
+        return resources.supplies;
+    }\`;
+creatorCache['Journey Forth'].canStart.pred=\`(input) => (input.supplies >= 1)\`;
+creatorCache['Journey Forth'].effect={};
+creatorCache['Journey Forth'].effect.game=\`finish() {
+        unlockTown(6);
+    }\`;
+creatorCache['Journey Forth'].effect.pred=\`(r) => {
+            r.supplies--;
+            r.town=6;
+        }\`;
 creatorCache['Explore Jungle']={};
 creatorCache['Explore Jungle'].affected=['herbs'];
 creatorCache['Explore Jungle'].effect={};
@@ -3460,6 +3382,18 @@ creatorCache['Prepare Buffet'].effect.pred=\`(r,k) => {
             r.blood--;
             k.gluttony+=5*r.survivor;
           }\`;
+creatorCache['Totem']={};
+creatorCache['Totem'].affected=['lpotions'];
+creatorCache['Totem'].canStart={};
+creatorCache['Totem'].canStart.game=\`canStart() {
+        return resources.loopingPotion;
+    }\`;
+creatorCache['Totem'].canStart.pred=\`(input)=>(input.lpotions>0)\`;
+creatorCache['Totem'].effect={};
+creatorCache['Totem'].effect.game=\`finish() {
+        handleSkillExp(this.skills);
+    }\`;
+creatorCache['Totem'].effect.pred=\`(r,k)=>(r.lpotions--,k.wunderkind+=100)\`;
 creatorCache['Escape']={};
 creatorCache['Escape'].affected=[''];
 creatorCache['Escape'].canStart={};
@@ -3472,6 +3406,15 @@ creatorCache['Escape'].effect.game=\`finish() {
         unlockTown(7);
     }\`;
 creatorCache['Escape'].effect.pred=\`(r) => (r.town=7)\`;
+creatorCache['Open Portal']={};
+creatorCache['Open Portal'].affected=[''];
+creatorCache['Open Portal'].effect={};
+creatorCache['Open Portal'].effect.game=\`finish() {
+        portalUsed = true;
+        handleSkillExp(this.skills);
+        unlockTown(1);
+    }\`;
+creatorCache['Open Portal'].effect.pred=\`(r,k) => (r.town=1,k.restoration+=2500*(1+getBuffLevel("Heroism") * 0.02))\`;
 creatorCache['Excursion']={};
 creatorCache['Excursion'].affected=['gold'];
 creatorCache['Excursion'].canStart={};
@@ -3611,6 +3554,57 @@ creatorCache['Insurance Fraud'].effect.pred=\`(r, k) => {
           r.gold += Math.floor(Math.floor(100 * h.getSkillBonusInc(k.thievery)) * h.getGuildRankBonus(r.thieves));
           k.thievery+=40 * (1 + towns[COMMERCEVILLE].getLevel("InsuranceFraud") / 100);
         }\`;
+creatorCache['Invest']={};
+creatorCache['Invest'].affected=['gold'];
+creatorCache['Invest'].canStart={};
+creatorCache['Invest'].canStart.game=\`canStart() {
+        return resources.gold > 0;
+    }\`;
+creatorCache['Invest'].canStart.pred=\`(input)=>(input.gold>0)\`;
+creatorCache['Invest'].effect={};
+creatorCache['Invest'].effect.game=\`finish() {
+        handleSkillExp(this.skills);
+        goldInvested += resources.gold;
+        if (goldInvested > 999999999999) goldInvested = 999999999999;
+        resetResource("gold");
+    }\`;
+creatorCache['Invest'].effect.pred=\`(r,k)=> {
+           k.mercantilism+=100;
+           r.gold=0;
+        }\`;
+creatorCache['Collect Interest']={};
+creatorCache['Collect Interest'].affected=['gold'];
+creatorCache['Collect Interest'].canStart={};
+creatorCache['Collect Interest'].canStart.game=\`canStart() {
+        return true;
+    }\`;
+creatorCache['Collect Interest'].canStart.pred=\`true\`;
+creatorCache['Collect Interest'].effect={};
+creatorCache['Collect Interest'].effect.game=\`finish() {
+        handleSkillExp(this.skills);
+        let interestGold = Math.floor(goldInvested * .001);
+        addResource("gold", interestGold);
+        return interestGold;
+    }\`;
+creatorCache['Collect Interest'].effect.pred=\`(r,k)=> {
+           k.mercantilism+=50;
+           r.gold+=Math.floor(goldInvested * .001);
+        }\`;
+creatorCache['Purchase Key']={};
+creatorCache['Purchase Key'].affected=['gold'];
+creatorCache['Purchase Key'].canStart={};
+creatorCache['Purchase Key'].canStart.game=\`canStart() {
+        return resources.gold >= 1000000 && !resources.key;
+    }\`;
+creatorCache['Purchase Key'].canStart.pred=\`(input)=>(input.gold>=1000000)\`;
+creatorCache['Purchase Key'].effect={};
+creatorCache['Purchase Key'].effect.game=\`finish() {
+        addResource("key", true);
+    }\`;
+creatorCache['Purchase Key'].effect.pred=\`(r,k)=> {
+           r.gold-=1000000;
+           r.key=1;
+        }\`;
 creatorCache['Secret Trial']={};
 creatorCache['Secret Trial'].affected=['zombie'];
 creatorCache['Secret Trial'].canStart={};
@@ -3649,6 +3643,21 @@ creatorCache['Secret Trial'].loop.loop.game=\`function() {
 }\`;
 creatorCache['Secret Trial'].loop.loop.pred=\`\`;
 creatorCache['Secret Trial'].loop.max=\`(a) => trialFloors[a.trialNum]\`;
+creatorCache['Leave City']={};
+creatorCache['Leave City'].affected=[''];
+creatorCache['Leave City'].canStart={};
+creatorCache['Leave City'].canStart.game=\`canStart() {
+        return resources.key;
+    }\`;
+creatorCache['Leave City'].canStart.pred=\`(input)=>(input.key>0)\`;
+creatorCache['Leave City'].effect={};
+creatorCache['Leave City'].effect.game=\`finish() {
+        unlockTown(8);
+    }\`;
+creatorCache['Leave City'].effect.pred=\`(r,k)=> {
+           r.key=0;
+           r.town=8;
+        }\`;
 creatorCache['Imbue Soul']={};
 creatorCache['Imbue Soul'].affected=['body'];
 creatorCache['Imbue Soul'].canStart={};
@@ -3806,6 +3815,1097 @@ creatorCache['Restore Time'].effect.game=\`finish() {
         unlockGlobalStory(3);
     }\`;
 creatorCache['Restore Time'].effect.pred=\`(r)=> (r.rep+=9999999)\`;
+//TODO Liste
+creatorCache['Look Around']={};
+creatorCache['Look Around'].affected=[''];
+creatorCache['Look Around'].manaCost={};
+creatorCache['Look Around'].manaCost.game=\`manaCost() {
+        return 30000 * (Math.pow(2, towns[SANCTUARY].getLevel(this.varName))) / (Math.pow(6, getBuffLevel("SpiritBlessing")));
+    }\`;
+creatorCache['Look Around'].manaCost.pred=\`\`;
+creatorCache['Look Around'].canStart={};
+creatorCache['Look Around'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements && resources.glasses;
+    }\`;
+creatorCache['Look Around'].canStart.pred=\`(input) => (input.glasses)\`;
+creatorCache['Look Around'].effect={};
+creatorCache['Look Around'].effect.game=\`finish() {
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Look Around")){
+				
+				case 0: levelUpSquirrelAction("Look Around");
+					break;
+					
+			}
+			
+			switch(getLevelSquirrelAction("Look Around")){
+						
+				case 1: break;
+										
+			}
+		} else {	
+			towns[SANCTUARY].finishProgress(this.varName, 100);
+			view.adjustManaCost("Look Around");
+		}
+
+    }\`;
+creatorCache['Look Around'].effect.pred=\`\`;
+creatorCache['Absorb Mana']={};
+creatorCache['Absorb Mana'].affected=[''];
+creatorCache['Absorb Mana'].canStart={};
+creatorCache['Absorb Mana'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Absorb Mana'].canStart.pred=\`true\`;
+creatorCache['Absorb Mana'].effect={};
+creatorCache['Absorb Mana'].effect.game=\`finish() {
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Absorb Mana")){
+				
+				case 0: levelUpSquirrelAction("Absorb Mana");
+					break;
+					
+			}
+			
+			switch(getLevelSquirrelAction("Absorb Mana")){
+						
+				case 1: break;
+										
+			}
+		} else {	
+			const manaGain = this.goldCost();
+			towns[SANCTUARY].finishRegular(this.varName, 10, () => {
+				addMana(manaGain);	
+				return manaGain;
+			});
+			view.adjustGoldCost("ManaSpots", this.goldCost());
+		}
+			
+    }\`;
+creatorCache['Absorb Mana'].effect.pred=\`(r,k,sq) => {
+          if (sq) return;
+          const manaBase = 100000;
+          const exponent = 1 + (getBuffLevel("SpiritBlessing") * 0.02);
+          r.manaAbsorb = (r.manaAbsorb || 0)+1;
+          r.mana += r.manaAbsorb <= towns[SANCTUARY].goodManaSpots ?  Math.floor(manaBase * Math.pow(exponent, r.manaAbsorb -1)) : 0;
+        }\`;
+creatorCache['Imbue Squirrel']={};
+creatorCache['Imbue Squirrel'].affected=['ImbueSoulStone'];
+creatorCache['Imbue Squirrel'].manaCost={};
+creatorCache['Imbue Squirrel'].manaCost.game=\`manaCost(squirrelTooltip) {
+		const squirrelMod = (((this.squirrelAction || squirrelTooltip) && getLevelSquirrelAction("Imbue Squirrel") >= 1) ? 1 : 0);
+        return 3500 * Math.pow(3, getBuffLevel("SpiritBlessing")  - squirrelMod);
+    }\`;
+creatorCache['Imbue Squirrel'].manaCost.pred=\`\`;
+creatorCache['Imbue Squirrel'].canStart={};
+creatorCache['Imbue Squirrel'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Imbue Squirrel'].canStart.pred=\`\`;
+creatorCache['Imbue Squirrel'].effect={};
+creatorCache['Imbue Squirrel'].effect.game=\`finish() {
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Imbue Squirrel")){
+				
+				case 0: levelUpSquirrelAction("Imbue Squirrel");
+					break;
+					
+			}
+			
+			switch(getLevelSquirrelAction("Imbue Squirrel")){
+						
+				case 1: handleSkillSquirrelExp(this.skillsSquirrel);
+						view.adjustManaCost("Imbue Squirrel", squirrelMode);
+					break;
+										
+			}
+		} else {	
+			handleSkillSquirrelExp(this.skillsSquirrel);
+		}
+		
+		
+    }\`;
+creatorCache['Imbue Squirrel'].effect.pred=\`(r,k,sq) => {
+            k.magicSquirrel+=Math.pow(4, getBuffLevel("SpiritBlessing")- (sq?1:0));
+        }\`;
+creatorCache['Imbue Soulstones']={};
+creatorCache['Imbue Soulstones'].affected=[''];
+creatorCache['Imbue Soulstones'].canStart={};
+creatorCache['Imbue Soulstones'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements && this.getMinimumSoulstones();
+    }\`;
+creatorCache['Imbue Soulstones'].canStart.pred=\`(input) => {
+          return Action.ImbueSoulstones.getMinimumSoulstones();
+        }\`;
+creatorCache['Imbue Soulstones'].effect={};
+creatorCache['Imbue Soulstones'].effect.game=\`finish() {
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Imbue Soulstones")){
+				
+				case 0: levelUpSquirrelAction("Imbue Soulstones");
+					break;
+					
+			}
+			
+			switch(getLevelSquirrelAction("Imbue Soulstones")){
+						
+				case 1: break;
+										
+			}
+		} else {	
+			addBuffAmt("ImbueSoulstones", 1);
+			view.updateStartingMana();
+			view.adjustGoldCost(this.varName, this.goldCost());
+		}
+		
+    }\`;
+creatorCache['Imbue Soulstones'].effect.pred=\`(r,k,sq) => {
+          if (sq) return;
+          r.ImbueSoulStone+=1;
+        }\`;
+creatorCache['Balance Soulstones']={};
+creatorCache['Balance Soulstones'].affected=[''];
+creatorCache['Balance Soulstones'].canStart={};
+creatorCache['Balance Soulstones'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Balance Soulstones'].canStart.pred=\`true\`;
+creatorCache['Balance Soulstones'].effect={};
+creatorCache['Balance Soulstones'].effect.game=\`finish() {
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Balance Soulstones")){
+				
+				case 0: levelUpSquirrelAction("Balance Soulstones");
+					break;
+					
+			}
+			
+			switch(getLevelSquirrelAction("Balance Soulstones")){
+						
+				case 1: break;
+										
+			}
+		} else {	
+			let statWithLessSoulstones = "Dex";
+			let statWithMostSoulstones = "Dex";
+			
+			for (const stat of statList) {
+				if(stats[stat].soulstone > stats[statWithMostSoulstones].soulstone) statWithMostSoulstones = stat;
+				if(stats[stat].soulstone < stats[statWithLessSoulstones].soulstone) statWithLessSoulstones = stat;
+			}
+			
+			stats[statWithMostSoulstones].soulstone --;
+			stats[statWithLessSoulstones].soulstone ++;
+			
+			view.updateSoulstones();
+		}
+		
+    }\`;
+creatorCache['Balance Soulstones'].effect.pred=\`\`;
+creatorCache['Mysterious Voice']={};
+creatorCache['Mysterious Voice'].affected=['blessing'];
+creatorCache['Mysterious Voice'].canStart={};
+creatorCache['Mysterious Voice'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Mysterious Voice'].canStart.pred=\`true\`;
+creatorCache['Mysterious Voice'].effect={};
+creatorCache['Mysterious Voice'].effect.game=\`finish() {
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Mysterious Voice")){
+				
+				case 0: levelUpSquirrelAction("Mysterious Voice");
+					break;
+					
+				case 1: if(getSkillSquirrelLevel("Magic") >= getSkillLevel("Magic")) levelUpSquirrelAction("Mysterious Voice");
+					break;
+					
+			}
+			
+			switch(getLevelSquirrelAction("Mysterious Voice")){
+						
+				case 1: if(getBuffLevel("SpiritBlessing") == 1) {
+							addBuffAmt("SpiritBlessing", 1);
+							view.updateActionTooltips();
+							view.adjustManaCost("Look Around");
+							view.adjustManaCost("Imbue Squirrel");
+							view.adjustGoldCost("ImbueSquirrel", Action.ImbueSquirrel.goldCost());
+						}
+					break;
+				
+				case 2:	if(getBuffLevel("SpiritBlessing") == 1) {
+							addBuffAmt("SpiritBlessing", 1);
+							view.updateActionTooltips();
+							view.adjustManaCost("Look Around");
+							view.adjustManaCost("Imbue Squirrel");
+							view.adjustGoldCost("ImbueSquirrel", Action.ImbueSquirrel.goldCost());
+						}
+						addResource("squirrel", false);
+						// Set the mana to 1000.
+						timer = timeNeeded - 1001;
+						unlockTown(CHRONOSLAIR);
+						break;
+										
+			}
+		} else {	
+			switch(getBuffLevel("SpiritBlessing")){
+				case 0: addBuffAmt("SpiritBlessing", 1);
+					break;
+				case 1: break;
+				case 2: if(resources.stolenGoods >= 10) addBuffAmt("SpiritBlessing", 1);
+					break;
+				case 3: if(resources.herbs >= 100) addBuffAmt("SpiritBlessing", 1);
+					break;
+				case 4: break;
+			}
+			view.updateActionTooltips();
+			view.adjustManaCost("Look Around");
+			view.adjustManaCost("Imbue Squirrel");
+			view.adjustGoldCost("ImbueSquirrel", Action.ImbueSquirrel.goldCost());
+			view.updateBuffCaps(true);
+			view.adjustGoldCost("BalanceSoulstones", Action.BalanceSoulstones.goldCost());
+			}
+		
+    }\`;
+creatorCache['Mysterious Voice'].effect.pred=\`(r,k,sq) => {
+		  switch(getBuffLevel("SpiritBlessing")){
+            case 0: r.blessing+=1;
+            case 1: if(sq) r.blessing+=1;
+            case 2: if(r.stolenGoods >= 10) r.blessing+=1;
+            case 3: if(r.herbs >= 100) r.blessing+=1;
+            case 4: break;
+          }
+        }\`;
+creatorCache['Wander']={};
+creatorCache['Wander'].affected=[''];
+creatorCache['Wander'].canStart={};
+creatorCache['Wander'].canStart.game=\`canStart() {
+        if(this.squirrelAction) return resources.squirrel;
+		return true;
+    }\`;
+creatorCache['Wander'].canStart.pred=\`true\`;
+creatorCache['Wander'].effect={};
+creatorCache['Wander'].effect.game=\`finish() {
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Wander")){
+				
+				case 0: levelUpSquirrelAction("Wander");
+					break;
+					
+				case 1: if(getSkillSquirrelLevel("Trust") >= 5) levelUpSquirrelAction("Wander");
+					break;
+					
+				case 2: if(getSkillSquirrelLevel("Trust") >= 20) levelUpSquirrelAction("Wander");
+					break;
+					
+				case 3: if(getSkillSquirrelLevel("Magic") >= 20) levelUpSquirrelAction("Wander");
+					break;
+			}
+			
+			switch(getLevelSquirrelAction("Wander")){
+						
+				case 1: addResource("squirrel", false);
+						break;
+						
+				case 2: break;
+				
+				case 3: adjustPots();
+						view.updateRegular("Pots", BEGINNERSVILLE);
+						break;
+				
+				case 4: adjustPots();
+						view.updateRegular("Pots", BEGINNERSVILLE);
+						break;
+				
+			}
+		} else {	
+			towns[BEGINNERSVILLE].finishProgress(this.varName, 200 * (resources.glasses ? 4 : 1));
+		}
+		
+    }\`;
+creatorCache['Wander'].effect.pred=\`(r,k,sq)=>{
+          if (sq && getLevelSquirrelAction("Wander")<=1)
+            h.killSquirrel();
+        }\`;
+creatorCache['Smash Pots']={};
+creatorCache['Smash Pots'].affected=['mana'];
+creatorCache['Smash Pots'].manaCost={};
+creatorCache['Smash Pots'].manaCost.game=\`manaCost(squirrelTooltip) {
+		let squirrelManaMult = (((this.squirrelAction || squirrelTooltip) && getLevelSquirrelAction("Smash Pots") >= 3) ? 0.8 : 1);
+		if(squirrelManaMult === 0.8 && getLevelSquirrelAction("Smash Pots") >= 4) squirrelManaMult = 0.65;
+        return Math.ceil(100 * squirrelManaMult);
+    }\`;
+creatorCache['Smash Pots'].manaCost.pred=\`\`;
+creatorCache['Smash Pots'].canStart={};
+creatorCache['Smash Pots'].canStart.game=\`canStart() {
+        if(this.squirrelAction) return resources.squirrel;
+		return true;
+    }\`;
+creatorCache['Smash Pots'].canStart.pred=\`true\`;
+creatorCache['Smash Pots'].effect={};
+creatorCache['Smash Pots'].effect.game=\`finish() {
+        	
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Smash Pots")){
+				
+				case 0: levelUpSquirrelAction("Smash Pots");
+					break;
+					
+				case 1: if(getSkillSquirrelLevel("Trust") >= 10) levelUpSquirrelAction("Smash Pots");
+					break;
+					
+				case 2: if(getSkillSquirrelLevel("Trust") >= 15) levelUpSquirrelAction("Smash Pots");
+					break;
+					
+				case 3: if(getSkillSquirrelLevel("Combat") >= 20) levelUpSquirrelAction("Smash Pots");
+					break;
+			}
+			
+			switch(getLevelSquirrelAction("Smash Pots")){
+						
+				case 1: break;
+						
+				case 2: break;
+				
+				case 3: view.adjustManaCost("Smash Pots", squirrelMode);
+						towns[BEGINNERSVILLE].finishRegular(this.varName, 10, () => {
+							const manaGain = this.goldCost();
+							addMana(manaGain);
+							return manaGain;
+						});
+						break;
+						
+				case 4: view.adjustManaCost("Smash Pots", squirrelMode);
+						towns[BEGINNERSVILLE].finishRegular(this.varName, 10, () => {
+							const manaGain = this.goldCost();
+							addMana(manaGain);
+							return manaGain;
+						});
+						break;
+				
+			}
+		} else {	
+			towns[BEGINNERSVILLE].finishRegular(this.varName, 10, () => {
+				const manaGain = this.goldCost();
+				addMana(manaGain);
+				return manaGain;
+			});
+		}
+		
+    }\`;
+creatorCache['Smash Pots'].effect.pred=\`(r,k,sq) => {
+          if (sq && getLevelSquirrelAction("Smash Pots")<3) {
+            return; //No effect
+          }
+          r.temp1 = (r.temp1 || 0) + 1;
+          r.mana += r.temp1 <= towns[0].goodPots ?  Action.SmashPots.goldCost() : 0;
+        }\`;
+creatorCache['Throw Party']={};
+creatorCache['Throw Party'].affected=['rep'];
+creatorCache['Throw Party'].canStart={};
+creatorCache['Throw Party'].canStart.game=\`canStart() {
+		if(this.squirrelAction){
+			return resources.squirrel && resources.reputation >= 2;
+		}
+        return resources.reputation >= 2;
+    }\`;
+creatorCache['Throw Party'].canStart.pred=\`(input)=>(input.rep>=2)\`;
+creatorCache['Throw Party'].effect={};
+creatorCache['Throw Party'].effect.game=\`finish() {
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Throw Party")){
+				
+				case 0: levelUpSquirrelAction("Throw Party");
+					break;		
+
+				case 1: if(getSkillSquirrelLevel("Trust") >= 27) levelUpSquirrelAction("Throw Party");
+					break;
+					
+
+			}
+			
+			switch(getLevelSquirrelAction("Throw Party")){
+						
+				case 1: towns[BEGINNERSVILLE].finishProgress("Met", 3600);
+						unlockStory("partyThrown");
+					break;		
+
+				case 2: adjustSQuests();
+						adjustLQuests();
+						towns[BEGINNERSVILLE].finishProgress("Met", 3600);
+						view.updateRegular("SQuests", BEGINNERSVILLE);
+						view.updateRegular("LQuests", BEGINNERSVILLE);
+					break;
+					
+			}
+		} else {	
+			towns[BEGINNERSVILLE].finishProgress("Met", 2800);
+			unlockStory("partyThrown");
+		}
+        
+    }\`;
+creatorCache['Throw Party'].effect.pred=\`(r,k,sq)=>{
+            r.rep-=2;
+          }\`;
+creatorCache['Warrior Lessons']={};
+creatorCache['Warrior Lessons'].affected=[''];
+creatorCache['Warrior Lessons'].canStart={};
+creatorCache['Warrior Lessons'].canStart.game=\`canStart() {
+		if(this.squirrelAction){
+			return resources.squirrel && resources.reputation >= 2;
+		}
+        return resources.reputation >= 2;
+    }\`;
+creatorCache['Warrior Lessons'].canStart.pred=\`(input) => input.rep >= 2\`;
+creatorCache['Warrior Lessons'].effect={};
+creatorCache['Warrior Lessons'].effect.game=\`finish() {
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Warrior Lessons")){
+				
+				case 0: levelUpSquirrelAction("Warrior Lessons");
+					break;		
+
+				case 1: if(getSkillSquirrelLevel("Trust") >= 24) levelUpSquirrelAction("Warrior Lessons");
+					break;
+					
+				case 2: if(getSkillSquirrelLevel("Combat") >= 30) levelUpSquirrelAction("Warrior Lessons");
+					break;
+
+			}
+			
+			switch(getLevelSquirrelAction("Warrior Lessons")){
+						
+				case 1:  break;		
+
+				case 2: handleSkillExp(this.skills);
+						handleSkillExp(this.skills);
+						handleSkillExp(this.skills);
+						addResource("squirrel", false);
+					break;
+					
+				case 3: for(let i = 0; i < 10; i++){
+							handleSkillExp(this.skills);
+						}
+						addResource("squirrel", false);
+					break;
+					
+			}
+		} else {	
+			handleSkillExp(this.skills);
+		}
+        
+    }\`;
+creatorCache['Warrior Lessons'].effect.pred=\`(r, k, sq) => {
+          if (sq) {
+            if (getLevelSquirrelAction("Warrior Lessons")<=1) {
+              return; 
+            } else {
+              k.combat += ((getLevelSquirrelAction("Warrior Lessons")>=3)?1000:300)*(1+getBuffLevel("Heroism") * 0.02)
+              h.killSquirrel(r);
+            }
+          } else {
+            k.combat += 100*(1+getBuffLevel("Heroism") * 0.02)
+          }
+        }\`;
+creatorCache['Mage Lessons']={};
+creatorCache['Mage Lessons'].affected=[''];
+creatorCache['Mage Lessons'].canStart={};
+creatorCache['Mage Lessons'].canStart.game=\`canStart() {
+		if(this.squirrelAction){
+			return resources.squirrel && resources.reputation >= 2;
+		}
+        return resources.reputation >= 2;
+    }\`;
+creatorCache['Mage Lessons'].canStart.pred=\`(input) => input.rep >= 2\`;
+creatorCache['Mage Lessons'].effect={};
+creatorCache['Mage Lessons'].effect.game=\`finish() {
+        if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Mage Lessons")){
+				
+				case 0: levelUpSquirrelAction("Mage Lessons");
+					break;		
+
+				case 1: if(getSkillSquirrelLevel("Trust") >= 24) levelUpSquirrelAction("Mage Lessons");
+					break;
+					
+				case 2: if(getSkillSquirrelLevel("Magic") >= 30) levelUpSquirrelAction("Mage Lessons");
+					break;
+			}
+			
+			switch(getLevelSquirrelAction("Mage Lessons")){
+						
+				case 1:  break;		
+
+				case 2: handleSkillExp(this.skills);
+						handleSkillExp(this.skills);
+						handleSkillExp(this.skills);
+						addResource("squirrel", false);
+					break;
+					
+				case 3: for(let i = 0; i < 10; i++){
+							handleSkillExp(this.skills);
+						}
+						addResource("squirrel", false);
+					break;
+					
+			}
+		} else {	
+			handleSkillExp(this.skills);
+		}
+    }\`;
+creatorCache['Mage Lessons'].effect.pred=\`(r, k, sq) => { 
+          if (sq) {
+            if (getLevelSquirrelAction("Mage Lessons")<=1) {
+              return; 
+            } else {
+              k.magic += ((getLevelSquirrelAction("Mage Lessons")>=3)?1000:300);
+              h.killSquirrel(r);
+            }
+          } else {
+            k.magic += 100;
+          }
+        }\`;
+creatorCache['Heal The Sick']={};
+creatorCache['Heal The Sick'].affected=['rep'];
+creatorCache['Heal The Sick'].canStart={};
+creatorCache['Heal The Sick'].canStart.game=\`canStart() {
+		if(this.squirrelAction){
+			if(getLevelSquirrelAction("Heal The Sick") >= 2) return resources.squirrel && resources.reputation >= 1 && alreadyHealed === false;
+			else return resources.squirrel && resources.reputation >= 1;
+		}
+        return resources.reputation >= 1;
+    }\`;
+creatorCache['Heal The Sick'].canStart.pred=\`(input,sq) => {
+      if (sq) {
+        if (input.alreadyHealed) return false;
+      }
+      return input.rep >= 1;
+    }\`;
+creatorCache['Heal The Sick'].loop={};
+creatorCache['Heal The Sick'].loop.cost={};
+creatorCache['Heal The Sick'].loop.cost.game=\`loopCost(segment) {
+        return fibonacci(2 + Math.floor((towns[BEGINNERSVILLE].HealLoopCounter + segment) / this.segments + 0.0000001)) * 10000;
+    }\`;
+creatorCache['Heal The Sick'].loop.cost.pred=\`(p, a) => segment =>  fibonacci(2 + Math.floor((p.completed + segment) / a.segments + .0000001)) * 10000\`;
+creatorCache['Heal The Sick'].loop.tick={};
+creatorCache['Heal The Sick'].loop.tick.game=\`tickProgress(offset) {
+		if(this.squirrelAction){
+			let squirrelMult = 0;
+			if(getLevelSquirrelAction("Heal The Sick") == 2){
+				squirrelMult = 1;
+			} else if (getLevelSquirrelAction("Heal The Sick") >= 3){
+				squirrelMult = 2;
+			}
+			
+			return squirrelMult * this.loopCost(offset) * 3 / this.manaCost();			
+			
+		}
+        return getSkillLevel("Magic") * Math.max(getSkillLevel("Restoration") / 50, 1) * (1 + getLevel(this.loopStats[(towns[BEGINNERSVILLE].HealLoopCounter + offset) % this.loopStats.length]) / 100) * Math.sqrt(1 + towns[BEGINNERSVILLE].totalHeal / 100);
+    }\`;
+creatorCache['Heal The Sick'].loop.tick.pred=\`(p, a, s, k, r, sq, lCost) => offset =>  sq ?  Math.max(getLevelSquirrelAction("Heal The Sick")-1,0) * lCost(offset) * 3 / a.manaCost() : getSkillLevelFromExp(k.magic) * Math.max( getSkillLevelFromExp(k.restoration) / 50, 1) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100)\`;
+creatorCache['Heal The Sick'].loop.end={};
+creatorCache['Heal The Sick'].loop.end.game=\`finish() {
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Heal The Sick")){
+				
+				case 0: levelUpSquirrelAction("Heal The Sick");
+					break;
+					
+				case 1: if(getSkillSquirrelLevel("Magic") >= 12) levelUpSquirrelAction("Heal The Sick");
+					break;
+					
+				case 2: if(getSkillSquirrelLevel("Magic") >= 50) levelUpSquirrelAction("Heal The Sick");
+					break;
+
+			}
+			
+			switch(getLevelSquirrelAction("Heal The Sick")){
+						
+				case 1:  break;
+				
+				case 2: alreadyHealed = true;
+					break;
+				
+				case 3: alreadyHealed = true;
+					break;
+					
+			}
+		} else {	
+			if (towns[BEGINNERSVILLE].HealLoopCounter / 3 + 1 >= 10) unlockStory("heal10PatientsInALoop");
+		}
+        
+    }\`;
+creatorCache['Heal The Sick'].loop.end.pred=\`(r,k,sq)=>sq?r.alreadyHealed=true:0\`;
+creatorCache['Heal The Sick'].loop.loop={};
+creatorCache['Heal The Sick'].loop.loop.game=\`loopsFinished() {
+        addResource("reputation", 3);
+		handleSkillExp(this.skills);
+		if(this.squirrelAction){
+			handleSkillExp(this.skills);
+			handleSkillExp(this.skills);
+		}
+    }\`;
+creatorCache['Heal The Sick'].loop.loop.pred=\`(r,k,sq) => {r.rep += 3; k.magic+=(sq?150:50);}\`;
+creatorCache['Heal The Sick'].loop.max=\`\`;
+creatorCache['Fight Monsters']={};
+creatorCache['Fight Monsters'].affected=['gold'];
+creatorCache['Fight Monsters'].canStart={};
+creatorCache['Fight Monsters'].canStart.game=\`canStart() {
+		if(this.squirrelAction){
+			if(getLevelSquirrelAction("Fight Monsters") >= 2) return resources.squirrel && resources.reputation >= 2 && alreadyFought === false;
+			else return resources.squirrel && resources.reputation >= 2;
+		}
+        return resources.reputation >= 2;
+    }\`;
+creatorCache['Fight Monsters'].canStart.pred=\`(input,sq) => {
+      if (sq) {
+        if (input.alreadyFought) return false;
+      }
+      return input.rep >= 2;
+    }\`;
+creatorCache['Fight Monsters'].loop={};
+creatorCache['Fight Monsters'].loop.cost={};
+creatorCache['Fight Monsters'].loop.cost.game=\`loopCost(segment) {
+        return fibonacci(Math.floor((towns[BEGINNERSVILLE].FightLoopCounter + segment) - towns[BEGINNERSVILLE].FightLoopCounter / 3 + 0.0000001)) * 20000;
+    }\`;
+creatorCache['Fight Monsters'].loop.cost.pred=\`(p, a) => segment =>  fibonacci(Math.floor((p.completed + segment) - p.completed / a.segments + .0000001)) * 20000\`;
+creatorCache['Fight Monsters'].loop.tick={};
+creatorCache['Fight Monsters'].loop.tick.game=\`tickProgress(offset) {
+		
+		if(this.squirrelAction){
+			let squirrelMult = 0;
+			if(getLevelSquirrelAction("Fight Monsters") == 2){
+				squirrelMult = 1;
+			} else if (getLevelSquirrelAction("Fight Monsters") >= 3){
+				squirrelMult = 2;
+			}
+			
+			return squirrelMult * this.loopCost(offset) * 3 / this.manaCost();			
+			
+		}
+		
+        return getSelfCombat() * (1 + getLevel(this.loopStats[(towns[BEGINNERSVILLE].FightLoopCounter + offset) % this.loopStats.length]) / 100) * Math.sqrt(1 + towns[BEGINNERSVILLE].totalFight / 100);
+    }\`;
+creatorCache['Fight Monsters'].loop.tick.pred=\`(p, a, s, k, r, sq, lCost) => offset => sq ? Math.max(getLevelSquirrelAction("Fight Monsters")-1,0) * lCost(offset) * 3 / a.manaCost() : h.getSelfCombat(r, k) * Math.sqrt(1 + p.total / 100) * h.getStatProgress(p, a, s, offset)\`;
+creatorCache['Fight Monsters'].loop.end={};
+creatorCache['Fight Monsters'].loop.end.game=\`finish() {
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Fight Monsters")){
+				
+				case 0: levelUpSquirrelAction("Fight Monsters");
+					break;
+					
+				case 1: if(getSkillSquirrelLevel("Combat") >= 10) levelUpSquirrelAction("Fight Monsters");
+					break;
+					
+				case 2: if(getSkillSquirrelLevel("Combat") >= 50) levelUpSquirrelAction("Fight Monsters");
+					break;
+
+			}
+			
+			switch(getLevelSquirrelAction("Fight Monsters")){
+						
+				case 1: addResource("squirrel", false);
+					break;
+					
+				case 2:  alreadyFought = true;
+					break;
+				
+				case 3:  alreadyFought = true;
+					break;
+					
+			}
+		}
+    }\`;
+creatorCache['Fight Monsters'].loop.end.pred=\`(r, k, sq) => {
+          if (sq) {
+            if (getLevelSquirrelAction("Fight Monsters")) {
+              h.killSquirrel(r);
+            } else {
+              r.alreadyFought=true;
+            }
+          }
+        }\`;
+creatorCache['Fight Monsters'].loop.segment={};
+creatorCache['Fight Monsters'].loop.segment.game=\`segmentFinished() {
+        addResource("gold", 20);
+		handleSkillExp(this.skills);
+    }\`;
+creatorCache['Fight Monsters'].loop.segment.pred=\`(r,k) => (r.gold += 20,k.combat += 50*(1+getBuffLevel("Heroism") * 0.02))\`;
+creatorCache['Fight Monsters'].loop.loop={};
+creatorCache['Fight Monsters'].loop.loop.game=\`loopsFinished() {
+        // empty
+    }\`;
+creatorCache['Fight Monsters'].loop.loop.pred=\`\`;
+creatorCache['Fight Monsters'].loop.max=\`\`;
+creatorCache['Small Dungeon']={};
+creatorCache['Small Dungeon'].affected=['soul'];
+creatorCache['Small Dungeon'].canStart={};
+creatorCache['Small Dungeon'].canStart.game=\`canStart() {
+        const curFloor = Math.floor((towns[this.townNum].SDungeonLoopCounter) / this.segments + 0.0000001);
+		if(this.squirrelAction){
+			
+			if(getLevelSquirrelAction("Small Dungeon") >= 2) return resources.squirrel && resources.reputation >= 2 && curFloor < dungeons[this.dungeonNum].length && alreadySDungeon === false;
+			else return resources.squirrel && resources.reputation >= 2 && curFloor < dungeons[this.dungeonNum].length;
+			
+		}
+        return resources.reputation >= 2 && curFloor < dungeons[this.dungeonNum].length;
+    }\`;
+creatorCache['Small Dungeon'].canStart.pred=\`(input,sq) => {
+      if (sq) {
+        if (input.alreadySDungeon) return false;
+      }
+      return input.rep >= 2;
+    }\`;
+creatorCache['Small Dungeon'].loop={};
+creatorCache['Small Dungeon'].loop.cost={};
+creatorCache['Small Dungeon'].loop.cost.game=\`loopCost(segment) {
+        return precision3(Math.pow(2.5, Math.floor((towns[this.townNum].SDungeonLoopCounter + segment) / this.segments + 0.0000001)) * 30000);
+    }\`;
+creatorCache['Small Dungeon'].loop.cost.pred=\`(p, a) => segment =>  precision3(Math.pow(2.5, Math.floor((p.completed + segment) / a.segments + .0000001)) * 30000)\`;
+creatorCache['Small Dungeon'].loop.tick={};
+creatorCache['Small Dungeon'].loop.tick.game=\`tickProgress(offset) {
+		
+		if(this.squirrelAction){
+			let squirrelMult = 0;
+			if(getLevelSquirrelAction("Small Dungeon") == 2){
+				squirrelMult = 0.5;
+			} else if (getLevelSquirrelAction("Small Dungeon") >= 3){
+				squirrelMult = 1;
+			}
+			
+			return squirrelMult * this.loopCost(offset) * 7 / this.manaCost();			
+			
+		}
+		
+        const floor = Math.floor((towns[this.townNum].SDungeonLoopCounter) / this.segments + 0.0000001);
+        return (getSelfCombat() + getSkillLevel("Magic")) *
+            (1 + getLevel(this.loopStats[(towns[this.townNum].SDungeonLoopCounter + offset) % this.loopStats.length]) / 100) *
+            Math.sqrt(1 + dungeons[this.dungeonNum][floor].completed / 200);
+    }\`;
+creatorCache['Small Dungeon'].loop.tick.pred=\`(p, a, s, k, r, sq, lCost) => offset => {
+            let floor = Math.floor(p.completed / a.segments + .0000001);
+            if (sq) {
+               return  Math.max((getLevelSquirrelAction("Small Dungeon")-1),0)/2 * lCost(offset) * 7 / a.manaCost();
+            }
+            return floor in  dungeons[a.dungeonNum] ? (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 +  dungeons[a.dungeonNum][floor].completed / 200) : 0;
+          }\`;
+creatorCache['Small Dungeon'].loop.end={};
+creatorCache['Small Dungeon'].loop.end.game=\`finish() {
+        
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Small Dungeon")){
+				
+				case 0: levelUpSquirrelAction("Small Dungeon");
+					break;
+
+				case 1: if((getSkillSquirrelLevel("Combat") + getSkillSquirrelLevel("Magic")) >= 35) levelUpSquirrelAction("Small Dungeon");
+					break;
+					
+				case 2: if((getSkillSquirrelLevel("Combat") + getSkillSquirrelLevel("Magic")) >= 100) levelUpSquirrelAction("Small Dungeon");
+					break;
+
+			}
+			
+			switch(getLevelSquirrelAction("Small Dungeon")){
+						
+				case 1: break;
+				
+				case 2:  alreadySDungeon = true;
+					break;
+				
+				case 3:  alreadySDungeon = true;
+					break;
+			}
+		} else {
+			unlockStory("smallDungeonAttempted");
+        if (towns[BEGINNERSVILLE].SDungeonLoopCounter >= 42) unlockStory("clearSDungeon");
+		}
+    }\`;
+creatorCache['Small Dungeon'].loop.end.pred=\`(r,k,sq)=>(sq?r.alreadySDungeon=true:0)\`;
+creatorCache['Small Dungeon'].loop.loop={};
+creatorCache['Small Dungeon'].loop.loop.game=\`loopsFinished() {
+        const curFloor = Math.floor((towns[this.townNum].SDungeonLoopCounter) / this.segments + 0.0000001 - 1);
+        const success = finishDungeon(this.dungeonNum, curFloor);
+        if (success === true && storyMax <= 1) {
+            unlockGlobalStory(1);
+        } else if (success === false && storyMax <= 2) {
+            unlockGlobalStory(2);
+        }
+		handleSkillExp(this.skills);
+    }\`;
+creatorCache['Small Dungeon'].loop.loop.pred=\`(r,k) => {r.soul+=h.getRewardSS(0);k.combat += 100*(1+getBuffLevel("Heroism") * 0.02); k.magic += 100;}\`;
+creatorCache['Small Dungeon'].loop.max=\`(a) =>  dungeons[a.dungeonNum].length\`;
+creatorCache['Explore Forest']={};
+creatorCache['Explore Forest'].affected=[''];
+creatorCache['Explore Forest'].canStart={};
+creatorCache['Explore Forest'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Explore Forest'].canStart.pred=\`true\`;
+creatorCache['Explore Forest'].effect={};
+creatorCache['Explore Forest'].effect.game=\`finish() {
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Explore Forest")){
+				
+				case 0: levelUpSquirrelAction("Explore Forest");
+					break;	
+					
+				case 1: if(getSkillSquirrelLevel("Trust") >= 32) levelUpSquirrelAction("Explore Forest");
+					break;	
+					
+				case 2: if(getSkillSquirrelLevel("Trust") >= 36) levelUpSquirrelAction("Explore Forest");
+					break;
+
+			}
+			
+			switch(getLevelSquirrelAction("Explore Forest")){
+						
+				case 1: addResource("squirrel", false);
+					break;
+				
+				case 2: adjustHerbs();
+						view.updateRegular("Herbs", FORESTPATH);
+					break;
+				
+				case 3: adjustWildMana();
+						view.updateRegular("WildMana", FORESTPATH);
+					break;
+					
+			}
+		} else {
+			towns[FORESTPATH].finishProgress(this.varName, 100 * (resources.glasses ? 4 : 1));
+		}
+        
+    }\`;
+creatorCache['Explore Forest'].effect.pred=\`(r,k,sq)=>{if (sq && getLevelSquirrelAction("Explore Forest")<=1) h.killSquirrel(r)}\`;
+creatorCache['Practice Yang']={};
+creatorCache['Practice Yang'].affected=['rep'];
+creatorCache['Practice Yang'].manaCost={};
+creatorCache['Practice Yang'].manaCost.game=\`manaCost() {
+        return Math.ceil(8000 * (1 - towns[FORESTPATH].getLevel("Hermit") * 0.005));
+    }\`;
+creatorCache['Practice Yang'].manaCost.pred=\`\`;
+creatorCache['Practice Yang'].canStart={};
+creatorCache['Practice Yang'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Practice Yang'].canStart.pred=\`true\`;
+creatorCache['Practice Yang'].effect={};
+creatorCache['Practice Yang'].effect.game=\`finish() {
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Practice Yang")){
+				
+				case 0: levelUpSquirrelAction("Practice Yang");
+					break;
+
+				case 1: if(getSkillSquirrelLevel("Trust") >= 38) levelUpSquirrelAction("Practice Yang");
+					break;
+
+									
+			}
+			
+			switch(getLevelSquirrelAction("Practice Yang")){
+						
+				case 1:	break;
+
+				case 2:	addResource("squirrel", false);
+						addResource("reputation", 4);
+						break;
+
+			}
+		} else {
+			handleSkillExp(this.skills);
+		}
+		
+    }\`;
+creatorCache['Practice Yang'].effect.pred=\`(r,k,sq) => {
+          if (sq) {
+            if (getLevelSquirrelAction("Practice Yang")>=2) {
+              h.killSquirrel(r);
+              r.rep+=4;
+            }
+          } else {
+            k.yang+=100 + (r.rep >= 0 ? r.rep * 25 : 0);
+          }
+        }\`;
+creatorCache['Feed Animals']={};
+creatorCache['Feed Animals'].affected=['herbs'];
+creatorCache['Feed Animals'].canStart={};
+creatorCache['Feed Animals'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements && resources.herbs >= 10;
+    }\`;
+creatorCache['Feed Animals'].canStart.pred=\`(input) => {
+          return input.herbs>=10;
+        }\`;
+creatorCache['Feed Animals'].effect={};
+creatorCache['Feed Animals'].effect.game=\`finish() {
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Feed Animals")){
+				
+				case 0: levelUpSquirrelAction("Feed Animals");
+					break;
+					
+				case 1: if(getSkillSquirrelLevel("Combat") >= 18) levelUpSquirrelAction("Feed Animals");
+					break;
+					
+				case 2: if(getSkillSquirrelLevel("Combat") >= 30) levelUpSquirrelAction("Feed Animals");
+					break;
+									
+			}
+			
+			switch(getLevelSquirrelAction("Feed Animals")){
+						
+				case 1:	addResource("squirrel", false);
+					break;
+				
+				case 2: adjustWildMana();
+						view.updateRegular("WildMana", FORESTPATH);
+						addResource("squirrel", false);
+					break;
+					
+				case 3: adjustHerbs();
+						view.updateRegular("Herbs", FORESTPATH);
+						addResource("squirrel", false);
+					break;
+			}
+		} else {
+			towns[FORESTPATH].finishProgress(this.varName, 100 * (1 + resources.herbs * 0.02));
+	   
+		    if(getLevelSquirrelAction("Pet Squirrel") === 0) levelUpSquirrelAction("Pet Squirrel");
+		    if(getLevelSquirrelAction("Pet Squirrel") === 1) levelUpSquirrelAction("Pet Squirrel");
+		}
+	   
+    }\`;
+creatorCache['Feed Animals'].effect.pred=\`(r,k,sq) => {
+          sq ? h.killSquirrel(r) : r.herbs-=10;
+        }\`;
+creatorCache['Burn Forest']={};
+creatorCache['Burn Forest'].affected=['herbs','darkEssences'];
+creatorCache['Burn Forest'].canStart={};
+creatorCache['Burn Forest'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements && resources.herbs >= 10 && resources.reputation < 0;
+    }\`;
+creatorCache['Burn Forest'].canStart.pred=\`(input) => {
+          return (input.rep<0 && input.herbs>=10)
+        }\`;
+creatorCache['Burn Forest'].loop={};
+creatorCache['Burn Forest'].loop.cost={};
+creatorCache['Burn Forest'].loop.cost.game=\`loopCost(segment) {
+        return 75000;
+    }\`;
+creatorCache['Burn Forest'].loop.cost.pred=\`(p) => segment => 75000\`;
+creatorCache['Burn Forest'].loop.tick={};
+creatorCache['Burn Forest'].loop.tick.game=\`tickProgress(offset) {
+		const squirrelHelp = ((this.squirrelAction && getLevelSquirrelAction("Burn Forest") >= 1) ? 10 : 0);
+        return (resources.herbs + squirrelHelp) *  Math.sqrt((1 + getLevel(this.loopStats[(towns[FORESTPATH].BurnLoopCounter + offset) % this.loopStats.length]) / 1000));
+    }\`;
+creatorCache['Burn Forest'].loop.tick.pred=\`(p, a, s, k, r, sq) => offset => r.herbs<10 ? 0 : (r.herbs+(sq?10:0)) *  Math.sqrt(1 +  getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 1000)\`;
+creatorCache['Burn Forest'].loop.end={};
+creatorCache['Burn Forest'].loop.end.game=\`finish() {
+		
+		if(this.squirrelAction){
+			
+			switch(getLevelSquirrelAction("Burn Forest")){
+				
+				case 0: levelUpSquirrelAction("Burn Forest");
+					break;
+					
+				case 1: if(getSkillSquirrelLevel("Trust") >= 40) levelUpSquirrelAction("Burn Forest");
+					break;
+
+									
+			}
+			
+			switch(getLevelSquirrelAction("Burn Forest")){
+						
+				case 1:	addResource("squirrel", false);
+					break;
+				
+				case 2: break;
+
+			}
+		} 
+    }\`;
+creatorCache['Burn Forest'].loop.end.pred=\`(r,k,sq)=> {
+          if (sq && getLevelSquirrelAction("Burn Forest")<=1) {
+            h.killSquirrel(r);
+          }
+        }\`;
+creatorCache['Burn Forest'].loop.loop={};
+creatorCache['Burn Forest'].loop.loop.game=\`loopsFinished() {
+		addMana(3500);
+        addResource("darkEssences", Math.floor(towns[FORESTPATH].getLevel("DarkForest")/10 + 0.000001));
+		addResource("herbs", -10);
+		if(towns[FORESTPATH].BurnLoopCounter%4 === 0) addResource("reputation", -1);
+    }\`;
+creatorCache['Burn Forest'].loop.loop.pred=\`(r,k) => {r.mana+=3500;r.herbs-=10;r.darkEssences+=Math.floor(towns[FORESTPATH].getLevel("DarkForest")/10 + 0.000001);r.forestBurn=(r.forestBurn||0)+1; if(r.forestBurn%4==0) r.rep-=1;}\`;
+creatorCache['Burn Forest'].loop.max=\`\`;
+creatorCache['First Trial']={};
+creatorCache['First Trial'].affected=[];
+creatorCache['First Trial'].canStart={};
+creatorCache['First Trial'].canStart.game=\`canStart() {
+        return resources.squirrel;
+    }\`;
+creatorCache['First Trial'].canStart.pred=\`\`;
+creatorCache['First Trial'].effect={};
+creatorCache['First Trial'].effect.game=\`finish() {
+		
+    }\`;
+creatorCache['First Trial'].effect.pred='';
+creatorCache['Break Loop']={};
+creatorCache['Break Loop'].affected=['loopPotion'];
+creatorCache['Break Loop'].canStart={};
+creatorCache['Break Loop'].canStart.game=\`canStart() {
+        return resources.loopPotion;
+    }\`;
+creatorCache['Break Loop'].canStart.pred=\`(input) => {
+          return input.loopPotion
+        }\`;
+creatorCache['Break Loop'].effect={};
+creatorCache['Break Loop'].effect.game=\`finish() {
+		
+    }\`;
+creatorCache['Break Loop'].effect.pred='';
+
 
 //END CACHE File
 `); //`

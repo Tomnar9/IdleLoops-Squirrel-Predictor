@@ -2,12 +2,10 @@
 // @name         IdleLoops Squirrel Predictor Makro
 // @namespace    https://github.com/Tomnar9/
 // @downloadURL  https://raw.githubusercontent.com/Tomnar9/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      0.1.2
-// @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops v.85/Omsi6.
-// @author       Koviko <koviko.net@gmail.com>
+// @version      0.1.3
+// @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops Reworked  v.0.2.7/Morana.
+// @author       Koviko <koviko.net@gmail.com>, Tomnar <Tomnar#4672 on discord>
 // @match        https://mopatissier.github.io/IdleLoopsReworked/
-// @grant        GM_getValue
-// @grant        GM_setValue
 // @run-at       document-idle
 // ==/UserScript==
 window.eval(`
@@ -776,38 +774,43 @@ const Koviko = {
         'Look Around':{ affected:[''],
           canStart:(input) => (input.glasses)},
         'Absorb Mana':{ affected:[''],
-          effect:(r,k) => {
+          canStart:true,
+          effect:(r,k,sq) => {
+          if (sq) return;
           const manaBase = 100000;
           const exponent = 1 + (getBuffLevel("SpiritBlessing") * 0.02);
           r.manaAbsorb = (r.manaAbsorb || 0)+1;
           r.mana += r.manaAbsorb <= towns[SANCTUARY].goodManaSpots ?  Math.floor(manaBase * Math.pow(exponent, r.manaAbsorb -1)) : 0;
         }},
         'Imbue Squirrel':{ affected:['ImbueSoulStone'],
-          effect:(r,k) => {
-            k.magicSquirrel+=Math.pow(4, getBuffLevel("SpiritBlessing"));
+          effect:(r,k,sq) => {
+            k.magicSquirrel+=Math.pow(4, getBuffLevel("SpiritBlessing")- (sq?1:0));
         }},
         'Imbue Soulstones':{ affected:[''],
           canStart:(input) => {
           return Action.ImbueSoulstones.getMinimumSoulstones();
         },
-          effect:(r,k) => {
-          r.ImbueSoulStone=1;
+          effect:(r,k,sq) => {
+          if (sq) return;
+          r.ImbueSoulStone+=1;
         }},
-        'Balance Soulstones':{ affected:['']},
+        'Balance Soulstones':{ affected:[''],
+          canStart:true},
         'Mysterious Voice':{ affected:['blessing'],
+          canStart:true,
           effect:(r,k,sq) => {
 		  switch(getBuffLevel("SpiritBlessing")){
-            case 0: r.blessing=1;
-            case 1: if(sq) r.blessing=1;
-            case 2: if(r.stolenGoods >= 10) r.blessing=1;
-            case 3: if(r.herbs >= 100) r.blessing=1;
+            case 0: r.blessing+=1;
+            case 1: if(sq) r.blessing+=1;
+            case 2: if(r.stolenGoods >= 10) r.blessing+=1;
+            case 3: if(r.herbs >= 100) r.blessing+=1;
             case 4: break;
           }
         }},
         'Wander':{ affected:[''],
           canStart:true,
           effect:(r,k,sq)=>{
-          if (sq && getLevelSquirrelAction("Wander")==0)
+          if (sq && getLevelSquirrelAction("Wander")<=1)
             h.killSquirrel();
         }},
         'Smash Pots':{ affected:['mana'],
@@ -938,12 +941,12 @@ const Koviko = {
           }},
         'Warrior Lessons':{ affected:[''],
           canStart:(input) => input.rep >= 2,
-          effect:(r, k,sq) => {
+          effect:(r, k, sq) => {
           if (sq) {
             if (getLevelSquirrelAction("Warrior Lessons")<=1) {
               return; 
             } else {
-              k.combat += 300*(1+getBuffLevel("Heroism") * 0.02)
+              k.combat += ((getLevelSquirrelAction("Warrior Lessons")>=3)?1000:300)*(1+getBuffLevel("Heroism") * 0.02)
               h.killSquirrel(r);
             }
           } else {
@@ -957,24 +960,42 @@ const Koviko = {
             if (getLevelSquirrelAction("Mage Lessons")<=1) {
               return; 
             } else {
-              k.magic += 300 * (1 +  getSkillLevelFromExp(k.alchemy) / 100)
+              k.magic += ((getLevelSquirrelAction("Mage Lessons")>=3)?1000:300);
               h.killSquirrel(r);
             }
           } else {
-            k.magic += 100 * (1 +  getSkillLevelFromExp(k.alchemy) / 100);
+            k.magic += 100;
           }
         }},
         'Heal The Sick':{ affected:['rep'],
-          canStart:(input) => (input.rep >= 1), loop: {
+          canStart:(input,sq) => {
+      if (sq) {
+        if (input.alreadyHealed) return false;
+      }
+      return input.rep >= 1;
+    }, loop: {
           cost:(p, a) => segment =>  fibonacci(2 + Math.floor((p.completed + segment) / a.segments + .0000001)) * 10000,
-          tick:(p, a, s, k, r,	 sq) => offset =>  sq ? 0 : getSkillLevelFromExp(k.magic) * Math.max( getSkillLevelFromExp(k.restoration) / 50, 1) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
-          effect:{loop:(r,k) => (r.rep += 3, k.magic+=50)}
+          tick:(p, a, s, k, r, sq, lCost) => offset =>  sq ?  Math.max(getLevelSquirrelAction("Heal The Sick")-1,0) * lCost(offset) * 3 / a.manaCost() : getSkillLevelFromExp(k.magic) * Math.max( getSkillLevelFromExp(k.restoration) / 50, 1) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
+          effect:{ end:(r,k,sq)=>sq?r.alreadyHealed=true:0, loop:(r,k,sq) => {r.rep += 3; k.magic+=(sq?150:50);}}
         }},
         'Fight Monsters':{ affected:['gold'],
-          canStart:(input) => (input.rep >= 2), loop: {
+          canStart:(input,sq) => {
+      if (sq) {
+        if (input.alreadyFought) return false;
+      }
+      return input.rep >= 2;
+    }, loop: {
           cost:(p, a) => segment =>  fibonacci(Math.floor((p.completed + segment) - p.completed / a.segments + .0000001)) * 20000,
-          tick:(p, a, s, k, r, sq) => offset => sq ? 0 : h.getSelfCombat(r, k) * Math.sqrt(1 + p.total / 100) * h.getStatProgress(p, a, s, offset),
-          effect:{ end:(r, k, sq) => {if (sq) h.killSquirrel(r);}, segment:(r,k) => (r.gold += 20,k.combat += 50*(1+getBuffLevel("Heroism") * 0.02))}
+          tick:(p, a, s, k, r, sq, lCost) => offset => sq ? Math.max(getLevelSquirrelAction("Fight Monsters")-1,0) * lCost(offset) * 3 / a.manaCost() : h.getSelfCombat(r, k) * Math.sqrt(1 + p.total / 100) * h.getStatProgress(p, a, s, offset),
+          effect:{ end:(r, k, sq) => {
+          if (sq) {
+            if (getLevelSquirrelAction("Fight Monsters")) {
+              h.killSquirrel(r);
+            } else {
+              r.alreadyFought=true;
+            }
+          }
+        }, segment:(r,k) => (r.gold += 20,k.combat += 50*(1+getBuffLevel("Heroism") * 0.02))}
         }},
         'Magic Fighter':{ affected:[''],
           canStart:(input) => {
@@ -986,15 +1007,22 @@ const Koviko = {
           effect:{segment:(r,k) => {k.combat += 50*(1+getBuffLevel("Heroism") * 0.02); k.magic += 50;}, loop:(r,k) => {k.combat += 50*(1+getBuffLevel("Heroism") * 0.02); k.magic += 50;}}
         }},
         'Small Dungeon':{ affected:['soul'],
-          canStart:(input) => input.rep >= 2, loop: {
+          canStart:(input,sq) => {
+      if (sq) {
+        if (input.alreadySDungeon) return false;
+      }
+      return input.rep >= 2;
+    }, loop: {
           max:(a) =>  dungeons[a.dungeonNum].length,
           cost:(p, a) => segment =>  precision3(Math.pow(2.5, Math.floor((p.completed + segment) / a.segments + .0000001)) * 30000),
-          tick:(p, a, s, k, r, sq) => offset => {
-            let floor = sq? -1: Math.floor(p.completed / a.segments + .0000001);
-
+          tick:(p, a, s, k, r, sq, lCost) => offset => {
+            let floor = Math.floor(p.completed / a.segments + .0000001);
+            if (sq) {
+               return  Math.max((getLevelSquirrelAction("Small Dungeon")-1),0)/2 * lCost(offset) * 7 / a.manaCost();
+            }
             return floor in  dungeons[a.dungeonNum] ? (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 +  dungeons[a.dungeonNum][floor].completed / 200) : 0;
           },
-          effect:{loop:(r,k) => {r.soul+=h.getRewardSS(0);k.combat += 100*(1+getBuffLevel("Heroism") * 0.02); k.magic += 100;}}
+          effect:{ end:(r,k,sq)=>(sq?r.alreadySDungeon=true:0), loop:(r,k) => {r.soul+=h.getRewardSS(0);k.combat += 100*(1+getBuffLevel("Heroism") * 0.02); k.magic += 100;}}
         }},
         'Buy Supplies':{ affected:['gold'],
           canStart:(input,sq) => sq || (input.gold >= 450 - Math.max((input.supplyDiscount || 0) * 30, 0)),
@@ -1025,32 +1053,72 @@ const Koviko = {
           effect:(r,k) => ( r.town =2)},
         'Open Rift':{ affected:[''],
           effect:(r,k) => (r.supplies = 0, r.town =5, k.dark+=1000)},
-        'Explore Forest':{ affected:['']},
+        'Explore Forest':{ affected:[''],
+          canStart:true,
+          effect:(r,k,sq)=>{if (sq && getLevelSquirrelAction("Explore Forest")<=1) h.killSquirrel(r)}},
         'Wild Mana':{ affected:['mana'],
-          effect:(r) => {
+          canStart:true,
+          effect:(r,k,sq) => {
           r.temp5 = (r.temp5 || 0) + 1;
-          r.mana += r.temp5 <= towns[FORESTPATH].goodWildMana ?  Action.WildMana.goldCost() : 0;
+          const sqBonus= (sq &&getLevelSquirrelAction("Wild Mana")) ? 100:0;
+          r.mana += r.temp5 <= towns[FORESTPATH].goodWildMana ?  Action.WildMana.goldCost()+sqBonus : 0;
         }},
         'Gather Herbs':{ affected:['herbs'],
-          effect:(r) => {
+          canStart:true,
+          effect:(r,k,sq) => {
           r.temp6 = (r.temp6 || 0) + 1;
-          r.herbs += r.temp6 <= towns[FORESTPATH].goodHerbs ? 1 : 0;
+          if (r.temp6 > towns[FORESTPATH].goodHerbs) return; // no herbs left
+          if (sq) {
+            switch(getLevelSquirrelAction("Gather Herbs")) {
+              case 0:
+              case 1:
+                return;
+              case 2:
+                r.mana+=200
+                return;
+              case 3:
+                r.mana+=250
+                return;
+            }
+          } else {
+            r.herbs += 1;
+          }
         }},
         'Hunt':{ affected:['hide'],
-          effect:(r) => {
+          canStart:true,
+          effect:(r,k,sq) => {
+          if (sq && getLevelSquirrelAction("Hunt")<2) {
+            h.killSquirrel(r);
+            return;
+          }
           r.temp7 = (r.temp7 || 0) + 1;
           r.hide += r.temp7 <= towns[FORESTPATH].goodHunt ? 1 : 0;
         }},
-        'Sit By Waterfall':{ affected:['']},
-        'Old Shortcut':{ affected:['']},
-        'Talk To Hermit':{ affected:['']},
+        'Sit By Waterfall':{ affected:[''],
+          canStart:true,
+          effect:(r,k,sq)=>sq?h.killSquirrel(r):0},
+        'Old Shortcut':{ affected:[''],
+          canStart:true,
+          effect:(r,k,sq)=>(sq && getLevelSquirrelAction("Old Shortcut")<2)?h.killSquirrel(r):0},
+        'Talk To Hermit':{ affected:[''],
+          canStart:true,
+          effect:(r,k,sq)=>(sq && getLevelSquirrelAction("Talk To Hermit")<2)?h.killSquirrel(r):0},
         'Practice Yang':{ affected:['rep'],
-          effect:(r,k) => {
-          k.yang+=100 + (r.rep >= 0 ? r.rep * 25 : 0);
+          canStart:true,
+          effect:(r,k,sq) => {
+          if (sq) {
+            if (getLevelSquirrelAction("Practice Yang")>=2) {
+              h.killSquirrel(r);
+              r.rep+=4;
+            }
+          } else {
+            k.yang+=100 + (r.rep >= 0 ? r.rep * 25 : 0);
+          }
         }},
         'Learn Alchemy':{ affected:['herbs'],
           canStart:(input) => (input.herbs >= 10),
-          effect:(r, k) => {
+          effect:(r, k, sq) => {
+            if (sq) return;
             r.herbs -= 10;
             let brewingLevel = getSkillLevelFromExp(k.brewing);
 			let brewingMultiplier = 0;			
@@ -1067,21 +1135,32 @@ const Koviko = {
           return (input.herbs>=10 && input.rep>=10);
         }, loop: {
           cost:(p) => segment =>  Math.floor(Math.pow(1.4, p.completed/3)+0.0000001)*40000,
-          tick:(p, a, s, k, r) => offset => (r.herbs<10) ? 0 : (getSkillLevelFromExp(k.alchemy) + getSkillLevelFromExp(k.brewing)/2) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
+          tick:(p, a, s, k, r,sq) => offset => (r.herbs<10||sq) ? 0 : (getSkillLevelFromExp(k.alchemy) + getSkillLevelFromExp(k.brewing)/2) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
           effect:{loop:(r,k) => {r.herbs-=10;r.potions++}}
         }},
         'Train Squirrel':{ affected:[''],
-          effect:(r,k) => {
-          k.combatSquirrel+=4* h.getSelfCombat(r, k);
+          canStart:true,
+          effect:(r,k,sq) => {
+          let smult=1;
+          if (sq) {
+            h.killSquirrel(r);
+            if (getLevelSquirrelAction("Train Squirrel")<2) {
+              smult=0;
+            } else {
+              smult=10;
+            }
+          }
+          k.combatSquirrel+=smult * 4* h.getSelfCombat(r, k);
         }},
         'Feed Animals':{ affected:['herbs'],
           canStart:(input) => {
           return input.herbs>=10;
         },
-          effect:(r,k) => {
-          r.herbs-=10;
+          effect:(r,k,sq) => {
+          sq ? h.killSquirrel(r) : r.herbs-=10;
         }},
-        'Pot Fairy':{ affected:['rep'],
+        'Pot Fairy':{ affected:['rep','mana','herbs'],
+          canStart:true,
           effect:(r,k) => {
           if (r.temp1>0) { //Smashed any pots...
             r.rep*=-1;
@@ -1089,15 +1168,32 @@ const Koviko = {
 			const multPots = towns[BEGINNERSVILLE].goodPots/10;
 			r.rep+=multPots;
 			r.mana+=multPots * 2000;
+            if (sq) {
+              let herbsToGather=towns[FORESTPATH].goodHerbs;
+              switch(getLevelSquirrelAction("Pot Fairy")) {
+                case 0:
+                case 1:
+                  return;
+                case 2:
+                  herbsToGather=Math.min(herbsToGather,100);
+                case 3:
+                  r.herbs+=herbsToGather;
+                  r.temp6=(r.temp6||0)+herbsToGather;
+             }
+            }
           }
         }},
         'Burn Forest':{ affected:['herbs','darkEssences'],
           canStart:(input) => {
           return (input.rep<0 && input.herbs>=10)
         }, loop: {
-          cost:(p) => segment => 60000,
-          tick:(p, a, s, k, r) => offset => r.herbs<10 ? 0 : r.herbs *  (1 +  getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 1000) * Math.sqrt(1 + p.total / 1000),
-          effect:{loop:(r,k) => {r.mana+=4000;r.herbs-=10;r.darkEssences+=Math.floor(towns[FORESTPATH].getLevel("DarkForest")/10 + 0.000001);r.forestBurn=(r.forestBurn||0)+1; if(r.forestBurn%2==0) r.rep-=1;}}
+          cost:(p) => segment => 75000,
+          tick:(p, a, s, k, r, sq) => offset => r.herbs<10 ? 0 : (r.herbs+(sq?10:0)) *  Math.sqrt(1 +  getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 1000),
+          effect:{ end:(r,k,sq)=> {
+          if (sq && getLevelSquirrelAction("Burn Forest")<=1) {
+            h.killSquirrel(r);
+          }
+        }, loop:(r,k) => {r.mana+=3500;r.herbs-=10;r.darkEssences+=Math.floor(towns[FORESTPATH].getLevel("DarkForest")/10 + 0.000001);r.forestBurn=(r.forestBurn||0)+1; if(r.forestBurn%4==0) r.rep-=1;}}
         }},
         'Bird Watching':{ affected:[''],
           canStart:(input) => input.glasses},
@@ -1105,19 +1201,32 @@ const Koviko = {
           canStart:(input) => {
           return input.rep<0;
         },
-          effect:(r,k) => {
+          effect:(r,k,sq) => {
+         if (sq && getLevelSquirrelAction("Dark Forest")<2) h.killSquirrel(r);
         }},
         'Talk To Witch':{ affected:[''],
-          canStart:true},
+          canStart:(input)=>(input.rep<0),
+          effect:(r,k,sq) => {
+         if (sq && getLevelSquirrelAction("Talk To Witch")<2) h.killSquirrel(r);
+        }},
         'Practice Yin':{ affected:['rep'],
-          effect:(r,k) => {
-          k.yang+=100 + (r.rep <= 0 ? r.rep * (-25) : 0);
+          canStart:true,
+          effect:(r,k,sq) => {
+          if (sq) {
+            if (getLevelSquirrelAction("Practice Yin")>=2) {
+              h.killSquirrel(r);
+              r.rep+=4;
+            }
+          } else {
+            k.yin+=100 + (r.rep <= 0 ? r.rep * (-25) : 0);
+          }
         }},
         'Learn Brewing':{ affected:['darkEssences'],
           canStart:(input) => {
           return input.darkEssences>=10;
         },
-          effect:(r,k) => {
+          effect:(r,k,sq) => {
+            if (sq) return;
             r.darkEssences-=10;
             let alchemyLevel = getSkillLevelFromExp(k.alchemy);
 			let alchemyMultiplier = 0;			
@@ -1134,10 +1243,11 @@ const Koviko = {
             return (input.rep<=-10 && input.darkEssences>=10);
           }, loop: {
           cost:(p) => segment =>  precision3(Math.pow(1.4, p.completed/3))*50000,
-          tick:(p, a, s, k, r) => offset => r.darkEssences<10?0: (getSkillLevelFromExp(k.alchemy)/2 + getSkillLevelFromExp(k.brewing)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
+          tick:(p, a, s, k, r, sq) => offset => (sq || r.darkEssences<10)?0: (getSkillLevelFromExp(k.alchemy)/2 + getSkillLevelFromExp(k.brewing)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
           effect:{loop:(r,k) => {r.darkEssences-=10;r.darkPotions++}}
         }},
         'Continue On':{ affected:[''],
+          canStart:true,
           effect:(r,k,sq) => r.town = (sq?SANCTUARY:2)},
         'Explore City':{ affected:['']},
         'Gamble':{ affected:['gold','rep'],
@@ -1615,6 +1725,11 @@ const Koviko = {
         'Restore Time':{ affected:['power','rep'],
           canStart:(input)=>(input.power>=8),
           effect:(r)=> (r.rep+=9999999)},
+        'First Trial':{ affected:['']},
+        'Break Loop':{ affected:['loopPotion'],
+          canStart:(input) => {
+          return input.loopPotion
+        }},
 
 
         //SPECIAL ACTIONS
@@ -2154,7 +2269,7 @@ const Koviko = {
         const loopCost = prediction.loop.cost(progression, prediction.action);
 
         /** @var {function} */
-        const tickProgress = prediction.loop.tick(progression, prediction.action, state.stats, state.skills, state.resources, isSquirrel);
+        const tickProgress = prediction.loop.tick(progression, prediction.action, state.stats, state.skills, state.resources, isSquirrel, loopCost);
 
         /** @var {number} */
         const totalSegments = prediction.action.segments;
