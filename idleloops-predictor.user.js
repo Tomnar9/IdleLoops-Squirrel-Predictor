@@ -1161,7 +1161,7 @@ const Koviko = {
         }},
         'Pot Fairy':{ affected:['rep','mana','herbs'],
           canStart:true,
-          effect:(r,k) => {
+          effect:(r,k,sq) => {
           if (r.temp1>0) { //Smashed any pots...
             r.rep*=-1;
           } else {

@@ -1676,7 +1676,7 @@ creatorCache['Pot Fairy'].effect.game=\`finish() {
 		}
 		
     }\`;
-creatorCache['Pot Fairy'].effect.pred=\`(r,k) => {
+creatorCache['Pot Fairy'].effect.pred=\`(r,k,sq) => {
           if (r.temp1>0) { //Smashed any pots...
             r.rep*=-1;
           } else {
