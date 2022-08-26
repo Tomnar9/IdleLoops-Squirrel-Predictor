@@ -2012,9 +2012,8 @@ const Koviko = {
                 this.cache.add(key, [state, loop + 1, isValid]);
               }
 
-              // Sleep every thousand actions to avoid hanging the game
-              // 1000 is a bit high for it to feel truly lag free, but any lower increases the time it takes for the prediction to finish drastically, which is worse
-              if(loop % 1000 === 0){
+              // Sleep every 15ms to avoid hanging the game
+              if(Date.now() % 15 === 0){
                 await new Promise(r => setTimeout(r, 1));
 
                 // If id != update.id, then another update was triggered and we need to stop processing this one
