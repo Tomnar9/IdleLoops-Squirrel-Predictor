@@ -1801,7 +1801,7 @@ const Koviko = {
      * @param {boolean} [isDebug] Whether to log useful debug information
      * @memberof Koviko.Predictor
      */
-    update(actions, container, isDebug) {
+    async update(actions, container, isDebug) {
       /**
        * Organize accumulated resources, accumulated stats, and accumulated progress into a single object
        * @var {Koviko.Predictor~State}
@@ -1878,12 +1878,16 @@ const Koviko = {
       let isValid;
       let loop;
 
+      // If id != update.id, then another update was triggered and we need to stop processing this one 
+      let id = {};
+      this.update.id = id;
+
       let finalIndex=actions.length-1;
       while ((finalIndex>0) && (actions[finalIndex].disabled)) {
         finalIndex--;
       }
       // Run through the action list and update the view for each action
-      actions.forEach((listedAction, i) => {
+      for(const [i, listedAction] of actions.entries()) {
 
         // If the cache hit the last time
         if(cache && i !== finalIndex) {
@@ -2008,6 +2012,17 @@ const Koviko = {
                 this.cache.add(key, [state, loop + 1, isValid]);
               }
 
+              // Sleep every thousand actions to avoid hanging the game
+              // 1000 is a bit high for it to feel truly lag free, but any lower increases the time it takes for the prediction to finish drastically, which is worse
+              if(loop % 1000 === 0){
+                await new Promise(r => setTimeout(r, 1));
+
+                // If id != update.id, then another update was triggered and we need to stop processing this one
+                if(id != this.update.id) {
+                  return;
+                }
+              } 
+
             }
 
             if (repeatLoop&& loop>=listedAction.loops) {
@@ -2019,6 +2034,12 @@ const Koviko = {
               state.currProgress[prediction.name] = state.progress[prediction.name].completed / prediction.action.segments;
             // Update the cache
             if(i!==finalIndex) this.cache.add([listedAction.name, listedAction.squirrelAction, listedAction.loops, listedAction.disabled], [state, isValid]);
+            
+            // Sleep to avoid hanging the game
+            await new Promise(r => setTimeout(r, 1));
+                            
+            // If id != update.id, then another update was triggered and we need to stop processing this one
+            if(id != this.update.id) return;
           }
           // Update the snapshots
           for (let i in snapshots) {
@@ -2035,7 +2056,7 @@ const Koviko = {
             div.innerHTML += this.template(listedAction.name, affected, state.resources, snapshots, isValid);
           }          
         }
-      });
+      }
 
       // Update the display for the total amount of mana/time used by the action list
       let total = state.resources.total;
