@@ -4461,7 +4461,7 @@ creatorCache['Heal The Sick'].loop.end.game=\`finish() {
 		}
         
     }\`;
-creatorCache['Heal The Sick'].loop.end.pred=\`(r,k,sq)=>sq?r.alreadyHealed=true:0\`;
+creatorCache['Heal The Sick'].loop.end.pred=\`(r,k,sq)=>{if (sq) r.alreadyHealed=true;}\`;
 creatorCache['Heal The Sick'].loop.loop={};
 creatorCache['Heal The Sick'].loop.loop.game=\`loopsFinished() {
         addResource("reputation", 3);
@@ -4650,7 +4650,7 @@ creatorCache['Small Dungeon'].loop.end.game=\`finish() {
         if (towns[BEGINNERSVILLE].SDungeonLoopCounter >= 42) unlockStory("clearSDungeon");
 		}
     }\`;
-creatorCache['Small Dungeon'].loop.end.pred=\`(r,k,sq)=>(sq?r.alreadySDungeon=true:0)\`;
+creatorCache['Small Dungeon'].loop.end.pred=\`(r,k,sq)=>{if (sq) r.alreadySDungeon=true;}\`;
 creatorCache['Small Dungeon'].loop.loop={};
 creatorCache['Small Dungeon'].loop.loop.game=\`loopsFinished() {
         const curFloor = Math.floor((towns[this.townNum].SDungeonLoopCounter) / this.segments + 0.0000001 - 1);

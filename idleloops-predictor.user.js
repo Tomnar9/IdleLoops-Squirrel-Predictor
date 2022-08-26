@@ -2,7 +2,7 @@
 // @name         IdleLoops Squirrel Predictor Makro
 // @namespace    https://github.com/Tomnar9/
 // @downloadURL  https://raw.githubusercontent.com/Tomnar9/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      0.1.3
+// @version      0.1.4
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops Reworked  v.0.2.7/Morana.
 // @author       Koviko <koviko.net@gmail.com>, Tomnar <Tomnar#4672 on discord>
 // @match        https://mopatissier.github.io/IdleLoopsReworked/
@@ -976,7 +976,7 @@ const Koviko = {
     }, loop: {
           cost:(p, a) => segment =>  fibonacci(2 + Math.floor((p.completed + segment) / a.segments + .0000001)) * 10000,
           tick:(p, a, s, k, r, sq, lCost) => offset =>  sq ?  Math.max(getLevelSquirrelAction("Heal The Sick")-1,0) * lCost(offset) * 3 / a.manaCost() : getSkillLevelFromExp(k.magic) * Math.max( getSkillLevelFromExp(k.restoration) / 50, 1) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
-          effect:{ end:(r,k,sq)=>sq?r.alreadyHealed=true:0, loop:(r,k,sq) => {r.rep += 3; k.magic+=(sq?150:50);}}
+          effect:{ end:(r,k,sq)=>{if (sq) r.alreadyHealed=true;}, loop:(r,k,sq) => {r.rep += 3; k.magic+=(sq?150:50);}}
         }},
         'Fight Monsters':{ affected:['gold'],
           canStart:(input,sq) => {
@@ -1022,7 +1022,7 @@ const Koviko = {
             }
             return floor in  dungeons[a.dungeonNum] ? (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 +  dungeons[a.dungeonNum][floor].completed / 200) : 0;
           },
-          effect:{ end:(r,k,sq)=>(sq?r.alreadySDungeon=true:0), loop:(r,k) => {r.soul+=h.getRewardSS(0);k.combat += 100*(1+getBuffLevel("Heroism") * 0.02); k.magic += 100;}}
+          effect:{ end:(r,k,sq)=>{if (sq) r.alreadySDungeon=true;}, loop:(r,k) => {r.soul+=h.getRewardSS(0);k.combat += 100*(1+getBuffLevel("Heroism") * 0.02); k.magic += 100;}}
         }},
         'Buy Supplies':{ affected:['gold'],
           canStart:(input,sq) => sq || (input.gold >= 450 - Math.max((input.supplyDiscount || 0) * 30, 0)),
@@ -1969,7 +1969,7 @@ const Koviko = {
               }
               if (prediction.loop) {
                 if (prediction.loop.effect.end) {
-                  prediction.loop.effect.end(state.resources, state.skills);
+                  prediction.loop.effect.end(state.resources, state.skills, listedAction.squirrelAction);
                 }
               }
 
@@ -2314,7 +2314,7 @@ const Koviko = {
 
             // Apply the effect from the completion of a loop
             if (prediction.loop.effect.loop) {
-              prediction.loop.effect.loop(state.resources, state.skills);
+              prediction.loop.effect.loop(state.resources, state.skills, isSquirrel);
             }
 
             // Store remaining progress in next loop if next loop is allowed
@@ -2325,7 +2325,7 @@ const Koviko = {
 
           // Apply the effect from the completion of a segment
           if (prediction.loop.effect.segment) {
-            prediction.loop.effect.segment(state.resources, state.skills);
+            prediction.loop.effect.segment(state.resources, state.skills, isSquirrel);
           }
         }
 
