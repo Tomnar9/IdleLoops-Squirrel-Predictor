@@ -4546,7 +4546,7 @@ creatorCache['Fight Monsters'].loop.end.game=\`finish() {
     }\`;
 creatorCache['Fight Monsters'].loop.end.pred=\`(r, k, sq) => {
           if (sq) {
-            if (getLevelSquirrelAction("Fight Monsters")) {
+            if (getLevelSquirrelAction("Fight Monsters")<2) {
               h.killSquirrel(r);
             } else {
               r.alreadyFought=true;

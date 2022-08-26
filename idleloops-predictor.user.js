@@ -989,7 +989,7 @@ const Koviko = {
           tick:(p, a, s, k, r, sq, lCost) => offset => sq ? Math.max(getLevelSquirrelAction("Fight Monsters")-1,0) * lCost(offset) * 3 / a.manaCost() : h.getSelfCombat(r, k) * Math.sqrt(1 + p.total / 100) * h.getStatProgress(p, a, s, offset),
           effect:{ end:(r, k, sq) => {
           if (sq) {
-            if (getLevelSquirrelAction("Fight Monsters")) {
+            if (getLevelSquirrelAction("Fight Monsters")<2) {
               h.killSquirrel(r);
             } else {
               r.alreadyFought=true;
