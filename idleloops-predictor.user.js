@@ -1193,7 +1193,7 @@ const Koviko = {
           if (sq && getLevelSquirrelAction("Burn Forest")<=1) {
             h.killSquirrel(r);
           }
-        }, loop:(r,k) => {r.mana+=3500;r.herbs-=10;r.darkEssences+=Math.floor(towns[FORESTPATH].getLevel("DarkForest")/10 + 0.000001);r.forestBurn=(r.forestBurn||0)+1; if(r.forestBurn%4==0) r.rep-=1;}}
+        }, loop:(r,k) => {r.mana+=3500;r.herbs-=10;r.darkEssences+=Math.floor(towns[FORESTPATH].getLevel("DarkForest")/10 + 0.000001);r.forestBurn=(r.forestBurn||0)+1; if(r.forestBurn%2==0) r.rep-=1;}}
         }},
         'Bird Watching':{ affected:[''],
           canStart:(input) => input.glasses},

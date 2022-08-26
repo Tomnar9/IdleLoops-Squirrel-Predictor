@@ -4877,7 +4877,7 @@ creatorCache['Burn Forest'].loop.loop.game=\`loopsFinished() {
 		addResource("herbs", -10);
 		if(towns[FORESTPATH].BurnLoopCounter%4 === 0) addResource("reputation", -1);
     }\`;
-creatorCache['Burn Forest'].loop.loop.pred=\`(r,k) => {r.mana+=3500;r.herbs-=10;r.darkEssences+=Math.floor(towns[FORESTPATH].getLevel("DarkForest")/10 + 0.000001);r.forestBurn=(r.forestBurn||0)+1; if(r.forestBurn%4==0) r.rep-=1;}\`;
+creatorCache['Burn Forest'].loop.loop.pred=\`(r,k) => {r.mana+=3500;r.herbs-=10;r.darkEssences+=Math.floor(towns[FORESTPATH].getLevel("DarkForest")/10 + 0.000001);r.forestBurn=(r.forestBurn||0)+1; if(r.forestBurn%2==0) r.rep-=1;}\`;
 creatorCache['Burn Forest'].loop.max=\`\`;
 creatorCache['First Trial']={};
 creatorCache['First Trial'].affected=[];
