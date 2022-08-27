@@ -2104,6 +2104,9 @@ const Koviko = {
         });
       }
       this.state = state;
+
+      // Fire an event when a prediction finishes for other scripts to hook into
+      document.dispatchEvent(new Event('predictor-update'));
     }
 
     getSpeedMult(r, k) {
