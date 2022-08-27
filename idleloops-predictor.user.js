@@ -1941,6 +1941,9 @@ const Koviko = {
                 state.resources.totalTicks += actionDuration;
                 state.resources.actionTicks+= actionDuration;
                 state.resources.mana-=ticks*multiTick;
+                if (state.resources.mana<0 && state.resources.mana>(-multiTick)) {
+                  state.resources.mana=0; //Special case so a single action is alway completable
+                }
 
               // Skip EXP calculations for the last element, when no longer necessary (only costs 1 mana)
               } else if ((i==finalIndex) && (prediction.ticks()==1) &&(!prediction.loop) &&(loop>0)) {
