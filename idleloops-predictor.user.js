@@ -1215,7 +1215,7 @@ const Koviko = {
           if (sq) {
             if (getLevelSquirrelAction("Practice Yin")>=2) {
               h.killSquirrel(r);
-              r.rep+=4;
+              r.rep-=4;
             }
           } else {
             k.yin+=100 + (r.rep <= 0 ? r.rep * (-25) : 0);
