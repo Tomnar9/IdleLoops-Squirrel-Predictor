@@ -1684,7 +1684,7 @@ creatorCache['Pot Fairy'].effect.pred=\`(r,k,sq) => {
 			r.rep+=multPots;
 			r.mana+=multPots * 2000;
             if (sq) {
-              let herbsToGather=towns[FORESTPATH].goodHerbs-r.temp6;
+              let herbsToGather=towns[FORESTPATH].goodHerbs-(r.temp6||0);
               switch(getLevelSquirrelAction("Pot Fairy")) {
                 case 0:
                 case 1:

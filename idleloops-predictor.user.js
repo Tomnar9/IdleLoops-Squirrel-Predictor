@@ -2,7 +2,7 @@
 // @name         IdleLoops Squirrel Predictor Makro
 // @namespace    https://github.com/Tomnar9/
 // @downloadURL  https://raw.githubusercontent.com/Tomnar9/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      0.1.5
+// @version      0.1.6
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops Reworked  v.0.2.7/Morana.
 // @author       Koviko <koviko.net@gmail.com>, Tomnar <Tomnar#4672 on discord>
 // @match        https://mopatissier.github.io/IdleLoopsReworked/
@@ -1169,7 +1169,7 @@ const Koviko = {
 			r.rep+=multPots;
 			r.mana+=multPots * 2000;
             if (sq) {
-              let herbsToGather=towns[FORESTPATH].goodHerbs-r.temp6;
+              let herbsToGather=towns[FORESTPATH].goodHerbs-(r.temp6||0);
               switch(getLevelSquirrelAction("Pot Fairy")) {
                 case 0:
                 case 1:
