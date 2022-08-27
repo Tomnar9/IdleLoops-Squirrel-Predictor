@@ -1,6 +1,6 @@
 # IdleLoops Predictor
 
-The IdleLoops Predictor is a userscript addon that modifies the action list UI of [IdleLoops](http://stopsign.github.io/idleLoops/). The modifications will show you the estimated amount of mana, gold, reputation, herbs, hide, potions, soulstone attempts, crafting guild segments, and adventure guild segments after every action in the action list based on your current talents and progress.
+The IdleLoops Predictor is a userscript addon that modifies the action list UI of [IdleLoops](https://mopatissier.github.io/IdleLoopsReworked/). The modifications will show you the estimated amount of mana, gold, reputation, etc. after every action in the action list based on your current talents and progress.
 
 ## Installation
 
@@ -8,7 +8,7 @@ You will need a userscript manager like [Tampermonkey for Chrome](https://chrome
 
 To install the script, click the `idleloops-predictor.user.js` in GitHub and then click the **`Raw`** button. Your userscript manager should automatically give you the option to install the script. Alternatively, you can just follow the link below:
 
-**[»» Install IdleLoops Predictor ««](https://github.com/MakroCZ/IdleLoops-Predictor/raw/master/idleloops-predictor.user.js)**
+**[»» Install IdleLoops Predictor ««](../../raw/master/idleloops-predictor.user.js)**
 
 ## The UI
 
@@ -58,4 +58,4 @@ If you notice lag whenever you make changes to the action list, I recommend taki
 
 ## License
 
-IdleLoops Predictor is licensed under the MIT License. Refer to the [LICENSE](https://github.com/Koviko/IdleLoops-Predictor/blob/master/LICENSE) file.
+IdleLoops Predictor is licensed under the MIT License. Refer to the [LICENSE](../master/LICENSE) file.
