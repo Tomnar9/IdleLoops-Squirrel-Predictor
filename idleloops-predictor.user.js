@@ -2,7 +2,7 @@
 // @name         IdleLoops Squirrel Predictor Makro
 // @namespace    https://github.com/Tomnar9/
 // @downloadURL  https://raw.githubusercontent.com/Tomnar9/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      0.1.6
+// @version      0.1.7
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops Reworked  v.0.2.7/Morana.
 // @author       Koviko <koviko.net@gmail.com>, Tomnar <Tomnar#4672 on discord>
 // @match        https://mopatissier.github.io/IdleLoopsReworked/
@@ -1136,7 +1136,19 @@ const Koviko = {
         }, loop: {
           cost:(p) => segment =>  Math.floor(Math.pow(1.4, p.completed/3)+0.0000001)*40000,
           tick:(p, a, s, k, r,sq) => offset => (r.herbs<10||sq) ? 0 : (getSkillLevelFromExp(k.alchemy) + getSkillLevelFromExp(k.brewing)/2) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
-          effect:{loop:(r,k) => {r.herbs-=10;r.potions++}}
+          effect:{loop:(r,k) => {
+            r.herbs-=10;
+            r.potions++;
+            let brewingLevel = getSkillLevelFromExp(k.brewing);
+			let brewingMultiplier = 0;			
+			for(let levelsNeededForBoost = 1; brewingLevel > 0; levelsNeededForBoost++) {
+				for (let i = 0; i < 10 && brewingLevel > 0; i++){
+					brewingMultiplier += 1;
+					brewingLevel -= levelsNeededForBoost;				
+				}
+			}
+            k.alchemy += 100 + brewingMultiplier * 10;
+            }}
         }},
         'Train Squirrel':{ affected:[''],
           canStart:true,
@@ -1244,7 +1256,19 @@ const Koviko = {
           }, loop: {
           cost:(p) => segment =>  precision3(Math.pow(1.4, p.completed/3))*50000,
           tick:(p, a, s, k, r, sq) => offset => (sq || r.darkEssences<10)?0: (getSkillLevelFromExp(k.alchemy)/2 + getSkillLevelFromExp(k.brewing)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
-          effect:{loop:(r,k) => {r.darkEssences-=10;r.darkPotions++}}
+          effect:{loop:(r,k) => {
+            r.darkEssences-=10;
+            r.darkPotions++;
+            let alchemyLevel = getSkillLevelFromExp(k.alchemy);
+			let alchemyMultiplier = 0;			
+			for(let levelsNeededForBoost = 1; alchemyLevel > 0; levelsNeededForBoost++) {
+				for (let i = 0; i < 10 && alchemyLevel > 0; i++){
+					alchemyMultiplier += 1;
+					alchemyLevel -= levelsNeededForBoost;				
+				}
+			}
+            k.brewing += 100 + alchemyMultiplier * 10;
+            }}
         }},
         'Continue On':{ affected:[''],
           canStart:true,
