@@ -1768,7 +1768,7 @@ creatorCache['Enchant Armor'].canStart.game=\`canStart() {
         return resources.favors >= 1 && resources.armor >= 1;
     }\`;
 creatorCache['Enchant Armor'].canStart.pred=\`(input) => {
-          return (input.armor >= 0 && input.favor >= 0);
+          return (input.armor >  0 && input.favor >  0);
         }\`;
 creatorCache['Enchant Armor'].effect={};
 creatorCache['Enchant Armor'].effect.game=\`finish() {
