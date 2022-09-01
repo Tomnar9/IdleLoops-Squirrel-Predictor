@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name     Squirrel Predictor Creator
-// @version  1.2
+// @version  1.3
 // @description Author script for the predictor. To use: 1.call crUpdatePredictions in the console 2. copy the result into the script, replacing everything between the "CACHE File" markers 3. Fix any TODOs in the copied cache, those are actions that changed and (maybe) need attention, if a function shouldn't be in the output replace it with '' (or\`\`) 4. call crOutputPredictions 5. paste the output into the main script, replacing the content of the "predictions" object EXEPT those after "SPECIAL ACTIONS" those are special cases that should be done by hand  // @match https://lloyd-delacroix.github.io/omsi-loops/
 // @author Tomnar <Tomnar#4672 on discord>
 // @match https://mopatissier.github.io/IdleLoopsReworked/
@@ -269,6 +269,8 @@ function crUpdatePredictions() {
 
 
 
+
+
 creatorCache['RuinsZ1']={};
 creatorCache['RuinsZ1'].affected=[''];
 creatorCache['RuinsZ1'].effect={};
@@ -460,7 +462,6 @@ creatorCache['Look Around'].effect.game=\`finish() {
 		view.adjustManaCost("Look Around");
 
     }\`;
-//TODO: Check validity
 creatorCache['Look Around'].effect.pred=\`\`;
 creatorCache['Absorb Mana']={};
 creatorCache['Absorb Mana'].affected=[''];
@@ -507,7 +508,6 @@ creatorCache['Absorb Mana'].effect.game=\`finish() {
 		view.adjustGoldCost("ManaSpots", this.goldCost());
 			
     }\`;
-//TODO: Check validity
 creatorCache['Absorb Mana'].effect.pred=\`(r,k,sq) => {
           if (sq) return;
           const manaBase = 100000;
@@ -570,7 +570,6 @@ creatorCache['Imbue Squirrel'].effect.game=\`finish() {
 		handleSkillSquirrelExp(this.skillsSquirrel);
 		
     }\`;
-//TODO: Check validity
 creatorCache['Imbue Squirrel'].effect.pred=\`(r,k,sq) => {
             k.magicSquirrel+=Math.pow(4, getBuffLevel("SpiritBlessing")- (sq?1:0));
         }\`;
@@ -618,7 +617,6 @@ creatorCache['Imbue Soulstones'].effect.game=\`finish() {
 		view.adjustGoldCost(this.varName, this.goldCost());
 		
     }\`;
-//TODO: Check validity
 creatorCache['Imbue Soulstones'].effect.pred=\`(r,k,sq) => {
           if (sq) return;
           r.ImbueSoulStone+=1;
@@ -673,7 +671,6 @@ creatorCache['Balance Soulstones'].effect.game=\`finish() {
 		view.updateSoulstones();
 		
     }\`;
-//TODO: Check validity
 creatorCache['Balance Soulstones'].effect.pred=\`\`;
 creatorCache['Mysterious Voice']={};
 creatorCache['Mysterious Voice'].affected=['blessing'];
@@ -755,7 +752,6 @@ creatorCache['Mysterious Voice'].effect.game=\`finish() {
 		view.adjustGoldCost("BalanceSoulstones", Action.BalanceSoulstones.goldCost());
 		
     }\`;
-//TODO: Check validity
 creatorCache['Mysterious Voice'].effect.pred=\`(r,k,sq) => {
 		  switch(getBuffLevel("SpiritBlessing")){
             case 0: r.blessing+=1;
@@ -772,7 +768,6 @@ creatorCache['Wander'].canStart.game=\`canStart() {
 		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
 		return squirrelRequirements;
     }\`;
-//TODO: Check validity
 creatorCache['Wander'].canStart.pred=\`true\`;
 creatorCache['Wander'].effect={};
 creatorCache['Wander'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
@@ -823,7 +818,6 @@ creatorCache['Wander'].effect.game=\`finish() {
 		towns[BEGINNERSVILLE].finishProgress(this.varName, 200 * (resources.glasses ? 4 : 1));
 		
     }\`;
-//TODO: Check validity
 creatorCache['Wander'].effect.pred=\`(r,k,sq)=>{
           if (sq && getLevelSquirrelAction("Wander")<=1)
             h.killSquirrel();
@@ -842,7 +836,6 @@ creatorCache['Smash Pots'].canStart.game=\`canStart() {
 		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
 		return squirrelRequirements;
     }\`;
-//TODO: Check validity
 creatorCache['Smash Pots'].canStart.pred=\`true\`;
 creatorCache['Smash Pots'].effect={};
 creatorCache['Smash Pots'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
@@ -902,7 +895,6 @@ creatorCache['Smash Pots'].effect.game=\`finish() {
 		});
 		
     }\`;
-//TODO: Check validity
 creatorCache['Smash Pots'].effect.pred=\`(r,k,sq) => {
           if (sq && getLevelSquirrelAction("Smash Pots")<3) {
             return; //No effect
@@ -986,7 +978,6 @@ creatorCache['Pet Squirrel'].effect.game=\`finish() {
 		view.adjustManaCost("Pet Squirrel", squirrelMode);
 		squirrelAlreadyPickedUp = true;
     }\`;
-//TODO: Check validity
 creatorCache['Pet Squirrel'].effect.pred=\`(r,k,sq) => {
           if (sq) {
             if (getLevelSquirrelAction("Pet Squirrel")>=3) {
@@ -1004,7 +995,6 @@ creatorCache['Pick Locks'].canStart.game=\`canStart() {
 		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
 		return squirrelRequirements;
     }\`;
-//TODO: Check validity
 creatorCache['Pick Locks'].canStart.pred=\`true\`;
 creatorCache['Pick Locks'].effect={};
 creatorCache['Pick Locks'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
@@ -1052,7 +1042,6 @@ creatorCache['Pick Locks'].effect.game=\`finish() {
 		});
         
     }\`;
-//TODO: Check validity
 creatorCache['Pick Locks'].effect.pred=\`(r,k,sq) => {
           if (sq) {
             if (getLevelSquirrelAction("Pick Locks")>=2) {
@@ -1072,7 +1061,6 @@ creatorCache['Take Glasses'].canStart.game=\`canStart() {
 		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
 		return squirrelRequirements && resources.stolenGoods >= 1;
     }\`;
-//TODO: Check validity
 creatorCache['Take Glasses'].canStart.pred=\`(input) => (input.stolenGoods >= 1)\`;
 creatorCache['Take Glasses'].effect={};
 creatorCache['Take Glasses'].effect.cost=\`cost() {
@@ -1110,7 +1098,6 @@ creatorCache['Take Glasses'].effect.game=\`finish() {
 		unlockStory("glassesTaken");
         
     }\`;
-//TODO: Check validity
 creatorCache['Take Glasses'].effect.pred=\`(r,k,sq) => {
           if (!sq) r.glasses = true;
           r.stolenGoods-=1;
@@ -1138,7 +1125,6 @@ creatorCache['Buy Mana Z1'].canStart.game=\`canStart() {
 		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
 		return squirrelRequirements;
     }\`;
-//TODO: Check validity
 creatorCache['Buy Mana Z1'].canStart.pred=\`true\`;
 creatorCache['Buy Mana Z1'].effect={};
 creatorCache['Buy Mana Z1'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
@@ -1204,7 +1190,6 @@ creatorCache['Buy Mana Z1'].effect.game=\`finish() {
 		resetResource("gold");
 		unlockStory("manaBoughtZ1");
     }\`;
-//TODO: Check validity
 creatorCache['Buy Mana Z1'].effect.pred=\`(r,k, sq) => {
           if (sq) {
             switch(getLevelSquirrelAction("Buy Mana Z1")) {
@@ -1229,7 +1214,6 @@ creatorCache['Meet People'].canStart.game=\`canStart() {
 		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
 		return squirrelRequirements;
     }\`;
-//TODO: Check validity
 creatorCache['Meet People'].canStart.pred=\`true\`;
 creatorCache['Meet People'].effect={};
 creatorCache['Meet People'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
@@ -1265,7 +1249,6 @@ creatorCache['Meet People'].effect.game=\`finish() {
 		towns[BEGINNERSVILLE].finishProgress(this.varName, 150);
 		
     }\`;
-//TODO: Check validity
 creatorCache['Meet People'].effect.pred=\`\`;
 creatorCache['Train Strength']={};
 creatorCache['Train Strength'].affected=[''];
@@ -1274,7 +1257,6 @@ creatorCache['Train Strength'].canStart.game=\`canStart() {
 		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
 		return squirrelRequirements;
     }\`;
-//TODO: Check validity
 creatorCache['Train Strength'].canStart.pred=\`true\`;
 creatorCache['Train Strength'].effect={};
 creatorCache['Train Strength'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
@@ -1305,7 +1287,6 @@ creatorCache['Train Strength'].effect.squirrel=\`squirrelActionEffect(onlyGetLos
 creatorCache['Train Strength'].effect.game=\`finish() {
 		unlockStory("strengthTrained");
     }\`;
-//TODO: Check validity
 creatorCache['Train Strength'].effect.pred=\`\`;
 creatorCache['Short Quest']={};
 creatorCache['Short Quest'].affected=['gold'];
@@ -1314,7 +1295,6 @@ creatorCache['Short Quest'].canStart.game=\`canStart() {
 		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
 		return squirrelRequirements;
     }\`;
-//TODO: Check validity
 creatorCache['Short Quest'].canStart.pred=\`true\`;
 creatorCache['Short Quest'].effect={};
 creatorCache['Short Quest'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
@@ -1370,7 +1350,6 @@ creatorCache['Short Quest'].effect.game=\`finish() {
 		});
 		if (towns[BEGINNERSVILLE]['good@{this.varName}'] >= 20 && towns[BEGINNERSVILLE]['goodTemp@{this.varName}'] <= towns[BEGINNERSVILLE]['good@{this.varName}'] - 20) unlockStory("maxSQuestsInALoop");
     }\`;
-//TODO: Check validity
 creatorCache['Short Quest'].effect.pred=\`(r,k,sq) => {
           let gCost=Action.ShortQuest.goldCost();
           if (sq) {
@@ -1391,7 +1370,6 @@ creatorCache['Investigate'].canStart.game=\`canStart() {
 		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
 		return squirrelRequirements;
     }\`;
-//TODO: Check validity
 creatorCache['Investigate'].canStart.pred=\`true\`;
 creatorCache['Investigate'].effect={};
 creatorCache['Investigate'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
@@ -1430,7 +1408,6 @@ creatorCache['Investigate'].effect.game=\`finish() {
 		towns[BEGINNERSVILLE].finishProgress(this.varName, 300 * this.stolenGoodsMultiplication());
 		
     }\`;
-//TODO: Check validity
 creatorCache['Investigate'].effect.pred=\`\`;
 creatorCache['Long Quest']={};
 creatorCache['Long Quest'].affected=['gold','rep'];
@@ -1439,7 +1416,6 @@ creatorCache['Long Quest'].canStart.game=\`canStart() {
 		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
 		return squirrelRequirements;
     }\`;
-//TODO: Check validity
 creatorCache['Long Quest'].canStart.pred=\`true\`;
 creatorCache['Long Quest'].effect={};
 creatorCache['Long Quest'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
@@ -1500,7 +1476,6 @@ creatorCache['Long Quest'].effect.game=\`finish() {
 		if (towns[BEGINNERSVILLE]['good@{this.varName}'] >= 10 && towns[BEGINNERSVILLE]['goodTemp@{this.varName}'] <= towns[BEGINNERSVILLE]['good@{this.varName}'] - 10) unlockStory("maxLQuestsInALoop");
        
     }\`;
-//TODO: Check validity
 creatorCache['Long Quest'].effect.pred=\`(r,k,sq) => {
           r.temp4 = (r.temp4 || 0) + 1;
           if (r.temp4 <= towns[0].goodLQuests) {
@@ -1531,7 +1506,6 @@ creatorCache['Throw Party'].canStart.game=\`canStart() {
 		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
 		return squirrelRequirements && resources.reputation >= 2;
     }\`;
-//TODO: Check validity
 creatorCache['Throw Party'].canStart.pred=\`(input)=>(input.rep>=2)\`;
 creatorCache['Throw Party'].effect={};
 creatorCache['Throw Party'].effect.cost=\`cost() {
@@ -1582,7 +1556,6 @@ creatorCache['Throw Party'].effect.game=\`finish() {
 		unlockStory("partyThrown");
         
     }\`;
-//TODO: Check validity
 creatorCache['Throw Party'].effect.pred=\`(r,k,sq)=>{
             r.rep-=2;
           }\`;
@@ -1593,7 +1566,6 @@ creatorCache['Warrior Lessons'].canStart.game=\`canStart() {
 		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
 		return squirrelRequirements && resources.reputation >= 2;
     }\`;
-//TODO: Check validity
 creatorCache['Warrior Lessons'].canStart.pred=\`(input) => input.rep >= 2\`;
 creatorCache['Warrior Lessons'].effect={};
 creatorCache['Warrior Lessons'].effect.skills={};	
@@ -1645,7 +1617,6 @@ creatorCache['Warrior Lessons'].effect.game=\`finish() {
 		handleSkillExp(this.skills);
         
     }\`;
-//TODO: Check validity
 creatorCache['Warrior Lessons'].effect.pred=\`(r, k, sq) => {
           if (sq) {
             if (getLevelSquirrelAction("Warrior Lessons")<=1) {
@@ -1665,7 +1636,6 @@ creatorCache['Mage Lessons'].canStart.game=\`canStart() {
 		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
 		return squirrelRequirements && resources.reputation >= 2;
     }\`;
-//TODO: Check validity
 creatorCache['Mage Lessons'].canStart.pred=\`(input) => input.rep >= 2\`;
 creatorCache['Mage Lessons'].effect={};
 creatorCache['Mage Lessons'].effect.skills={};	
@@ -1715,7 +1685,6 @@ creatorCache['Mage Lessons'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseS
 creatorCache['Mage Lessons'].effect.game=\`finish() {
 		handleSkillExp(this.skills);
     }\`;
-//TODO: Check validity
 creatorCache['Mage Lessons'].effect.pred=\`(r, k, sq) => { 
           if (sq) {
             if (getLevelSquirrelAction("Mage Lessons")<=1) {
@@ -1735,7 +1704,6 @@ creatorCache['Heal The Sick'].canStart.game=\`canStart() {
 		const squirrelRequirements = (!this.squirrelAction || resources.squirrel) && alreadyHealed === false;
 		return squirrelRequirements && resources.reputation >= 1;
     }\`;
-//TODO: Check validity
 creatorCache['Heal The Sick'].canStart.pred=\`(input,sq) => {
       if (sq) {
         if (input.alreadyHealed) return false;
@@ -1807,7 +1775,6 @@ creatorCache['Heal The Sick'].loop.end.game=\`finish() {
 		if (towns[BEGINNERSVILLE].HealLoopCounter / 3 + 1 >= 10) unlockStory("heal10PatientsInALoop");
         
     }\`;
-//TODO: Check validity
 creatorCache['Heal The Sick'].loop.end.pred=\`(r,k,sq)=>{if (sq) r.alreadyHealed=true;}\`;
 creatorCache['Heal The Sick'].loop.loop={};
 creatorCache['Heal The Sick'].loop.loop.game=\`loopsFinished() {
@@ -1827,7 +1794,6 @@ creatorCache['Fight Monsters'].canStart.game=\`canStart() {
 		const squirrelRequirements = (!this.squirrelAction || resources.squirrel) && alreadyFought === false;
 		return squirrelRequirements && resources.reputation >= 2;
     }\`;
-//TODO: Check validity
 creatorCache['Fight Monsters'].canStart.pred=\`(input,sq) => {
       if (sq) {
         if (input.alreadyFought) return false;
@@ -1901,7 +1867,6 @@ creatorCache['Fight Monsters'].loop.end.squirrel=\`squirrelActionEffect(onlyGetL
 creatorCache['Fight Monsters'].loop.end.game=\`finish() {
 		
     }\`;
-//TODO: Check validity
 creatorCache['Fight Monsters'].loop.end.pred=\`(r, k, sq) => {
           if (sq) {
             if (getLevelSquirrelAction("Fight Monsters")<2) {
@@ -1932,7 +1897,6 @@ creatorCache['Magic Fighter'].canStart.game=\`canStart() {
 		
 		return squirrelRequirements && resources.reputation >= 2 && curPowerLevel < 4;
     }\`;
-//TODO: Check validity
 creatorCache['Magic Fighter'].canStart.pred=\`(input) => {
           return input.rep>=2;
         }\`;
@@ -1983,7 +1947,6 @@ creatorCache['Magic Fighter'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLo
 creatorCache['Magic Fighter'].loop.end.game=\`finish() {
 		unlockStory("foughtMagicFighter");
     }\`;
-//TODO: Check validity
 creatorCache['Magic Fighter'].loop.end.pred=\`\`;
 creatorCache['Magic Fighter'].loop.segment={};
 creatorCache['Magic Fighter'].loop.segment.game=\`segmentFinished() {
@@ -2000,12 +1963,11 @@ creatorCache['Small Dungeon']={};
 creatorCache['Small Dungeon'].affected=['soul'];
 creatorCache['Small Dungeon'].canStart={};
 creatorCache['Small Dungeon'].canStart.game=\`canStart() {
-		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		const squirrelRequirements = (!this.squirrelAction || (resources.squirrel && alreadySDungeon === false));
 		const curFloor = Math.floor((towns[this.townNum].SDungeonLoopCounter) / this.segments + 0.0000001);
 		
 		return squirrelRequirements && resources.reputation >= 2 && curFloor < dungeons[this.dungeonNum].length;
     }\`;
-//TODO: Check validity
 creatorCache['Small Dungeon'].canStart.pred=\`(input,sq) => {
       if (sq) {
         if (input.alreadySDungeon) return false;
@@ -2092,8 +2054,8 @@ creatorCache['Small Dungeon'].loop.end.game=\`finish() {
         
 		unlockStory("smallDungeonAttempted");
 		if (towns[BEGINNERSVILLE].SDungeonLoopCounter >= 42) unlockStory("clearSDungeon");
+		
     }\`;
-//TODO: Check validity
 creatorCache['Small Dungeon'].loop.end.pred=\`(r,k,sq)=>{if (sq) r.alreadySDungeon=true;}\`;
 creatorCache['Small Dungeon'].loop.loop={};
 creatorCache['Small Dungeon'].loop.loop.game=\`loopsFinished() {
@@ -2115,7 +2077,6 @@ creatorCache['Buy Supplies'].canStart.game=\`canStart() {
 		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
 		return squirrelRequirements && resources.gold >= towns[BEGINNERSVILLE].suppliesCost;
     }\`;
-//TODO: Check validity
 creatorCache['Buy Supplies'].canStart.pred=\`(input,sq) => sq || (input.gold >= 450 - Math.max((input.supplyDiscount || 0) * 30, 0))\`;
 creatorCache['Buy Supplies'].effect={};
 creatorCache['Buy Supplies'].effect.cost=\`cost() {
@@ -2157,7 +2118,6 @@ creatorCache['Buy Supplies'].effect.game=\`finish() {
 		if (towns[BEGINNERSVILLE].suppliesCost === 450) unlockStory("suppliesBoughtWithoutHaggling");
 		unlockStory("suppliesBought");
     }\`;
-//TODO: Check validity
 creatorCache['Buy Supplies'].effect.pred=\`(r,k,sq) => {
             if (sq) return;
             r.gold -= 450 - Math.max((r.supplyDiscount || 0) * 30, 0);
@@ -2170,7 +2130,6 @@ creatorCache['Haggle'].canStart.game=\`canStart() {
 		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
 		return squirrelRequirements && resources.reputation >= 1; 
     }\`;
-//TODO: Check validity
 creatorCache['Haggle'].canStart.pred=\`(input, sq) => sq ? !input.squirrelHaggle:(input.rep > 0)\`;
 creatorCache['Haggle'].effect={};
 creatorCache['Haggle'].effect.cost=\`cost() {
@@ -2224,7 +2183,6 @@ creatorCache['Haggle'].effect.game=\`finish() {
 		view.adjustGoldCost("BuySupplies", towns[BEGINNERSVILLE].suppliesCost);
 		unlockStory("haggle");
     }\`;
-//TODO: Check validity
 creatorCache['Haggle'].effect.pred=\`(r,k,sq) => {
           if (sq) {
             if (getLevelSquirrelAction("Haggle")<2) return;
@@ -2241,7 +2199,6 @@ creatorCache['Start Journey'].canStart.game=\`canStart() {
 		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
 		return squirrelRequirements && resources.supplies;
     }\`;
-//TODO: Check validity
 creatorCache['Start Journey'].canStart.pred=\`r => r.supplies >= 1\`;
 creatorCache['Start Journey'].effect={};
 creatorCache['Start Journey'].effect.cost=\`cost() {
@@ -2281,7 +2238,6 @@ creatorCache['Start Journey'].effect.squirrel=\`squirrelActionEffect(onlyGetLose
 creatorCache['Start Journey'].effect.game=\`finish() {
 		unlockTown(FORESTPATH);
     }\`;
-//TODO: Check validity
 creatorCache['Start Journey'].effect.pred=\`(r,k,sq) => {
             r.supplies = 0;
             r.town =sq ? SANCTUARY : FORESTPATH;
@@ -2362,7 +2318,6 @@ creatorCache['Explore Forest'].effect.game=\`finish() {
 		towns[FORESTPATH].finishProgress(this.varName, 100 * (resources.glasses ? 4 : 1));
         
     }\`;
-//TODO: Check validity
 creatorCache['Explore Forest'].effect.pred=\`(r,k,sq)=>{if (sq && getLevelSquirrelAction("Explore Forest")<=1) h.killSquirrel(r)}\`;
 creatorCache['Wild Mana']={};
 creatorCache['Wild Mana'].affected=['mana'];
@@ -2441,7 +2396,6 @@ creatorCache['Wild Mana'].effect.game=\`finish() {
 		
 
     }\`;
-//TODO: Check validity
 creatorCache['Wild Mana'].effect.pred=\`(r,k,sq) => {
           r.temp5 = (r.temp5 || 0) + 1;
           const sqBonus= (sq &&getLevelSquirrelAction("Wild Mana")) ? 100:0;
@@ -2513,7 +2467,6 @@ creatorCache['Gather Herbs'].effect.game=\`finish() {
 		});
        
     }\`;
-//TODO: Check validity
 creatorCache['Gather Herbs'].effect.pred=\`(r,k,sq) => {
           r.temp6 = (r.temp6 || 0) + 1;
           if (r.temp6 > towns[FORESTPATH].goodHerbs) return; // no herbs left
@@ -2592,7 +2545,6 @@ creatorCache['Hunt'].effect.game=\`finish() {
 		});
 		
     }\`;
-//TODO: Check validity
 creatorCache['Hunt'].effect.pred=\`(r,k,sq) => {
           if (sq && getLevelSquirrelAction("Hunt")<2) {
             h.killSquirrel(r);
@@ -2641,7 +2593,6 @@ creatorCache['Sit By Waterfall'].effect.game=\`finish() {
 		unlockStory("satByWaterfall");
      
     }\`;
-//TODO: Check validity
 creatorCache['Sit By Waterfall'].effect.pred=\`(r,k,sq)=>sq?h.killSquirrel(r):0\`;
 creatorCache['Old Shortcut']={};
 creatorCache['Old Shortcut'].affected=[''];
@@ -2699,7 +2650,6 @@ creatorCache['Old Shortcut'].effect.game=\`finish() {
 		view.adjustManaCost("Talk To Hermit");
         
     }\`;
-//TODO: Check validity
 creatorCache['Old Shortcut'].effect.pred=\`(r,k,sq)=>(sq && getLevelSquirrelAction("Old Shortcut")<2)?h.killSquirrel(r):0\`;
 creatorCache['Talk To Hermit']={};
 creatorCache['Talk To Hermit'].affected=[''];
@@ -2763,7 +2713,6 @@ creatorCache['Talk To Hermit'].effect.game=\`finish() {
 		view.adjustManaCost("Gather Herbs");
         
     }\`;
-//TODO: Check validity
 creatorCache['Talk To Hermit'].effect.pred=\`(r,k,sq)=>(sq && getLevelSquirrelAction("Talk To Hermit")<2)?h.killSquirrel(r):0\`;
 creatorCache['Practice Yang']={};
 creatorCache['Practice Yang'].affected=['rep'];
@@ -2821,7 +2770,6 @@ creatorCache['Practice Yang'].effect.game=\`finish() {
 		handleSkillExp(this.skills);
 		
     }\`;
-//TODO: Check validity
 creatorCache['Practice Yang'].effect.pred=\`(r,k,sq) => {
           if (sq) {
             if (getLevelSquirrelAction("Practice Yang")>=2) {
@@ -2898,7 +2846,6 @@ creatorCache['Learn Alchemy'].effect.game=\`finish() {
 		view.adjustExpGain(Action.ConcoctPotions);
     
     }\`;
-//TODO: Check validity
 creatorCache['Learn Alchemy'].effect.pred=\`(r, k, sq) => {
             if (sq) return;
             r.herbs -= 10;
@@ -2981,7 +2928,6 @@ creatorCache['Distill Potions'].loop.end.squirrel=\`squirrelActionEffect(onlyGet
 creatorCache['Distill Potions'].loop.end.game=\`finish() {
 		
     }\`;
-//TODO: Check validity
 creatorCache['Distill Potions'].loop.end.pred=\`\`;
 creatorCache['Distill Potions'].loop.loop={};
 creatorCache['Distill Potions'].loop.loop.game=\`loopsFinished() {
@@ -2991,7 +2937,6 @@ creatorCache['Distill Potions'].loop.loop.game=\`loopsFinished() {
 		view.adjustExpGain(Action.LearnBrewing);
 		view.adjustExpGain(Action.ConcoctPotions);
     }\`;
-//TODO: Check validity
 creatorCache['Distill Potions'].loop.loop.pred=\`(r,k) => {
             r.herbs-=10;
             r.potions++;
@@ -3055,7 +3000,6 @@ creatorCache['Train Squirrel'].effect.game=\`finish() {
 		handleSkillSquirrelExp(this.skillsSquirrel);
 		
     }\`;
-//TODO: Check validity
 creatorCache['Train Squirrel'].effect.pred=\`(r,k,sq) => {
           let smult=1;
           if (sq) {
@@ -3133,7 +3077,6 @@ creatorCache['Feed Animals'].effect.game=\`finish() {
 
 	   
     }\`;
-//TODO: Check validity
 creatorCache['Feed Animals'].effect.pred=\`(r,k,sq) => {
           sq ? h.killSquirrel(r) : r.herbs-=10;
         }\`;
@@ -3224,7 +3167,6 @@ creatorCache['Pot Fairy'].effect.game=\`finish() {
 		}
 		
     }\`;
-//TODO: Check validity
 creatorCache['Pot Fairy'].effect.pred=\`(r,k,sq) => {
           if (r.temp1>0) { //Smashed any pots...
             r.rep*=-1;
@@ -3278,10 +3220,12 @@ creatorCache['Burn Forest'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLose
 		
 		switch(getLevelSquirrelAction("Burn Forest")){
 						
-			case 1:	loseSquirrel = true;
+			case 1:	actionEffect = () => {/*Has an effect*/};
+					loseSquirrel = true;
 				break;
 			
-			case 2: break;
+			case 2:actionEffect = () => {/*Has an effect*/};
+					break;
 
 		}
 		
@@ -3302,7 +3246,6 @@ creatorCache['Burn Forest'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLose
 creatorCache['Burn Forest'].loop.end.game=\`finish() {
 		
     }\`;
-//TODO: Check validity
 creatorCache['Burn Forest'].loop.end.pred=\`(r,k,sq)=> {
           if (sq && getLevelSquirrelAction("Burn Forest")<=1) {
             h.killSquirrel(r);
@@ -3359,7 +3302,6 @@ creatorCache['Bird Watching'].effect.game=\`finish() {
 		
 		 unlockStory("birdsWatched");
     }\`;
-//TODO: Check validity
 creatorCache['Bird Watching'].effect.pred=\`\`;
 creatorCache['Dark Forest']={};
 creatorCache['Dark Forest'].affected=[''];
@@ -3419,7 +3361,6 @@ creatorCache['Dark Forest'].effect.game=\`finish() {
 		view.adjustManaCost("Talk To Witch");
 		
     }\`;
-//TODO: Check validity
 creatorCache['Dark Forest'].effect.pred=\`(r,k,sq) => {
          if (sq && getLevelSquirrelAction("Dark Forest")<2) h.killSquirrel(r);
         }\`;
@@ -3482,7 +3423,6 @@ creatorCache['Talk To Witch'].effect.game=\`finish() {
 		view.adjustManaCost("Learn Brewing");
         
     }\`;
-//TODO: Check validity
 creatorCache['Talk To Witch'].effect.pred=\`(r,k,sq) => {
          if (sq && getLevelSquirrelAction("Talk To Witch")<2) h.killSquirrel(r);
         }\`;
@@ -3542,7 +3482,6 @@ creatorCache['Practice Yin'].effect.game=\`finish() {
 		handleSkillExp(this.skills);
 		
     }\`;
-//TODO: Check validity
 creatorCache['Practice Yin'].effect.pred=\`(r,k,sq) => {
           if (sq) {
             if (getLevelSquirrelAction("Practice Yin")>=2) {
@@ -3617,7 +3556,6 @@ creatorCache['Learn Brewing'].effect.game=\`finish() {
 		view.adjustExpGain(Action.LearnAlchemy);
 		view.adjustExpGain(Action.DistillPotions);
     }\`;
-//TODO: Check validity
 creatorCache['Learn Brewing'].effect.pred=\`(r,k,sq) => {
             if (sq) return;
             r.darkEssences-=10;
@@ -3700,7 +3638,6 @@ creatorCache['Concoct Potions'].loop.end.squirrel=\`squirrelActionEffect(onlyGet
 creatorCache['Concoct Potions'].loop.end.game=\`finish() {
 			
     }\`;
-//TODO: Check validity
 creatorCache['Concoct Potions'].loop.end.pred=\`\`;
 creatorCache['Concoct Potions'].loop.loop={};
 creatorCache['Concoct Potions'].loop.loop.game=\`loopsFinished() {
@@ -3710,7 +3647,6 @@ creatorCache['Concoct Potions'].loop.loop.game=\`loopsFinished() {
 		view.adjustExpGain(Action.LearnAlchemy);
 		view.adjustExpGain(Action.DistillPotions);
     }\`;
-//TODO: Check validity
 creatorCache['Concoct Potions'].loop.loop.pred=\`(r,k) => {
             r.darkEssences-=10;
             r.darkPotions++;
@@ -3785,10 +3721,9 @@ creatorCache['Continue On'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSq
 	}\`;
 creatorCache['Continue On'].effect.game=\`finish() {
 		
-		//unlockTown(2);
+		unlockTown(MERCHANTON);
     }\`;
-//TODO: Check validity
-creatorCache['Continue On'].effect.pred=\`(r,k,sq) => r.town = (sq?SANCTUARY:2)\`;
+creatorCache['Continue On'].effect.pred=\`(r,k,sq) => r.town = (sq?SANCTUARY:MERCHANTON)\`;
 creatorCache['Explore City']={};
 creatorCache['Explore City'].affected=[''];
 creatorCache['Explore City'].effect={};
@@ -3815,7 +3750,6 @@ creatorCache['Gamble'].effect.game=\`finish() {
             return 60;
         });
     }\`;
-//TODO: Check validity
 creatorCache['Gamble'].effect.pred=\`(r) => {
           r.temp8 = (r.temp8 || 0) + 1;
           r.gold += (r.temp8 <= towns[2].goodGamble ? Math.floor(60 * Math.pow(1 + getSkillLevel("Thievery") / 60, 0.25)) : 0)-20;
@@ -3835,7 +3769,6 @@ creatorCache['Get Drunk'].effect.cost=\`cost() {
 creatorCache['Get Drunk'].effect.game=\`finish() {
         towns[MERCHANTON].finishProgress(this.varName, 100);
     }\`;
-//TODO: Check validity
 creatorCache['Get Drunk'].effect.pred=\`(r) => r.rep--\`;
 creatorCache['Buy Mana Z3']={};
 creatorCache['Buy Mana Z3'].affected=['mana','gold'];
@@ -3924,7 +3857,6 @@ creatorCache['Gather Team'].effect.game=\`finish() {
         unlockStory("teammateGathered");
         if (resources.teamMembers >= 5) unlockStory("fullParty");
     }\`;
-//TODO: Check validity
 creatorCache['Gather Team'].effect.pred=\`(r) => (r.team = (r.team || 0) + 1, r.gold -= r.team * 100)\`;
 creatorCache['Large Dungeon']={};
 creatorCache['Large Dungeon'].affected=['team','soul'];
@@ -4033,7 +3965,6 @@ creatorCache['Craft Armor'].effect.game=\`finish() {
         unlockStory("armorCrafted");
         if (resources.armor >= 10) unlockStory("craft10Armor");
     }\`;
-//TODO: Check validity
 creatorCache['Craft Armor'].effect.pred=\`(r) => (r.hide -= 2, r.armor = (r.armor || 0) + 1)\`;
 creatorCache['Apprentice']={};
 creatorCache['Apprentice'].affected=[''];
@@ -4114,7 +4045,6 @@ creatorCache['Buy Pickaxe'].effect.game=\`finish() {
         addResource("pickaxe", true);
         unlockStory("pickaxeBought");
     }\`;
-//TODO: Check validity
 creatorCache['Buy Pickaxe'].effect.pred=\`(r) => (r.gold -= 200, r.pickaxe = true)\`;
 creatorCache['Heroes Trial']={};
 creatorCache['Heroes Trial'].affected=['heroism'];
@@ -4170,7 +4100,7 @@ creatorCache['Start Trek'].manaCost.game=\`manaCost() {
 creatorCache['Start Trek'].manaCost.pred=\`\`;
 creatorCache['Start Trek'].effect={};
 creatorCache['Start Trek'].effect.game=\`finish() {
-        unlockTown(3);
+        //unlockTown(3);
     }\`;
 creatorCache['Start Trek'].effect.pred=\`(r) => r.town = 3\`;
 creatorCache['Underworld']={};
@@ -4187,7 +4117,6 @@ creatorCache['Underworld'].effect.cost=\`cost() {
 creatorCache['Underworld'].effect.game=\`finish() {
         unlockTown(7);
     }\`;
-//TODO: Check validity
 creatorCache['Underworld'].effect.pred=\`(r) => (r.town = 7,r.gold-=500)\`;
 creatorCache['Climb Mountain']={};
 creatorCache['Climb Mountain'].affected=[''];
@@ -4265,7 +4194,6 @@ creatorCache['Looping Potion'].effect.game=\`finish() {
         handleSkillExp(this.skills);
         unlockStory("loopingPotionMade");
     }\`;
-//TODO: Check validity
 creatorCache['Looping Potion'].effect.pred=\`(r, k) => (r.herbs -= 400, r.lpotions++, k.alchemy += 100)\`;
 creatorCache['Pyromancy']={};
 creatorCache['Pyromancy'].affected=[''];
@@ -4471,7 +4399,6 @@ creatorCache['Guru'].effect.cost=\`cost() {
 creatorCache['Guru'].effect.game=\`finish() {
         unlockTown(4);
     }\`;
-//TODO: Check validity
 creatorCache['Guru'].effect.pred=\`(r) => (r.town = 4,r.herbs-=1000)\`;
 creatorCache['Guided Tour']={};
 creatorCache['Guided Tour'].affected=['gold'];
@@ -4489,7 +4416,6 @@ creatorCache['Guided Tour'].effect.cost=\`cost() {
 creatorCache['Guided Tour'].effect.game=\`finish() {
         towns[VALHALLA].finishProgress(this.varName, 100 * (resources.glasses ? 2 : 1));
     }\`;
-//TODO: Check validity
 creatorCache['Guided Tour'].effect.pred=\`(r,k)=>(r.gold -= 10)\`;
 creatorCache['Canvass']={};
 creatorCache['Canvass'].affected=[''];
@@ -4535,7 +4461,6 @@ creatorCache['Accept Donations'].effect.game=\`finish() {
             return 20;
         });
     }\`;
-//TODO: Check validity
 creatorCache['Accept Donations'].effect.pred=\`(r) => {
           r.donateLoot = (r.donateLoot || 0) + 1;
           if (r.donateLoot<=towns[4].goodDonations) {
@@ -4605,7 +4530,6 @@ creatorCache['Sell Artifact'].effect.cost=\`cost() {
 creatorCache['Sell Artifact'].effect.game=\`finish() {
         addResource("gold", 50);
     }\`;
-//TODO: Check validity
 creatorCache['Sell Artifact'].effect.pred=\`(r) => {
           r.gold += 50;
           r.artifacts -= 1;
@@ -4626,7 +4550,6 @@ creatorCache['Gift Artifact'].effect.cost=\`cost() {
 creatorCache['Gift Artifact'].effect.game=\`finish() {
         addResource("favors", 1);
     }\`;
-//TODO: Check validity
 creatorCache['Gift Artifact'].effect.pred=\`(r) => {
           r.artifacts -= 1;
           r.favor += 1;
@@ -4650,7 +4573,6 @@ creatorCache['Mercantilism'].effect.game=\`finish() {
         view.adjustManaCost("Buy Mana Z3");
         view.adjustManaCost("Buy Mana Z5");
     }\`;
-//TODO: Check validity
 creatorCache['Mercantilism'].effect.pred=\`(r, k) => {
           k.mercantilism += 100;
           r.rep--;
@@ -4689,7 +4611,6 @@ creatorCache['Enchant Armor'].effect.game=\`finish() {
         handleSkillExp(this.skills);
         addResource("enchantments", 1);
     }\`;
-//TODO: Check validity
 creatorCache['Enchant Armor'].effect.pred=\`(r) => {
           r.armor -= 1;
           r.favor -= 1;
@@ -4729,7 +4650,6 @@ creatorCache['Wizard College'].loop.end.cost=\`cost() {
 creatorCache['Wizard College'].loop.end.game=\`finish() {
         //guild = "Wizard";
     }\`;
-//TODO: Check validity
 creatorCache['Wizard College'].loop.end.pred=\`\`;
 creatorCache['Wizard College'].loop.segment={};
 creatorCache['Wizard College'].loop.segment.game=\`segmentFinished() {
@@ -4838,7 +4758,6 @@ creatorCache['Pegasus'].effect.cost=\`cost() {
 creatorCache['Pegasus'].effect.game=\`finish() {
         addResource("pegasus", true);
     }\`;
-//TODO: Check validity
 creatorCache['Pegasus'].effect.pred=\`(r) => {
           r.gold -= 200;
           r.favor -= 20;
@@ -5013,7 +4932,6 @@ creatorCache['Raise Zombie'].effect.game=\`finish() {
         handleSkillExp(this.skills);
         addResource("zombie", 1);
     }\`;
-//TODO: Check validity
 creatorCache['Raise Zombie'].effect.pred=\`(r) => {
             r.blood -= 1;
             r.zombie += 1;
@@ -5035,7 +4953,6 @@ creatorCache['Dark Sacrifice'].effect.game=\`finish() {
         handleSkillExp(this.skills);
         //view.adjustGoldCost("DarkRitual", Action.DarkRitual.goldCost());
     }\`;
-//TODO: Check validity
 creatorCache['Dark Sacrifice'].effect.pred=\`(r,k) => (r.blood -=1,k.commune+=100)\`;
 creatorCache['The Spire']={};
 creatorCache['The Spire'].affected=['soul'];
@@ -5103,7 +5020,6 @@ creatorCache['Purchase Supplies'].effect.cost=\`cost() {
 creatorCache['Purchase Supplies'].effect.game=\`finish() {
         addResource("supplies", true);
     }\`;
-//TODO: Check validity
 creatorCache['Purchase Supplies'].effect.pred=\`(r) => {
           r.gold -= 500;
           r.supplies = (r.supplies || 0) + 1;
@@ -5160,7 +5076,6 @@ creatorCache['Journey Forth'].effect.cost=\`cost() {
 creatorCache['Journey Forth'].effect.game=\`finish() {
         unlockTown(6);
     }\`;
-//TODO: Check validity
 creatorCache['Journey Forth'].effect.pred=\`(r) => {
             r.supplies--;
             r.town=6;
@@ -5263,7 +5178,6 @@ creatorCache['Prepare Buffet'].effect.game=\`finish() {
         this.skills.Gluttony = Math.floor(towns[JUNGLEPATH].RescueLoopCounter * 5);
         handleSkillExp(this.skills);
     }\`;
-//TODO: Check validity
 creatorCache['Prepare Buffet'].effect.pred=\`(r,k) => {
             r.hide-=10;
             r.blood--;
@@ -5285,7 +5199,6 @@ creatorCache['Totem'].effect.cost=\`cost() {
 creatorCache['Totem'].effect.game=\`finish() {
         handleSkillExp(this.skills);
     }\`;
-//TODO: Check validity
 creatorCache['Totem'].effect.pred=\`(r,k)=>(r.lpotions--,k.wunderkind+=100)\`;
 creatorCache['Escape']={};
 creatorCache['Escape'].affected=[''];
@@ -5517,7 +5430,6 @@ creatorCache['Purchase Key'].effect.cost=\`cost() {
 creatorCache['Purchase Key'].effect.game=\`finish() {
         addResource("key", true);
     }\`;
-//TODO: Check validity
 creatorCache['Purchase Key'].effect.pred=\`(r,k)=> {
            r.gold-=1000000;
            r.key=1;
@@ -5574,7 +5486,6 @@ creatorCache['Leave City'].effect.cost=\`cost() {
 creatorCache['Leave City'].effect.game=\`finish() {
         unlockTown(8);
     }\`;
-//TODO: Check validity
 creatorCache['Leave City'].effect.pred=\`(r,k)=> {
            r.key=0;
            r.town=8;

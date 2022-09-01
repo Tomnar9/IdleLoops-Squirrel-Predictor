@@ -2,7 +2,7 @@
 // @name         IdleLoops Squirrel Predictor Makro
 // @namespace    https://github.com/Tomnar9/
 // @downloadURL  https://raw.githubusercontent.com/Tomnar9/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      0.1.7
+// @version      0.1.8
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops Reworked  v.0.2.7/Morana.
 // @author       Koviko <koviko.net@gmail.com>, Tomnar <Tomnar#4672 on discord>
 // @match        https://mopatissier.github.io/IdleLoopsReworked/
@@ -462,7 +462,7 @@ const Koviko = {
       .nextActionContainer { width: auto!important; padding-left:4px; padding-right: 4px; grid-template: "a b . c" / auto auto 1fr auto }
       .nextActionContainer[style~='flex;'] {display: grid!important;}
       .nextActionContainer > div:first-child { width: 70px; }
-      .nextActionContainer > div:nth-child(2) { width: 120px; text-align: right; grid-area: c }
+      .nextActionContainer > div:nth-child(2) {text-align: right; grid-area: c }
       .koviko.valid { grid-area: b; }
       #nextActionsList{height:100%!important; overflow-y:scroll;}
       #curActionsListContainer{width:120px!important; z-index: 100;}
@@ -1272,7 +1272,7 @@ const Koviko = {
         }},
         'Continue On':{ affected:[''],
           canStart:true,
-          effect:(r,k,sq) => r.town = (sq?SANCTUARY:2)},
+          effect:(r,k,sq) => r.town = (sq?SANCTUARY:MERCHANTON)},
         'Explore City':{ affected:['']},
         'Gamble':{ affected:['gold','rep'],
           canStart:(input) => (input.rep >= -5 && input.gold >= 20),
