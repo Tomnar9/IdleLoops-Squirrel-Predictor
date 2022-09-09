@@ -418,6 +418,7 @@ const Koviko = {
 
       // Hook \`updateNextActions\` with the predictor's update function
       view.updateNextActions = () => {
+        this.preUpdate(container)
         view._updateNextActions();
         this.update(actions.next, container);
       };
@@ -476,6 +477,7 @@ const Koviko = {
       ul.koviko{list-style:none;margin:0;padding:0;pointer-events:none;display:inline;}
       ul.koviko li{display:inline-block;margin: 0 2px;font-weight:bold;font-size:90%}
       ul.koviko.invalid li{color:#c00!important}
+      ul.koviko.expired li, .expired .koviko{color:#777!important}
       ul.koviko .mana{color:#8293ff}
       ul.koviko .manaBought{color:#6371ca}
       ul.koviko .gold{color:#d09249}
@@ -1435,6 +1437,16 @@ const Koviko = {
     }
 
     /**
+     * Fires before the main action list update, stores the current list to reduce flickering while updating. 
+     * @param {HTMLElement} [container] Parent element of the action list
+     */
+    preUpdate(container) {
+      this.update.totalDisplay = this.totalDisplay.innerHTML;
+      this.update.pre = container.querySelectorAll('ul.koviko');
+      this.update.pre.forEach((element) => element.classList.add('expired'));
+    }
+
+    /**
      * Update the action list view.
      * @param {Array.<IdleLoops~ListedAction>} actions Actions in the action list
      * @param {HTMLElement} [container] Parent element of the action list
@@ -1442,6 +1454,15 @@ const Koviko = {
      * @memberof Koviko.Predictor
      */
     async update(actions, container, isDebug) {
+
+      if(this.update.pre?.length){
+        Array.from(container.children).map((element, i) => {
+          if(i < this.update.pre.length){
+            element.appendChild(this.update.pre[i]);
+          }
+        });
+      }
+
       /**
        * Organize accumulated resources, accumulated stats, and accumulated progress into a single object
        * @var {Koviko.Predictor~State}
@@ -1516,7 +1537,10 @@ const Koviko = {
       affected.forEach(x => state.resources[x] || (state.resources[x] = 0));
 
       // Initialize the display element for the total amount of mana used
-      container && (this.totalDisplay.innerHTML = '');
+      if(container){
+        this.totalDisplay.innerHTML = this.update.totalDisplay;
+        this.totalDisplay.parentElement.classList.add('expired');
+      }
 
       // Initialize cached variables outside of the loop so we don't have to worry about initializing them on hit/miss in two separate places
       /** @var {boolean} */
@@ -1688,6 +1712,7 @@ const Koviko = {
 
           // Update the view
           if (div) {
+            div.querySelector('.expired')?.remove();
             if (typeof(repeatLoop) !== 'undefined' && repeatLoop) {
               affected.unshift('finLoops');
               state.resources.finLoops=loop;
@@ -1733,6 +1758,8 @@ const Koviko = {
         this.statisticDisplay.style='color: #8293ff'
       }
      this.resourcePerMinute=newStatisticValue;
+     
+     this.totalDisplay.parentElement.classList.remove('expired');
 
       // Log useful debugging data
       if (isDebug) {
