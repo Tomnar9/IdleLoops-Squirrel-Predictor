@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name     Predictor Creator
-// @version  1
+// @version  1.1
 // @description Author script for the predictor. To use: 1.call crUpdatePredictions in the console 2. copy the result into the script, replacing everything between the "CACHE File" markers 3. Fix any TODOs in the copied cache, those are actions that changed and (maybe) need attention, if a function shouldn't be in the output replace it with '' (or\`\`) 4. call crOutputPredictions 5. paste the output into the main script, replacing the content of the "predictions" object EXEPT those after "SPECIAL ACTIONS" those are special cases that should be done by hand  // @match https://lloyd-delacroix.github.io/omsi-loops/
 // @author Tomnar <Tomnar#4672 on discord>
 // @match https://lloyd-delacroix.github.io/omsi-loops/
@@ -12,6 +12,7 @@ window.eval(`
 window.creatorCache={}
 
 function crStripFunction(func) {
+	if (!func) return "";
 	                    //remove Spaces         //Replace \` with '  Replace $ with @
 	func= func.toString().replace(/( |\\t)*/g,"").replace(/\`/g,"'").replace(/\\\$/g,"@");
 	        //remove calls to 'finishProgress' 'unlockStory' and 'view.requestUpdate'
@@ -24,19 +25,55 @@ function crCheckCache(action,funcName, cacheName,cacheString,funcTemplate,isLoop
 	let rObject={};
 	rObject.txt=cacheString+"."+cacheName+"={};";
 	rObject.toEdit=false;
+
+	let cObject=creatorCache[action.name]
+	let cacheExists= cObject!=undefined;
+
+	if (cacheExists&&isLoop) {
+		cObject=cObject.loop;
+		cacheExists= cObject!=undefined;
+	}
+	if (cacheExists) {
+        cObject= cObject[cacheName];
+		cacheExists= cObject!=undefined;
+	}
+
+	if (funcName==="finish") {
+		let hasFinish= typeof action.finish=="function";
+
+		if (typeof action.skills=="object") {
+			hasFinish=true;
+			rObject.txt+=cacheString+"."+cacheName+".skills={};";
+			for (sk in action.skills) {
+				if (typeof action.skills[sk]=="function") {
+					rObject.txt+="\t"+cacheString+"."+cacheName+".skills."+sk+"=\\\\\\\`"+action.skills[sk].toString().replace(/\`/g,"'").replace(/\\\$/g,"@")+"\\\\\\\`,";
+					rObject.toEdit=cacheExists&&(rObject.toEdit|| (!cObject.skills) || crStripFunction(cObject.skills[sk])!=crStripFunction(action.skills[sk]));
+				} else {
+					rObject.txt+="\t"+cacheString+"."+cacheName+".skills."+sk+"="+action.skills[sk]+",";
+					rObject.toEdit=cacheExists&&(rObject.toEdit|| (!cObject.skills) ||cObject.skills[sk]!=action.skills[sk]);
+				}
+			}
+		}
+		if (typeof action.cost=="function") {
+			hasFinish=true;
+			rObject.txt+=cacheString+"."+cacheName+".cost=\\\\\\\`"+action.cost.toString().replace(/\`/g,"'").replace(/\\\$/g,"@")+"\\\\\\\`;";
+			rObject.toEdit=cacheExists&&(rObject.toEdit||crStripFunction(cObject.cost)!=crStripFunction(action.cost));
+		}
+		if (!hasFinish) {
+			rObject.txt="";
+			return rObject;
+		}
+	}
 	rObject.txt+=cacheString+"."+cacheName+".game=\\\\\\\`"+action[funcName].toString().replace(/\`/g,"'").replace(/\\\$/g,"@")+"\\\\\\\`;";
-	if (creatorCache[action.name] && (isLoop?(creatorCache[action.name].loop&&creatorCache[action.name].loop[cacheName]!=undefined):creatorCache[action.name][cacheName]!=undefined)) {
+
+
+	if (cacheExists) {
 		//Entry exists in the cache
-		let cFunc=isLoop?creatorCache[action.name].loop[cacheName]:creatorCache[action.name][cacheName];
-		if (crStripFunction(cFunc.game)!=crStripFunction(action[funcName])) { //Function changed from the cache
+		if (rObject.toEdit||crStripFunction(cObject.game)!=crStripFunction(action[funcName])) { //Function changed from the cache
 			rObject.toEdit=true;
 			rObject.txt+=\`\n//TODO: Check validity\`;
 		}
-		if (isLoop) {
-			rObject.txt+=cacheString+"."+cacheName+".pred=\\\\\\\`"+creatorCache[action.name].loop[cacheName].pred+"\\\\\\\`;";
-		} else {
-			rObject.txt+=cacheString+"."+cacheName+".pred=\\\\\\\`"+creatorCache[action.name][cacheName].pred+"\\\\\\\`;";
-		}
+		rObject.txt+=cacheString+"."+cacheName+".pred=\\\\\\\`"+cObject.pred+"\\\\\\\`;";
 	} else {
 		if (crStripFunction(action[funcName])=="") {
 			rObject.txt+=cacheString+"."+cacheName+".pred='';";
@@ -54,6 +91,7 @@ function crCheckCache(action,funcName, cacheName,cacheString,funcTemplate,isLoop
 	}
     return rObject;
 }
+
 
 function crOutputPredictions() {
 	let output="";
@@ -116,7 +154,6 @@ function crOutputPredictions() {
 
 function crUpdatePredictions() {
 	let output="";
-	let needEdit=\`\n//TODO Liste\`;
 	let rObject;
 	let editCount=0;
 
@@ -195,21 +232,17 @@ function crUpdatePredictions() {
 			}
 		} else {
 			//For multipart actions the effect is stored inside the loop object
-			if(typeof Action[act].finish=="function") {
-				rObject=crCheckCache(Action[act],"finish", "effect",cacheString,\`(r,k) => {\n//TODO: Add function\n        }\`);
-				item+=rObject.txt;
-				toEdit=toEdit||rObject.toEdit;
-			}
+			rObject=crCheckCache(Action[act],"finish", "effect",cacheString,\`(r,k) => {\n//TODO: Add function\n        }\`);
+			item+=rObject.txt;
+			toEdit=toEdit||rObject.toEdit;
 		}
 
 		if (toEdit) {
-			needEdit+=item;
 			editCount++;
-		} else {
-			output+=item;
 		}
+		output+=item;
 	}
-	console.log(output+needEdit);
+	console.log(output);
 	if (editCount>0) {
 		console.log(editCount+" Actions require updates");
 	} else {
@@ -218,6 +251,7 @@ function crUpdatePredictions() {
 }
 
 //CACHE File
+
 
 
 creatorCache['RuinsZ1']={};
@@ -425,6 +459,9 @@ creatorCache['Buy Glasses'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Buy Glasses'].canStart.pred=\`(r)=>(r.gold>=10)\`;
 creatorCache['Buy Glasses'].effect={};
+creatorCache['Buy Glasses'].effect.cost=\`cost() {
+        addResource("gold", -10);
+    }\`;
 creatorCache['Buy Glasses'].effect.game=\`finish() {
         addResource("glasses", true);
     }\`;
@@ -517,6 +554,9 @@ creatorCache['Throw Party'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Throw Party'].canStart.pred=\`true\`;
 creatorCache['Throw Party'].effect={};
+creatorCache['Throw Party'].effect.cost=\`cost() {
+        addResource("reputation", -2);
+    }\`;
 creatorCache['Throw Party'].effect.game=\`finish() {
         towns[0].finishProgress("Met", 3200);
     }\`;
@@ -529,6 +569,8 @@ creatorCache['Warrior Lessons'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Warrior Lessons'].canStart.pred=\`(input) => input.rep >= 2\`;
 creatorCache['Warrior Lessons'].effect={};
+creatorCache['Warrior Lessons'].effect.skills={};	
+creatorCache['Warrior Lessons'].effect.skills.Combat=100,
 creatorCache['Warrior Lessons'].effect.game=\`finish() {
         handleSkillExp(this.skills);
     }\`;
@@ -541,6 +583,10 @@ creatorCache['Mage Lessons'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Mage Lessons'].canStart.pred=\`(input) => input.rep >= 2\`;
 creatorCache['Mage Lessons'].effect={};
+creatorCache['Mage Lessons'].effect.skills={};	
+creatorCache['Mage Lessons'].effect.skills.Magic=\`Magic() {
+            return 100 * (1 + getSkillLevel("Alchemy") / 100);
+        }\`,
 creatorCache['Mage Lessons'].effect.game=\`finish() {
         handleSkillExp(this.skills);
     }\`;
@@ -564,6 +610,8 @@ creatorCache['Heal The Sick'].loop.tick.game=\`tickProgress(offset) {
     }\`;
 creatorCache['Heal The Sick'].loop.tick.pred=\`(p, a, s, k) => offset =>  getSkillLevelFromExp(k.magic) * Math.max( getSkillLevelFromExp(k.restoration) / 50, 1) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100)\`;
 creatorCache['Heal The Sick'].loop.end={};
+creatorCache['Heal The Sick'].loop.end.skills={};	
+creatorCache['Heal The Sick'].loop.end.skills.Magic=10,
 creatorCache['Heal The Sick'].loop.end.game=\`finish() {
         handleSkillExp(this.skills);
     }\`;
@@ -573,6 +621,7 @@ creatorCache['Heal The Sick'].loop.loop.game=\`loopsFinished() {
         addResource("reputation", 3);
     }\`;
 creatorCache['Heal The Sick'].loop.loop.pred=\`(r) => r.rep += 3\`;
+creatorCache['Heal The Sick'].loop.max=\`()=>1 //TODO: check if cap relevant, replace with empty String otherwise\`;
 creatorCache['Fight Monsters']={};
 creatorCache['Fight Monsters'].affected=['gold'];
 creatorCache['Fight Monsters'].canStart={};
@@ -592,6 +641,8 @@ creatorCache['Fight Monsters'].loop.tick.game=\`tickProgress(offset) {
     }\`;
 creatorCache['Fight Monsters'].loop.tick.pred=\`(p, a, s, k, r) => offset => h.getSelfCombat(r, k) * Math.sqrt(1 + p.total / 100) * h.getStatProgress(p, a, s, offset)\`;
 creatorCache['Fight Monsters'].loop.end={};
+creatorCache['Fight Monsters'].loop.end.skills={};	
+creatorCache['Fight Monsters'].loop.end.skills.Combat=10,
 creatorCache['Fight Monsters'].loop.end.game=\`finish() {
         handleSkillExp(this.skills);
     }\`;
@@ -606,6 +657,7 @@ creatorCache['Fight Monsters'].loop.loop.game=\`loopsFinished() {
         // empty
     }\`;
 creatorCache['Fight Monsters'].loop.loop.pred=\`\`;
+creatorCache['Fight Monsters'].loop.max=\`()=>1 //TODO: check if cap relevant, replace with empty String otherwise\`;
 creatorCache['Small Dungeon']={};
 creatorCache['Small Dungeon'].affected=['soul'];
 creatorCache['Small Dungeon'].canStart={};
@@ -633,6 +685,9 @@ creatorCache['Small Dungeon'].loop.tick.pred=\`(p, a, s, k, r) => offset => {
             return floor in  dungeons[a.dungeonNum] ? (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 +  dungeons[a.dungeonNum][floor].completed / 200) : 0;
           }\`;
 creatorCache['Small Dungeon'].loop.end={};
+creatorCache['Small Dungeon'].loop.end.skills={};	
+creatorCache['Small Dungeon'].loop.end.skills.Combat=5,	
+creatorCache['Small Dungeon'].loop.end.skills.Magic=5,
 creatorCache['Small Dungeon'].loop.end.game=\`finish() {
         handleSkillExp(this.skills);
     }\`;
@@ -657,6 +712,9 @@ creatorCache['Buy Supplies'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Buy Supplies'].canStart.pred=\`(input) => input.gold >= 300 - Math.max((input.supplyDiscount || 0) * 20, 0)\`;
 creatorCache['Buy Supplies'].effect={};
+creatorCache['Buy Supplies'].effect.cost=\`cost() {
+        addResource("gold", -towns[0].suppliesCost);
+    }\`;
 creatorCache['Buy Supplies'].effect.game=\`finish() {
         addResource("supplies", true);
     }\`;
@@ -669,6 +727,9 @@ creatorCache['Haggle'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Haggle'].canStart.pred=\`(input) => (input.rep > 0)\`;
 creatorCache['Haggle'].effect={};
+creatorCache['Haggle'].effect.cost=\`cost() {
+        addResource("reputation", -1);
+    }\`;
 creatorCache['Haggle'].effect.game=\`finish() {
         towns[0].suppliesCost -= 20;
         if (towns[0].suppliesCost < 0) {
@@ -685,6 +746,9 @@ creatorCache['Start Journey'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Start Journey'].canStart.pred=\`r => r.supplies >= 1\`;
 creatorCache['Start Journey'].effect={};
+creatorCache['Start Journey'].effect.cost=\`cost() {
+        addResource("supplies", false);
+    }\`;
 creatorCache['Start Journey'].effect.game=\`finish() {
         unlockTown(1);
     }\`;
@@ -704,6 +768,8 @@ creatorCache['Hitch Ride'].effect.pred=\`(r,k) => ( r.town =2)\`;
 creatorCache['Open Rift']={};
 creatorCache['Open Rift'].affected=[''];
 creatorCache['Open Rift'].effect={};
+creatorCache['Open Rift'].effect.skills={};	
+creatorCache['Open Rift'].effect.skills.Dark=1000,
 creatorCache['Open Rift'].effect.game=\`finish() {
         handleSkillExp(this.skills);
         addResource("supplies", false);
@@ -800,6 +866,8 @@ creatorCache['Practical Magic'].manaCost.game=\`manaCost() {
     }\`;
 creatorCache['Practical Magic'].manaCost.pred=\`\`;
 creatorCache['Practical Magic'].effect={};
+creatorCache['Practical Magic'].effect.skills={};	
+creatorCache['Practical Magic'].effect.skills.Practical=100,
 creatorCache['Practical Magic'].effect.game=\`finish() {
         handleSkillExp(this.skills);
         view.requestUpdate("adjustManaCost", "Wild Mana");
@@ -820,6 +888,12 @@ creatorCache['Learn Alchemy'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Learn Alchemy'].canStart.pred=\`(input) => (input.herbs >= 10)\`;
 creatorCache['Learn Alchemy'].effect={};
+creatorCache['Learn Alchemy'].effect.skills={};	
+creatorCache['Learn Alchemy'].effect.skills.Magic=50,	
+creatorCache['Learn Alchemy'].effect.skills.Alchemy=50,
+creatorCache['Learn Alchemy'].effect.cost=\`cost() {
+        addResource("herbs", -10);
+    }\`;
 creatorCache['Learn Alchemy'].effect.game=\`finish() {
         handleSkillExp(this.skills);
         view.requestUpdate("adjustExpGain", Action.MageLessons);
@@ -838,6 +912,12 @@ creatorCache['Brew Potions'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Brew Potions'].canStart.pred=\`(input) => (input.herbs >= 10 && input.rep >= 5)\`;
 creatorCache['Brew Potions'].effect={};
+creatorCache['Brew Potions'].effect.skills={};	
+creatorCache['Brew Potions'].effect.skills.Magic=50,	
+creatorCache['Brew Potions'].effect.skills.Alchemy=25,
+creatorCache['Brew Potions'].effect.cost=\`cost() {
+        addResource("herbs", -10);
+    }\`;
 creatorCache['Brew Potions'].effect.game=\`finish() {
         addResource("potions", 1);
         handleSkillExp(this.skills);
@@ -906,6 +986,13 @@ creatorCache['Dark Magic'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Dark Magic'].canStart.pred=\`(input) => (input.rep <= 0)\`;
 creatorCache['Dark Magic'].effect={};
+creatorCache['Dark Magic'].effect.skills={};	
+creatorCache['Dark Magic'].effect.skills.Dark=\`Dark() {
+            return Math.floor(100 * (1 + getBuffLevel("Ritual") / 100));
+        }\`,
+creatorCache['Dark Magic'].effect.cost=\`cost() {
+        addResource("reputation", -1);
+    }\`;
 creatorCache['Dark Magic'].effect.game=\`finish() {
         handleSkillExp(this.skills);
         view.requestUpdate("adjustGoldCost", {varName: "Pots", cost: Action.SmashPots.goldCost()});
@@ -982,6 +1069,10 @@ creatorCache['Gamble'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Gamble'].canStart.pred=\`(input) => (input.rep >= -5 && input.gold >= 20)\`;
 creatorCache['Gamble'].effect={};
+creatorCache['Gamble'].effect.cost=\`cost() {
+        addResource("gold", -20);
+        addResource("reputation", -1);
+    }\`;
 creatorCache['Gamble'].effect.game=\`finish() {
         towns[2].finishRegular(this.varName, 10, () => {
             let goldGain = Math.floor(60 * getSkillBonus("Thievery"));
@@ -1002,6 +1093,9 @@ creatorCache['Get Drunk'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Get Drunk'].canStart.pred=\`(input) => (input.rep >= -3)\`;
 creatorCache['Get Drunk'].effect={};
+creatorCache['Get Drunk'].effect.cost=\`cost() {
+        addResource("reputation", -1);
+    }\`;
 creatorCache['Get Drunk'].effect.game=\`finish() {
         towns[2].finishProgress(this.varName, 100);
     }\`;
@@ -1084,6 +1178,10 @@ creatorCache['Gather Team'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Gather Team'].canStart.pred=\`(input) => ((input.guild=='adventure')&&(input.gold>=(input.team+1) * 100))\`;
 creatorCache['Gather Team'].effect={};
+creatorCache['Gather Team'].effect.cost=\`cost() {
+        // cost comes after finish
+        addResource("gold", -(resources.teamMembers) * 100);
+    }\`;
 creatorCache['Gather Team'].effect.game=\`finish() {
         addResource("teamMembers", 1);
         unlockStory("teammateGathered");
@@ -1116,6 +1214,9 @@ creatorCache['Large Dungeon'].loop.tick.pred=\`(p, a, s, k, r) => offset => {
             return floor in  dungeons[a.dungeonNum] ? (h.getTeamCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 +  dungeons[a.dungeonNum][floor].completed / 200) : 0;
           }\`;
 creatorCache['Large Dungeon'].loop.end={};
+creatorCache['Large Dungeon'].loop.end.skills={};	
+creatorCache['Large Dungeon'].loop.end.skills.Combat=15,	
+creatorCache['Large Dungeon'].loop.end.skills.Magic=15,
 creatorCache['Large Dungeon'].loop.end.game=\`finish() {
         handleSkillExp(this.skills);
         unlockStory("largeDungeonAttempted");
@@ -1151,6 +1252,8 @@ creatorCache['Crafting Guild'].loop.tick.game=\`tickProgress(offset) {
     }\`;
 creatorCache['Crafting Guild'].loop.tick.pred=\`(p, a, s, k) => offset => ( getSkillLevelFromExp(k.magic) / 2 +  getSkillLevelFromExp(k.crafting)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000)\`;
 creatorCache['Crafting Guild'].loop.end={};
+creatorCache['Crafting Guild'].loop.end.skills={};	
+creatorCache['Crafting Guild'].loop.end.skills.Crafting=50,
 creatorCache['Crafting Guild'].loop.end.game=\`finish() {
         guild = "Crafting";
         unlockStory("craftGuildTestsTaken");
@@ -1184,6 +1287,9 @@ creatorCache['Craft Armor'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Craft Armor'].canStart.pred=\`(input) => (input.hide >= 2)\`;
 creatorCache['Craft Armor'].effect={};
+creatorCache['Craft Armor'].effect.cost=\`cost() {
+        addResource("hide", -2);
+    }\`;
 creatorCache['Craft Armor'].effect.game=\`finish() {
         addResource("armor", 1);
         unlockStory("armorCrafted");
@@ -1198,6 +1304,10 @@ creatorCache['Apprentice'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Apprentice'].canStart.pred=\`(input) => (input.guild=='crafting')\`;
 creatorCache['Apprentice'].effect={};
+creatorCache['Apprentice'].effect.skills={};	
+creatorCache['Apprentice'].effect.skills.Crafting=\`Crafting() {
+            return 10 * (1 + towns[2].getLevel("Apprentice") / 100);
+        }\`,
 creatorCache['Apprentice'].effect.game=\`finish() {
         towns[2].finishProgress(this.varName, 30 * getCraftGuildRank().bonus);
         handleSkillExp(this.skills);
@@ -1212,6 +1322,10 @@ creatorCache['Mason'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Mason'].canStart.pred=\`(input) => (input.guild=='crafting')\`;
 creatorCache['Mason'].effect={};
+creatorCache['Mason'].effect.skills={};	
+creatorCache['Mason'].effect.skills.Crafting=\`Crafting() {
+            return 20 * (1 + towns[2].getLevel("Mason") / 100);
+        }\`,
 creatorCache['Mason'].effect.game=\`finish() {
         towns[2].finishProgress(this.varName, 20 * getCraftGuildRank().bonus);
         handleSkillExp(this.skills);
@@ -1226,6 +1340,10 @@ creatorCache['Architect'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Architect'].canStart.pred=\`(input) => (input.guild=='crafting')\`;
 creatorCache['Architect'].effect={};
+creatorCache['Architect'].effect.skills={};	
+creatorCache['Architect'].effect.skills.Crafting=\`Crafting() {
+            return 40 * (1 + towns[2].getLevel("Architect") / 100);
+        }\`,
 creatorCache['Architect'].effect.game=\`finish() {
         towns[2].finishProgress(this.varName, 10 * getCraftGuildRank().bonus);
         handleSkillExp(this.skills);
@@ -1252,6 +1370,9 @@ creatorCache['Buy Pickaxe'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Buy Pickaxe'].canStart.pred=\`(input) =>(input.gold>=200)\`;
 creatorCache['Buy Pickaxe'].effect={};
+creatorCache['Buy Pickaxe'].effect.cost=\`cost() {
+        addResource("gold", -200);
+    }\`;
 creatorCache['Buy Pickaxe'].effect.game=\`finish() {
         addResource("pickaxe", true);
         unlockStory("pickaxeBought");
@@ -1281,6 +1402,10 @@ creatorCache['Heroes Trial'].loop.tick.pred=\`(p, a, s, k, r) => offset => {
             return floor in trials[a.trialNum] ? h.getTeamCombat(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
           }\`;
 creatorCache['Heroes Trial'].loop.end={};
+creatorCache['Heroes Trial'].loop.end.skills={};	
+creatorCache['Heroes Trial'].loop.end.skills.Combat=500,	
+creatorCache['Heroes Trial'].loop.end.skills.Pyromancy=100,	
+creatorCache['Heroes Trial'].loop.end.skills.Restoration=100,
 creatorCache['Heroes Trial'].loop.end.game=\`finish() {
         handleSkillExp(this.skills);
         view.requestUpdate("updateBuff", "Heroism");
@@ -1317,6 +1442,9 @@ creatorCache['Underworld'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Underworld'].canStart.pred=\`(input)=>(input.gold>=500)\`;
 creatorCache['Underworld'].effect={};
+creatorCache['Underworld'].effect.cost=\`cost() {
+        addResource("gold", -500)
+    }\`;
 creatorCache['Underworld'].effect.game=\`finish() {
         unlockTown(7);
     }\`;
@@ -1368,6 +1496,8 @@ creatorCache['Chronomancy'].manaCost.game=\`manaCost() {
     }\`;
 creatorCache['Chronomancy'].manaCost.pred=\`\`;
 creatorCache['Chronomancy'].effect={};
+creatorCache['Chronomancy'].effect.skills={};	
+creatorCache['Chronomancy'].effect.skills.Chronomancy=100,
 creatorCache['Chronomancy'].effect.game=\`finish() {
         handleSkillExp(this.skills);
     }\`;
@@ -1385,6 +1515,11 @@ creatorCache['Looping Potion'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Looping Potion'].canStart.pred=\`(input) => (input.herbs>=400)\`;
 creatorCache['Looping Potion'].effect={};
+creatorCache['Looping Potion'].effect.skills={};	
+creatorCache['Looping Potion'].effect.skills.Alchemy=100,
+creatorCache['Looping Potion'].effect.cost=\`cost() {
+        addResource("herbs", -400);
+    }\`;
 creatorCache['Looping Potion'].effect.game=\`finish() {
         addResource("loopingPotion", true);
         handleSkillExp(this.skills);
@@ -1398,6 +1533,8 @@ creatorCache['Pyromancy'].manaCost.game=\`manaCost() {
     }\`;
 creatorCache['Pyromancy'].manaCost.pred=\`\`;
 creatorCache['Pyromancy'].effect={};
+creatorCache['Pyromancy'].effect.skills={};	
+creatorCache['Pyromancy'].effect.skills.Pyromancy=100,
 creatorCache['Pyromancy'].effect.game=\`finish() {
         handleSkillExp(this.skills);
     }\`;
@@ -1444,6 +1581,8 @@ creatorCache['Hunt Trolls'].loop.tick.game=\`tickProgress(offset) {
     }\`;
 creatorCache['Hunt Trolls'].loop.tick.pred=\`(p, a, s, k, r) => offset => (h.getSelfCombat(r, k) * Math.sqrt(1 + p.total/100) * (1 +  getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]])/100))\`;
 creatorCache['Hunt Trolls'].loop.end={};
+creatorCache['Hunt Trolls'].loop.end.skills={};	
+creatorCache['Hunt Trolls'].loop.end.skills.Combat=1000,
 creatorCache['Hunt Trolls'].loop.end.game=\`finish() {
         //handleSkillExp(this.skills);
     }\`;
@@ -1456,9 +1595,11 @@ creatorCache['Hunt Trolls'].loop.loop={};
 creatorCache['Hunt Trolls'].loop.loop.game=\`loopsFinished() {
         handleSkillExp(this.skills);
         addResource("blood", 1);
-        if (resources.blood >= 10) unlockStory("slay10TrollsInALoop");
+        if (resources.blood >= 6) unlockStory("slay6TrollsInALoop");
+        if (resources.blood >= 20) unlockStory("slay20TrollsInALoop");
     }\`;
 creatorCache['Hunt Trolls'].loop.loop.pred=\`(r, k) => (r.blood++, k.combat += 1000*(1+getBuffLevel("Heroism") * 0.02))\`;
+creatorCache['Hunt Trolls'].loop.max=\`()=>1 //TODO: check if cap relevant, replace with empty String otherwise\`;
 creatorCache['Check Walls']={};
 creatorCache['Check Walls'].affected=[''];
 creatorCache['Check Walls'].effect={};
@@ -1584,6 +1725,9 @@ creatorCache['Guru'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Guru'].canStart.pred=\`(input)=>(input.herbs>=1000)\`;
 creatorCache['Guru'].effect={};
+creatorCache['Guru'].effect.cost=\`cost() {
+        addResource("herbs", -1000);
+    }\`;
 creatorCache['Guru'].effect.game=\`finish() {
         unlockTown(4);
     }\`;
@@ -1598,6 +1742,9 @@ creatorCache['Guided Tour'].canStart.pred=\`(input) => {
           return (input.gold >= 10);
         }\`;
 creatorCache['Guided Tour'].effect={};
+creatorCache['Guided Tour'].effect.cost=\`cost() {
+        addResource("gold", -10);
+    }\`;
 creatorCache['Guided Tour'].effect.game=\`finish() {
         towns[4].finishProgress(this.varName, 100 * (resources.glasses ? 2 : 1));
     }\`;
@@ -1622,6 +1769,7 @@ creatorCache['Donate'].effect={};
 creatorCache['Donate'].effect.game=\`finish() {
         addResource("gold", -20);
         addResource("reputation", 1);
+        unlockStory("donatedToCharity");
     }\`;
 creatorCache['Donate'].effect.pred=\`(r) => {
           r.gold -= 20;
@@ -1637,6 +1785,9 @@ creatorCache['Accept Donations'].canStart.pred=\`(input) => {
           return (input.rep > 0);
         }\`;
 creatorCache['Accept Donations'].effect={};
+creatorCache['Accept Donations'].effect.cost=\`cost() {
+        addResource("reputation", -1);
+    }\`;
 creatorCache['Accept Donations'].effect.game=\`finish() {
         towns[4].finishRegular(this.varName, 5, () => {
             addResource("gold", 20);
@@ -1705,6 +1856,9 @@ creatorCache['Sell Artifact'].canStart.pred=\`(input) => {
           return (input.artifacts >= 1);
         }\`;
 creatorCache['Sell Artifact'].effect={};
+creatorCache['Sell Artifact'].effect.cost=\`cost() {
+        addResource("artifacts", -1);
+    }\`;
 creatorCache['Sell Artifact'].effect.game=\`finish() {
         addResource("gold", 50);
     }\`;
@@ -1722,6 +1876,9 @@ creatorCache['Gift Artifact'].canStart.pred=\`(input) => {
           return (input.artifacts >= 1);
         }\`;
 creatorCache['Gift Artifact'].effect={};
+creatorCache['Gift Artifact'].effect.cost=\`cost() {
+        addResource("artifacts", -1);
+    }\`;
 creatorCache['Gift Artifact'].effect.game=\`finish() {
         addResource("favors", 1);
     }\`;
@@ -1737,6 +1894,11 @@ creatorCache['Mercantilism'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Mercantilism'].canStart.pred=\`(input) => (input.rep > 0)\`;
 creatorCache['Mercantilism'].effect={};
+creatorCache['Mercantilism'].effect.skills={};	
+creatorCache['Mercantilism'].effect.skills.Mercantilism=100,
+creatorCache['Mercantilism'].effect.cost=\`cost() {
+        addResource("reputation", -1);
+    }\`;
 creatorCache['Mercantilism'].effect.game=\`finish() {
         handleSkillExp(this.skills);
         view.requestUpdate("adjustManaCost", "Buy Mana Z1");
@@ -1768,9 +1930,15 @@ creatorCache['Enchant Armor'].canStart.game=\`canStart() {
         return resources.favors >= 1 && resources.armor >= 1;
     }\`;
 creatorCache['Enchant Armor'].canStart.pred=\`(input) => {
-          return (input.armor >= 0 && input.favor >= 0);
+          return (input.armor >  0 && input.favor >  0);
         }\`;
 creatorCache['Enchant Armor'].effect={};
+creatorCache['Enchant Armor'].effect.skills={};	
+creatorCache['Enchant Armor'].effect.skills.Crafting=50,
+creatorCache['Enchant Armor'].effect.cost=\`cost() {
+        addResource("favors", -1);
+        addResource("armor", -1);
+    }\`;
 creatorCache['Enchant Armor'].effect.game=\`finish() {
         handleSkillExp(this.skills);
         addResource("enchantments", 1);
@@ -1807,6 +1975,10 @@ creatorCache['Wizard College'].loop.tick.pred=\`(p, a, s, k) => offset => ( getS
                                            getSkillLevelFromExp(k.chronomancy) +  getSkillLevelFromExp(k.pyromancy) +  getSkillLevelFromExp(k.restoration) +  getSkillLevelFromExp(k.spatiomancy)) *
                                           h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000)\`;
 creatorCache['Wizard College'].loop.end={};
+creatorCache['Wizard College'].loop.end.cost=\`cost() {
+        addResource("gold", -500);
+        addResource("favors", -10);
+    }\`;
 creatorCache['Wizard College'].loop.end.game=\`finish() {
         //guild = "Wizard";
     }\`;
@@ -1823,6 +1995,7 @@ creatorCache['Wizard College'].loop.loop.game=\`loopsFinished() {
         // empty.
     }\`;
 creatorCache['Wizard College'].loop.loop.pred=\`\`;
+creatorCache['Wizard College'].loop.max=\`()=>1 //TODO: check if cap relevant, replace with empty String otherwise\`;
 creatorCache['Restoration']={};
 creatorCache['Restoration'].affected=[''];
 creatorCache['Restoration'].manaCost={};
@@ -1831,6 +2004,8 @@ creatorCache['Restoration'].manaCost.game=\`manaCost() {
     }\`;
 creatorCache['Restoration'].manaCost.pred=\`(r,k)=>(15000 / h.getWizardRankBonus(r))\`;
 creatorCache['Restoration'].effect={};
+creatorCache['Restoration'].effect.skills={};	
+creatorCache['Restoration'].effect.skills.Restoration=100,
 creatorCache['Restoration'].effect.game=\`finish() {
         handleSkillExp(this.skills);
     }\`;
@@ -1843,6 +2018,8 @@ creatorCache['Spatiomancy'].manaCost.game=\`manaCost() {
     }\`;
 creatorCache['Spatiomancy'].manaCost.pred=\`(r,k)=>(20000 / h.getWizardRankBonus(r))\`;
 creatorCache['Spatiomancy'].effect={};
+creatorCache['Spatiomancy'].effect.skills={};	
+creatorCache['Spatiomancy'].effect.skills.Spatiomancy=100,
 creatorCache['Spatiomancy'].effect.game=\`finish() {
         handleSkillExp(this.skills);
         view.requestUpdate("adjustManaCost", "Mana Geyser");
@@ -1873,6 +2050,8 @@ creatorCache['Build Housing'].canStart.pred=\`(input) => {
           return (input.houses||0) < Math.floor(h.getGuildRankBonus(input.crafts || 0) * (1 + Math.min( getSkillLevelFromExp(skills.Spatiomancy.exp),500) * .01));
         }\`;
 creatorCache['Build Housing'].effect={};
+creatorCache['Build Housing'].effect.skills={};	
+creatorCache['Build Housing'].effect.skills.Crafting=100,
 creatorCache['Build Housing'].effect.game=\`finish() {
         addResource("houses", 1);
         handleSkillExp(this.skills);
@@ -1904,6 +2083,10 @@ creatorCache['Pegasus'].canStart.pred=\`(input) => {
           return (input.gold >= 200 && input.favor >= 20);
         }\`;
 creatorCache['Pegasus'].effect={};
+creatorCache['Pegasus'].effect.cost=\`cost() {
+        addResource("favors", -20);
+        addResource("gold", -200);
+    }\`;
 creatorCache['Pegasus'].effect.game=\`finish() {
         addResource("pegasus", true);
     }\`;
@@ -1967,6 +2150,8 @@ creatorCache['Fight Frost Giants'].loop.tick.game=\`tickProgress(offset) {
     }\`;
 creatorCache['Fight Frost Giants'].loop.tick.pred=\`(p, a, s, k, r) => offset => h.getSelfCombat(r, k) * Math.sqrt(1 + p.total / 100) * h.getStatProgress(p, a, s, offset)\`;
 creatorCache['Fight Frost Giants'].loop.end={};
+creatorCache['Fight Frost Giants'].loop.end.skills={};	
+creatorCache['Fight Frost Giants'].loop.end.skills.Combat=1500,
 creatorCache['Fight Frost Giants'].loop.end.game=\`finish() {
     }\`;
 creatorCache['Fight Frost Giants'].loop.end.pred=\`\`;
@@ -1992,6 +2177,8 @@ creatorCache['Seek Blessing'].canStart.pred=\`(input) => {
           return (input.pegasus);
         }\`;
 creatorCache['Seek Blessing'].effect={};
+creatorCache['Seek Blessing'].effect.skills={};	
+creatorCache['Seek Blessing'].effect.skills.Divine=50,
 creatorCache['Seek Blessing'].effect.game=\`finish() {
         this.skills.Divine = Math.floor(50 * getFrostGiantsRank().bonus);
         handleSkillExp(this.skills);
@@ -2070,6 +2257,11 @@ creatorCache['Raise Zombie'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Raise Zombie'].canStart.pred=\`(input) => (input.blood >= 1)\`;
 creatorCache['Raise Zombie'].effect={};
+creatorCache['Raise Zombie'].effect.skills={};	
+creatorCache['Raise Zombie'].effect.skills.Dark=100,
+creatorCache['Raise Zombie'].effect.cost=\`cost() {
+        addResource("blood", -1);
+    }\`;
 creatorCache['Raise Zombie'].effect.game=\`finish() {
         handleSkillExp(this.skills);
         addResource("zombie", 1);
@@ -2086,6 +2278,11 @@ creatorCache['Dark Sacrifice'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Dark Sacrifice'].canStart.pred=\`(input) => (input.blood >= 1)\`;
 creatorCache['Dark Sacrifice'].effect={};
+creatorCache['Dark Sacrifice'].effect.skills={};	
+creatorCache['Dark Sacrifice'].effect.skills.Commune=100,
+creatorCache['Dark Sacrifice'].effect.cost=\`cost() {
+        addResource("blood", -1);
+    }\`;
 creatorCache['Dark Sacrifice'].effect.game=\`finish() {
         handleSkillExp(this.skills);
         view.requestUpdate("adjustGoldCost", {varName: "DarkRitual", cost: Action.DarkRitual.goldCost()});
@@ -2122,6 +2319,8 @@ creatorCache['The Spire'].loop.tick.pred=\`(p, a, s, k, r) => offset => {
                 Math.sqrt(1 +  dungeons[a.dungeonNum][floor].completed / 200) : 0;
           }\`;
 creatorCache['The Spire'].loop.end={};
+creatorCache['The Spire'].loop.end.skills={};	
+creatorCache['The Spire'].loop.end.skills.Combat=100,
 creatorCache['The Spire'].loop.end.game=\`finish() {
         handleSkillExp(this.skills);
         view.requestUpdate("updateBuff", "Aspirant");
@@ -2141,8 +2340,11 @@ creatorCache['Purchase Supplies'].canStart={};
 creatorCache['Purchase Supplies'].canStart.game=\`canStart() {
         return resources.gold >= 500 && !resources.supplies;
     }\`;
-creatorCache['Purchase Supplies'].canStart.pred=\`(input) => (input.gold >= 500 && input.supplies === 0)\`;
+creatorCache['Purchase Supplies'].canStart.pred=\`(input) => (input.gold >= 500 && !input.supplies)\`;
 creatorCache['Purchase Supplies'].effect={};
+creatorCache['Purchase Supplies'].effect.cost=\`cost() {
+        addResource("gold", -500);
+    }\`;
 creatorCache['Purchase Supplies'].effect.game=\`finish() {
         addResource("supplies", true);
     }\`;
@@ -2196,6 +2398,9 @@ creatorCache['Journey Forth'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Journey Forth'].canStart.pred=\`(input) => (input.supplies >= 1)\`;
 creatorCache['Journey Forth'].effect={};
+creatorCache['Journey Forth'].effect.cost=\`cost() {
+        addResource("supplies", false);
+    }\`;
 creatorCache['Journey Forth'].effect.game=\`finish() {
         unlockTown(6);
     }\`;
@@ -2233,6 +2438,8 @@ creatorCache['Fight Jungle Monsters'].loop.tick.game=\`tickProgress(offset) {
 creatorCache['Fight Jungle Monsters'].loop.tick.pred=\`(p, a, s, k, r) => offset => h.getSelfCombat(r, k) * h.getStatProgress(p, a, s, offset) *
                                              Math.sqrt(1 + p.total / 1000)\`;
 creatorCache['Fight Jungle Monsters'].loop.end={};
+creatorCache['Fight Jungle Monsters'].loop.end.skills={};	
+creatorCache['Fight Jungle Monsters'].loop.end.skills.Combat=2000,
 creatorCache['Fight Jungle Monsters'].loop.end.game=\`finish() {
     }\`;
 creatorCache['Fight Jungle Monsters'].loop.end.pred=\`\`;
@@ -2248,6 +2455,7 @@ creatorCache['Fight Jungle Monsters'].loop.loop.game=\`loopsFinished() {
         handleSkillExp(this.skills);
     }\`;
 creatorCache['Fight Jungle Monsters'].loop.loop.pred=\`(r,k)=> (k.combat+=2000*(1+getBuffLevel("Heroism") * 0.02))\`;
+creatorCache['Fight Jungle Monsters'].loop.max=\`()=>1 //TODO: check if cap relevant, replace with empty String otherwise\`;
 creatorCache['Rescue Survivors']={};
 creatorCache['Rescue Survivors'].affected=[''];
 creatorCache['Rescue Survivors'].canStart={};
@@ -2267,6 +2475,8 @@ creatorCache['Rescue Survivors'].loop.tick.game=\`tickProgress(offset) {
     }\`;
 creatorCache['Rescue Survivors'].loop.tick.pred=\`(p, a, s, k) => offset =>  getSkillLevelFromExp(k.magic) * Math.max( getSkillLevelFromExp(k.restoration) / 100, 1) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100)\`;
 creatorCache['Rescue Survivors'].loop.end={};
+creatorCache['Rescue Survivors'].loop.end.skills={};	
+creatorCache['Rescue Survivors'].loop.end.skills.Restoration=25,
 creatorCache['Rescue Survivors'].loop.end.game=\`finish() {
         handleSkillExp(this.skills);
     }\`;
@@ -2285,6 +2495,13 @@ creatorCache['Prepare Buffet'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Prepare Buffet'].canStart.pred=\`(input) => ((input.herbs>=10) && (input.blood>=1))\`;
 creatorCache['Prepare Buffet'].effect={};
+creatorCache['Prepare Buffet'].effect.skills={};	
+creatorCache['Prepare Buffet'].effect.skills.Alchemy=25,	
+creatorCache['Prepare Buffet'].effect.skills.Gluttony=5,
+creatorCache['Prepare Buffet'].effect.cost=\`cost() {
+        addResource("herbs", -10);
+        addResource("blood", -1);
+    }\`;
 creatorCache['Prepare Buffet'].effect.game=\`finish() {
         this.skills.Gluttony = Math.floor(towns[6].RescueLoopCounter * 5);
         handleSkillExp(this.skills);
@@ -2302,6 +2519,11 @@ creatorCache['Totem'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Totem'].canStart.pred=\`(input)=>(input.lpotions>0)\`;
 creatorCache['Totem'].effect={};
+creatorCache['Totem'].effect.skills={};	
+creatorCache['Totem'].effect.skills.Wunderkind=100,
+creatorCache['Totem'].effect.cost=\`cost() {
+        addResource("loopingPotion", false);
+    }\`;
 creatorCache['Totem'].effect.game=\`finish() {
         handleSkillExp(this.skills);
     }\`;
@@ -2326,6 +2548,8 @@ creatorCache['Escape'].effect.pred=\`(r) => (r.town=7)\`;
 creatorCache['Open Portal']={};
 creatorCache['Open Portal'].affected=[''];
 creatorCache['Open Portal'].effect={};
+creatorCache['Open Portal'].effect.skills={};	
+creatorCache['Open Portal'].effect.skills.Restoration=2500,
 creatorCache['Open Portal'].effect.game=\`finish() {
         portalUsed = true;
         handleSkillExp(this.skills);
@@ -2395,6 +2619,9 @@ creatorCache['Thieves Guild'].loop.tick.game=\`tickProgress(offset) {
     }\`;
 creatorCache['Thieves Guild'].loop.tick.pred=\`(p, a, s, k, r) => offset => ( getSkillLevelFromExp(k.practical) +  getSkillLevelFromExp(k.thievery)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000)\`;
 creatorCache['Thieves Guild'].loop.end={};
+creatorCache['Thieves Guild'].loop.end.skills={};	
+creatorCache['Thieves Guild'].loop.end.skills.Thievery=50,	
+creatorCache['Thieves Guild'].loop.end.skills.Practical=50,
 creatorCache['Thieves Guild'].loop.end.game=\`finish() {
         guild = "Thieves";
         view.requestUpdate("adjustGoldCost", {varName: "Excursion", cost: Action.Excursion.goldCost()});
@@ -2412,6 +2639,7 @@ creatorCache['Thieves Guild'].loop.loop={};
 creatorCache['Thieves Guild'].loop.loop.game=\`loopsFinished() {
     }\`;
 creatorCache['Thieves Guild'].loop.loop.pred=\`\`;
+creatorCache['Thieves Guild'].loop.max=\`()=>1 //TODO: check if cap relevant, replace with empty String otherwise\`;
 creatorCache['Pick Pockets']={};
 creatorCache['Pick Pockets'].affected=[''];
 creatorCache['Pick Pockets'].canStart={};
@@ -2420,6 +2648,10 @@ creatorCache['Pick Pockets'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Pick Pockets'].canStart.pred=\`(input) => (input.guild==='thieves')\`;
 creatorCache['Pick Pockets'].effect={};
+creatorCache['Pick Pockets'].effect.skills={};	
+creatorCache['Pick Pockets'].effect.skills.Thievery=\`Thievery() {
+            return 10 * (1 + towns[7].getLevel("PickPockets") / 100);
+        }\`,
 creatorCache['Pick Pockets'].effect.game=\`finish() {
         towns[7].finishProgress(this.varName, 30 * getThievesGuildRank().bonus);
         handleSkillExp(this.skills);
@@ -2440,6 +2672,10 @@ creatorCache['Rob Warehouse'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Rob Warehouse'].canStart.pred=\`(input) => (input.guild==='thieves')\`;
 creatorCache['Rob Warehouse'].effect={};
+creatorCache['Rob Warehouse'].effect.skills={};	
+creatorCache['Rob Warehouse'].effect.skills.Thievery=\`Thievery() {
+            return 20 * (1 + towns[7].getLevel("RobWarehouse") / 100);
+        }\`,
 creatorCache['Rob Warehouse'].effect.game=\`finish() {
         towns[7].finishProgress(this.varName, 20 * getThievesGuildRank().bonus);
         handleSkillExp(this.skills);
@@ -2460,6 +2696,10 @@ creatorCache['Insurance Fraud'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Insurance Fraud'].canStart.pred=\`(input) => (input.guild==='thieves')\`;
 creatorCache['Insurance Fraud'].effect={};
+creatorCache['Insurance Fraud'].effect.skills={};	
+creatorCache['Insurance Fraud'].effect.skills.Thievery=\`Thievery() {
+            return 40 * (1 + towns[7].getLevel("InsuranceFraud") / 100);
+        }\`,
 creatorCache['Insurance Fraud'].effect.game=\`finish() {
         towns[7].finishProgress(this.varName, 10 * getThievesGuildRank().bonus);
         handleSkillExp(this.skills);
@@ -2480,6 +2720,8 @@ creatorCache['Guild Assassin'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Guild Assassin'].canStart.pred=\`(input) => (input.guild=='')\`;
 creatorCache['Guild Assassin'].effect={};
+creatorCache['Guild Assassin'].effect.skills={};	
+creatorCache['Guild Assassin'].effect.skills.Assassin=100,
 creatorCache['Guild Assassin'].effect.game=\`finish() {
         let assassinExp = 0;
         if (getSkillLevel("Assassin") === 0) assassinExp = 100;
@@ -2502,6 +2744,8 @@ creatorCache['Invest'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Invest'].canStart.pred=\`(input)=>(input.gold>0)\`;
 creatorCache['Invest'].effect={};
+creatorCache['Invest'].effect.skills={};	
+creatorCache['Invest'].effect.skills.Mercantilism=100,
 creatorCache['Invest'].effect.game=\`finish() {
         handleSkillExp(this.skills);
         goldInvested += resources.gold;
@@ -2521,6 +2765,8 @@ creatorCache['Collect Interest'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Collect Interest'].canStart.pred=\`true\`;
 creatorCache['Collect Interest'].effect={};
+creatorCache['Collect Interest'].effect.skills={};	
+creatorCache['Collect Interest'].effect.skills.Mercantilism=50,
 creatorCache['Collect Interest'].effect.game=\`finish() {
         handleSkillExp(this.skills);
         let interestGold = Math.floor(goldInvested * .001);
@@ -2539,6 +2785,11 @@ creatorCache['Seminar'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Seminar'].canStart.pred=\`(input)=>(input.gold>=1000)\`;
 creatorCache['Seminar'].effect={};
+creatorCache['Seminar'].effect.skills={};	
+creatorCache['Seminar'].effect.skills.Leadership=200,
+creatorCache['Seminar'].effect.cost=\`cost() {
+        addResource("gold", -1000);
+    }\`;
 creatorCache['Seminar'].effect.game=\`finish() {
         handleSkillExp(this.skills);
     }\`;
@@ -2554,6 +2805,9 @@ creatorCache['Purchase Key'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Purchase Key'].canStart.pred=\`(input)=>(input.gold>=1000000)\`;
 creatorCache['Purchase Key'].effect={};
+creatorCache['Purchase Key'].effect.cost=\`cost() {
+        addResource("gold", -1000000);
+    }\`;
 creatorCache['Purchase Key'].effect.game=\`finish() {
         addResource("key", true);
     }\`;
@@ -2607,6 +2861,9 @@ creatorCache['Leave City'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Leave City'].canStart.pred=\`(input)=>(input.key>0)\`;
 creatorCache['Leave City'].effect={};
+creatorCache['Leave City'].effect.cost=\`cost() {
+        addResource("key", false);
+    }\`;
 creatorCache['Leave City'].effect.game=\`finish() {
         unlockTown(8);
     }\`;
@@ -2700,6 +2957,10 @@ creatorCache['Gods Trial'].loop.tick.pred=\`(p, a, s, k, r) => offset => {
             return floor in trials[a.trialNum] ? h.getTeamCombat(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
           }\`;
 creatorCache['Gods Trial'].loop.end={};
+creatorCache['Gods Trial'].loop.end.skills={};	
+creatorCache['Gods Trial'].loop.end.skills.Combat=250,	
+creatorCache['Gods Trial'].loop.end.skills.Pyromancy=50,	
+creatorCache['Gods Trial'].loop.end.skills.Restoration=50,
 creatorCache['Gods Trial'].loop.end.game=\`finish() {
         handleSkillExp(this.skills);
     }\`;
@@ -2744,6 +3005,8 @@ creatorCache['Challenge Gods'].loop.tick.pred=\`(p, a, s, k, r) => offset => {
             return floor in trials[a.trialNum] ? h.getSelfCombat(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
           }\`;
 creatorCache['Challenge Gods'].loop.end={};
+creatorCache['Challenge Gods'].loop.end.skills={};	
+creatorCache['Challenge Gods'].loop.end.skills.Combat=500,
 creatorCache['Challenge Gods'].loop.end.game=\`finish() {
         handleSkillExp(this.skills);
     }\`;
@@ -2771,7 +3034,6 @@ creatorCache['Restore Time'].effect.game=\`finish() {
         addResource("reputation", 9999999);
     }\`;
 creatorCache['Restore Time'].effect.pred=\`(r)=> (r.rep+=9999999)\`;
-//TODO Liste
 
 
 //END CACHE File
