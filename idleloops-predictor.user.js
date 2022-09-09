@@ -2036,8 +2036,8 @@ const Koviko = {
                 this.cache.add(key, [state, loop + 1, isValid]);
               }
 
-              // Sleep every 15ms to avoid hanging the game
-              if(Date.now() % 15 === 0){
+              // Sleep every 100ms to avoid hanging the game
+              if(Date.now() % 100 === 0){
                 await new Promise(r => setTimeout(r, 1));
 
                 // If id != update.id, then another update was triggered and we need to stop processing this one
