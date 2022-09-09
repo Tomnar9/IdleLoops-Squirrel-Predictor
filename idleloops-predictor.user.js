@@ -1560,7 +1560,7 @@ const Koviko = {
       for(const [i, listedAction] of actions.entries()) {
 
         // If the cache hit the last time
-        if(cache && i !== finalIndex) {
+        if(cache && listedAction.loops < 1000) {
           // Pull out all the variables we would usually expensivly calculate
           cache = this.cache.next([listedAction.name, listedAction.loops, listedAction.disabled]);
           if(cache) {
@@ -1581,7 +1581,7 @@ const Koviko = {
 
           let repeatLoop = repeatLast && options.repeatLastAction && (i == finalIndex) && (prediction.action.allowed==undefined);
           
-          if(!cache || i == finalIndex) {
+          if(!cache || listedAction.loops >= 1000) {
             // Reinitialise variables on cache miss
             isValid = (prediction.action.townNum==state.resources.town);
 
@@ -1602,7 +1602,7 @@ const Koviko = {
 
             // Complicated mess of ifs to use the cache for 90% of the last action 
 
-            if(i == finalIndex && cache){
+            if(listedAction.loops >= 1000 && cache){
               let key = [listedAction.name, listedAction.disabled];
               key['last'] = true;
               let lastcache = this.cache.next(key);
@@ -1677,7 +1677,7 @@ const Koviko = {
               }
 
               // Add to cache 90% through the final action
-              if(i==finalIndex && loop === Math.floor(listedAction.loops * 0.9)){
+              if(listedAction.loops >= 1000 && loop === Math.floor(listedAction.loops * 0.9)){
                 let key = [listedAction.name, listedAction.disabled];
                 key['last'] = true;
                 this.cache.add(key, [state, loop + 1, total, isValid]);
@@ -1703,7 +1703,7 @@ const Koviko = {
             if(prediction.name in state.progress)
               state.currProgress[prediction.name] = state.progress[prediction.name].completed / prediction.action.segments;
             // Update the cache
-            if(i!==finalIndex) this.cache.add([listedAction.name, listedAction.loops, listedAction.disabled], [state, total, isValid]);
+            if(listedAction.loops < 1000) this.cache.add([listedAction.name, listedAction.loops, listedAction.disabled], [state, total, isValid]);
 
           }
           // Update the snapshots
