@@ -418,6 +418,7 @@ const Koviko = {
 
       // Hook \`updateNextActions\` with the predictor's update function
       view.updateNextActions = () => {
+        this.preUpdate(container)
         view._updateNextActions();
         this.update(actions.next, container);
       };
@@ -476,6 +477,7 @@ const Koviko = {
       ul.koviko{list-style:none;margin:0;padding:0;pointer-events:none;display:inline;}
       ul.koviko li{display:inline-block;margin: 0 2px;font-weight:bold;font-size:90%}
       ul.koviko.invalid li{color:#c00!important}
+      ul.koviko.expired li, .expired .koviko{color:#777!important}
       ul.koviko .mana{color:#8293ff}
       ul.koviko .manaBought{color:#6371ca}
       ul.koviko .gold{color:#d09249}
@@ -1435,13 +1437,32 @@ const Koviko = {
     }
 
     /**
+     * Fires before the main action list update, stores the current list to reduce flickering while updating. 
+     * @param {HTMLElement} [container] Parent element of the action list
+     */
+    preUpdate(container) {
+      this.update.totalDisplay = this.totalDisplay.innerHTML;
+      this.update.pre = container.querySelectorAll('ul.koviko');
+      this.update.pre.forEach((element) => element.classList.add('expired'));
+    }
+
+    /**
      * Update the action list view.
      * @param {Array.<IdleLoops~ListedAction>} actions Actions in the action list
      * @param {HTMLElement} [container] Parent element of the action list
      * @param {boolean} [isDebug] Whether to log useful debug information
      * @memberof Koviko.Predictor
      */
-    update(actions, container, isDebug) {
+    async update(actions, container, isDebug) {
+
+      if(this.update.pre?.length){
+        Array.from(container.children).map((element, i) => {
+          if(i < this.update.pre.length){
+            element.appendChild(this.update.pre[i]);
+          }
+        });
+      }
+
       /**
        * Organize accumulated resources, accumulated stats, and accumulated progress into a single object
        * @var {Koviko.Predictor~State}
@@ -1516,19 +1537,26 @@ const Koviko = {
       affected.forEach(x => state.resources[x] || (state.resources[x] = 0));
 
       // Initialize the display element for the total amount of mana used
-      container && (this.totalDisplay.innerHTML = '');
+      if(container){
+        this.totalDisplay.innerHTML = this.update.totalDisplay;
+        this.totalDisplay.parentElement.classList.add('expired');
+      }
 
       // Initialize cached variables outside of the loop so we don't have to worry about initializing them on hit/miss in two separate places
       /** @var {boolean} */
       let isValid;
       let loop;
 
+      // If id != update.id, then another update was triggered and we need to stop processing this one 
+      let id = {};
+      this.update.id = id;
+
       let finalIndex=actions.length-1;
       while ((finalIndex>0) && (actions[finalIndex].disabled)) {
         finalIndex--;
       }
       // Run through the action list and update the view for each action
-      actions.forEach((listedAction, i) => {
+      for(const [i, listedAction] of actions.entries()) {
 
         // If the cache hit the last time
         if(cache && i !== finalIndex) {
@@ -1654,6 +1682,16 @@ const Koviko = {
                 this.cache.add(key, [state, loop + 1, total, isValid]);
               }
 
+              // Sleep every 100ms to avoid hanging the game
+              if(Date.now() % 100 === 0){
+                await new Promise(r => setTimeout(r, 1));
+
+                // If id != update.id, then another update was triggered and we need to stop processing this one
+                if(id != this.update.id) {
+                  return;
+                }
+              } 
+
             }
 
             if (repeatLoop&& loop>=listedAction.loops) {
@@ -1665,6 +1703,7 @@ const Koviko = {
               state.currProgress[prediction.name] = state.progress[prediction.name].completed / prediction.action.segments;
             // Update the cache
             if(i!==finalIndex) this.cache.add([listedAction.name, listedAction.loops, listedAction.disabled], [state, total, isValid]);
+
           }
           // Update the snapshots
           for (let i in snapshots) {
@@ -1673,6 +1712,7 @@ const Koviko = {
 
           // Update the view
           if (div) {
+            div.querySelector('.expired')?.remove();
             if (typeof(repeatLoop) !== 'undefined' && repeatLoop) {
               affected.unshift('finLoops');
               state.resources.finLoops=loop;
@@ -1681,7 +1721,7 @@ const Koviko = {
             div.innerHTML += this.template(listedAction.name, affected, state.resources, snapshots, isValid);
           }          
         }
-      });
+      }
 
       // Update the display for the total amount of mana used by the action list
       let totalTicks = state.resources.totalTicks
@@ -1718,6 +1758,8 @@ const Koviko = {
         this.statisticDisplay.style='color: #8293ff'
       }
      this.resourcePerMinute=newStatisticValue;
+     
+     this.totalDisplay.parentElement.classList.remove('expired');
 
       // Log useful debugging data
       if (isDebug) {
@@ -1729,6 +1771,9 @@ const Koviko = {
         });
       }
       this.state = state;
+
+      // Fire an event when a prediction finishes for other scripts to hook into
+      document.dispatchEvent(new Event('predictor-update'));
     }
 
     getShortSkill(name) {
