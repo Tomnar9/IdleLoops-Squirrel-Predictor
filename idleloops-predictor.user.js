@@ -2,7 +2,7 @@
 // @name         IdleLoops Squirrel Predictor Makro
 // @namespace    https://github.com/Tomnar9/
 // @downloadURL  https://raw.githubusercontent.com/Tomnar9/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      0.1.8
+// @version      0.1.9
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops Reworked  v.0.2.7/Morana.
 // @author       Koviko <koviko.net@gmail.com>, Tomnar <Tomnar#4672 on discord>
 // @match        https://mopatissier.github.io/IdleLoopsReworked/
@@ -2057,12 +2057,6 @@ const Koviko = {
               state.currProgress[prediction.name] = state.progress[prediction.name].completed / prediction.action.segments;
             // Update the cache
             if(i!==finalIndex) this.cache.add([listedAction.name, listedAction.squirrelAction, listedAction.loops, listedAction.disabled], [state, isValid]);
-            
-            // Sleep to avoid hanging the game
-            await new Promise(r => setTimeout(r, 1));
-                            
-            // If id != update.id, then another update was triggered and we need to stop processing this one
-            if(id != this.update.id) return;
           }
           // Update the snapshots
           for (let i in snapshots) {
