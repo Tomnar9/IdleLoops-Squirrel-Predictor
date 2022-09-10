@@ -601,7 +601,7 @@ const Koviko = {
               statisticList[i].hidden=(!skills[statisticList[i].value.charAt(1).toUpperCase()+statisticList[i].value.slice(2)].exp>0);
               break;
             case 'Q':
-              statisticList[i].hidden=(!skills[statisticList[i].value.charAt(1).toUpperCase()+statisticList[i].value.substring(2,statisticList[i].value.indexOf("Squirrel"))].exp>0);
+              statisticList[i].hidden=(!skillsSquirrel[statisticList[i].value.charAt(1).toUpperCase()+statisticList[i].value.substring(2,statisticList[i].value.indexOf("Squirrel"))].exp>0);
               break;
             case 'T':
               break;
@@ -2147,7 +2147,7 @@ const Koviko = {
 
 
       container && (this.totalDisplay.innerHTML = intToString(total) + " | " + totalTime + " | " );
-      container && (this.statisticDisplay.innerHTML = intToString(newStatisticValue) +" "+legend+ "/min");
+      container && (this.statisticDisplay.innerHTML = intToString(newStatisticValue||0) +" "+legend+ "/min");
       if (this.resourcePerMinute>newStatisticValue) {
         this.statisticDisplay.style='color: #FF0000';
       } else {
