@@ -2,7 +2,7 @@
 // @name         IdleLoops Squirrel Predictor Makro
 // @namespace    https://github.com/Tomnar9/
 // @downloadURL  https://raw.githubusercontent.com/Tomnar9/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      0.2.0
+// @version      0.2.1
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops Reworked  v.0.2.7/Morana.
 // @author       Koviko <koviko.net@gmail.com>, Tomnar <Tomnar#4672 on discord>
 // @match        https://mopatissier.github.io/IdleLoopsReworked/
@@ -1902,7 +1902,7 @@ const Koviko = {
       const repeatLast = \$('#repeatPrediction').is(':checked');
 
       //Statistik parammeters
-      let statisticType=\$('#trackedStat').val();
+      let statisticType=(\$('#trackedStat').val()||"Rsoul");
       let statisticStart=0;
       switch(statisticType.charAt(0)) {
         case 'R':
