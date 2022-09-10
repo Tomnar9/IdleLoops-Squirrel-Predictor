@@ -2,7 +2,7 @@
 // @name         IdleLoops Squirrel Predictor Makro
 // @namespace    https://github.com/Tomnar9/
 // @downloadURL  https://raw.githubusercontent.com/Tomnar9/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      0.1.9
+// @version      0.2.0
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops Reworked  v.0.2.7/Morana.
 // @author       Koviko <koviko.net@gmail.com>, Tomnar <Tomnar#4672 on discord>
 // @match        https://mopatissier.github.io/IdleLoopsReworked/
@@ -577,9 +577,7 @@ const Koviko = {
         \$('#trackedStat').append("<option value=S"+skillList[i].toLowerCase()+" hidden=''>(S) "+skillList[i]+"</option>");
       }
       for (let i in skillSquirrelList) {
-        if (skillsSquirrel[skillSquirrelList[i]].exp>0) {
-          \$('#trackedStat').append("<option value="+skillSquirrelList[i].toLowerCase()+"Squirrel>(Q) "+skillSquirrelList[i]+"</option>");
-        }
+        \$('#trackedStat').append("<option value=Q"+skillSquirrelList[i].toLowerCase()+"Squirrel hidden=''>(Q) "+skillSquirrelList[i]+"</option>");
       }
       for (let i in statList) {
         \$('#trackedStat').append("<option value=T"+statList[i]+" >(T) "+_txt('stats>'+statList[i]+'>long_form')+"</option>");
@@ -601,6 +599,9 @@ const Koviko = {
               break;
             case 'S':
               statisticList[i].hidden=(!skills[statisticList[i].value.charAt(1).toUpperCase()+statisticList[i].value.slice(2)].exp>0);
+              break;
+            case 'Q':
+              statisticList[i].hidden=(!skills[statisticList[i].value.charAt(1).toUpperCase()+statisticList[i].value.substring(2,statisticList[i].value.indexOf("Squirrel"))].exp>0);
               break;
             case 'T':
               break;
@@ -1907,6 +1908,7 @@ const Koviko = {
         case 'R':
           break;
         case 'S':
+        case 'Q':
           statisticStart=state.skills[statisticType.slice(1)];
           break;
         case 'T':
@@ -2133,6 +2135,7 @@ const Koviko = {
           }
           break;
         case 'S':
+        case 'Q':
           newStatisticValue=(state.skills[statisticType.slice(1)]-statisticStart)/ totalTicks * 60;
           legend=this.getShortSkill(statisticType.slice(1));
           break;
