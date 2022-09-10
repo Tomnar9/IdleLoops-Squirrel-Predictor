@@ -5254,11 +5254,12 @@ creatorCache['Explorers Guild'].effect.game=\`finish() {
         view.adjustGoldCost("Excursion", Action.Excursion.goldCost());
     }\`;
 creatorCache['Explorers Guild'].effect.pred=\`(r,k) => {
+          r.submittedMap=r.completedMap;
+          r.completedMap=0;
           r.guild='explorer';
-          /*r.completedMap=0;
           if (r.map==0) {
             r.map=30;
-          }*/
+          }
         }\`;
 creatorCache['Thieves Guild']={};
 creatorCache['Thieves Guild'].affected=['gold','thieves'];
