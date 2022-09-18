@@ -2,7 +2,7 @@
 // @name         IdleLoops Squirrel Predictor Makro
 // @namespace    https://github.com/Tomnar9/
 // @downloadURL  https://raw.githubusercontent.com/Tomnar9/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      0.2.1
+// @version      0.2.2
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops Reworked  v.0.2.7/Morana.
 // @author       Koviko <koviko.net@gmail.com>, Tomnar <Tomnar#4672 on discord>
 // @match        https://mopatissier.github.io/IdleLoopsReworked/
@@ -1849,7 +1849,7 @@ const Koviko = {
        * @var {Koviko.Predictor~State}
        */
       let state = {
-        resources: { mana: (500+50*getBuffLevel("ImbueSoulstones")), town: 0, guild: "", total:0, totalTicks:0,  squirrel:0, deadSquirrel:0},
+        resources: { mana: (500+50*getBuffLevel("ImbueSoulstones")), town: 0, guild: "",rep:0, total:0, totalTicks:0,  squirrel:0, deadSquirrel:0},
         stats: Koviko.globals.statList.reduce((stats, name) => (stats[name] = getExpOfLevel(buffs.Imbuement2.amt*(Koviko.globals.skills.Wunderkind.exp>=100?2:1)), stats), {}),
         talents:  Koviko.globals.statList.reduce((talents, name) => (talents[name] = stats[name].talent, talents), {}),
         skills: Object.assign(Object.entries(skills).reduce((skills, x) => (skills[x[0].toLowerCase()] = x[1].exp, skills), {}),Object.entries(skillsSquirrel).reduce((skills, x) => (skills[x[0].toLowerCase()+"Squirrel"] = x[1].exp, skills), {})),
@@ -2128,7 +2128,7 @@ const Koviko = {
             legend="SS";
           } else if (statisticType=="Ract") {
             newStatisticValue= loop / totalTicks * 60;
-            legend=actions[finalIndex].name;
+            legend=finalIndex>=0?actions[finalIndex].name:"---";
           } else if (statisticType=="Rsurvey") {
             newStatisticValue= getExploreSkill()* (state.resources.completedMap+2*state.resources.submittedMap)  / totalTicks * 60;
             legend="Survey";
