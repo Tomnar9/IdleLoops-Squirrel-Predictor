@@ -634,7 +634,7 @@ const Koviko = {
          * @return {number} Current bonus from guild rank
          * @memberof Koviko.Predictor#helpers
          */
-        getGuildRankBonus: (guild) => Math.floor(guild / 3 + .00001) >= 14 ? Math.floor(1 + 2.25 + (45 ** 2) / 300) :  precision3(1 + guild / 20 + (guild ** 2) / 300),
+        getGuildRankBonus: (guild) => Math.floor(guild / 3 + .00001) >= 14 ? 10 :  precision3(1 + guild / 20 + (guild ** 2) / 300),
 
         /**
          * Calculate the bonus given by "Wizard College"
@@ -656,7 +656,7 @@ const Koviko = {
          * @return {number} Armor Multiplier for the Self Combat Calculation
          * @memberof Koviko.Predictor#helpers
          */
-        getArmorLevel: (r, k) => (1 + (((r.armor||0) + 3 * (r.enchantments||0)) * h.getGuildRankBonus(r.crafts||0)) / 5),
+        getArmorLevel: (r, k) => (1 + (((r.armor||0) + 3 * (r.enchantments||0)) * (r.crafts?h.getGuildRankBonus(r.crafts):1) ) / 5),
 
         /**
          * Calculate the combat skill specifically affecting the team leader
@@ -669,7 +669,7 @@ const Koviko = {
 
         //getZombieStrength: (r, k) => ( getSkillLevelFromExp(k.dark) * (r.zombie||0) / 2 * Math.max(getBuffLevel("Ritual") / 100, 1)) * (1 + getBuffLevel("Feast") * 0.05),
 
-        getTeamStrength: (r, k) => (( getSkillLevelFromExp(k.combat) +  getSkillLevelFromExp(k.restoration) * 2) * ((r.team||0) / 2) * h.getGuildRankBonus(r.adventures || 0)),
+        getTeamStrength: (r, k) => (( getSkillLevelFromExp(k.combat) +  getSkillLevelFromExp(k.restoration) * 2) * ((r.team||0) / 2) * (r.adventures?h.getGuildRankBonus(r.adventures):1)),
 
         getTeamCombat: (r, k) => (h.getSelfCombat(r, k) + h.getTeamStrength(r, k)),
 
@@ -1720,7 +1720,8 @@ const Koviko = {
           cost:(p, a) => segment => precision3(Math.pow(a.floorScaling, Math.floor((p.completed + segment) / a.segments + .0000001)) * a.baseScaling),
           tick:(p, a, s, k, r) => offset => {
             const floor = Math.floor(p.completed / a.segments + .0000001);
-            return floor in trials[a.trialNum] ? h.getTeamCombat(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
+            if (!p.progress) p.teamCombat = h.getTeamCombat(r, k);
+            return floor in trials[a.trialNum] ?  p.teamCombat * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
           },
           effect:{}
         }},
@@ -1813,6 +1814,15 @@ const Koviko = {
       // Create predictions
       for (const name in predictions) {
         this.predictions[name] = new Koviko.Prediction(name, predictions[name]);
+        if (name=="Secret Trial") {
+          this.predictions["Secret Trial"]._updateTicks=this.predictions[name].updateTicks;
+          this.predictions["Secret Trial"].updateTicks= (a, s, state) => {
+            if (!state.currProgress["Secret Trial"]) {
+              return this.predictions["Secret Trial"]._updateTicks(a, s, state);
+            } 
+            return this._ticks;
+          }
+        }
       }
     }
 
@@ -2365,8 +2375,8 @@ const Koviko = {
      * @memberof Koviko.Predictor
      */
     tick(prediction, state, isSquirrel) {
-      // Apply the accumulated stat experience
-      prediction.exp(prediction.action, state.stats,state.talents);
+      // Apply the accumulated stat experience, not for 0 Exp actions (Secret Trial & Restore Time)
+      if (prediction.action.expMult!=0) prediction.exp(prediction.action, state.stats,state.talents);
 
       // Handle the loop if it exists
       if (prediction.loop) {
@@ -2391,6 +2401,13 @@ const Koviko = {
         /** @var {number} */
         const maxSegments = prediction.loop.max ? prediction.loop.max(prediction.action) * totalSegments : Infinity;
 
+        // Helper for caching cost Calculations
+        if (!progression.costList) {
+          progression.costList=[];
+          for (let i=0; i<totalSegments ; i++ ) {
+            progression.costList[i]=loopCost(i);
+          }
+        }
         /**
          * Current segment within the loop
          * @var {number}
@@ -2404,7 +2421,7 @@ const Koviko = {
         let progress = progression.progress;
 
         // Calculate the progress and current segment before the tick
-        for (; progress >= loopCost(segment); progress -= loopCost(segment++));
+        for (; progress >= progression.costList[segment]; progress -= progression.costList[segment++]);
 
         /**
          * Progress of the tick
@@ -2417,8 +2434,8 @@ const Koviko = {
         progression.progress += additionalProgress;
 
         // Calculate the progress and current segment after the tick
-        while (progress >= loopCost(segment) && progression.completed < maxSegments) {
-          progress -= loopCost(segment++)
+        while (progress >= progression.costList[segment] && progression.completed < maxSegments) {
+          progress -= progression.costList[segment++];
           // Handle the completion of a loop
           if (segment >= totalSegments) {
             progression.progress = 0;
@@ -2434,6 +2451,10 @@ const Koviko = {
             // Store remaining progress in next loop if next loop is allowed
             if (progression.completed < maxSegments) {
               progression.progress = progress;
+              //Helper for  caching cost Calculations
+              for (let i=0;i<totalSegments;i++) {
+                progression.costList[i]=loopCost(i);
+              }
             }
           }
 
