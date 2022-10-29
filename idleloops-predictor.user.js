@@ -434,6 +434,10 @@ const Koviko = {
         view.updateNextActions();
       };    
 
+      //Hook checkbox repeatLastActionInput with the predictor's update function 
+      repeatLastActionInput.addEventListener('change',e =>{
+        view.updateNextActions();
+      });
       view.updateNextActions();
 
     }
