@@ -386,27 +386,29 @@ const Koviko = {
       this.initElements()
       this.initPredictions();
       this.state;
+      Koviko.options={};
       if(typeof localStorage !== "undefined") { 
-        if (localStorage.getItem('timePrecision') !== null) {
-          var loadedVal = localStorage.getItem('timePrecision');
-          \$('#updateTimePrecision').val(loadedVal);
+        Koviko.options.timePrecision=localStorage.getItem('timePrecision');
+        if (Koviko.options.timePrecision !== null) {
+          \$('#updateTimePrecision').val(Koviko.options.timePrecision);
         }
-        if (localStorage.getItem("actionWidth")!==null) {
-          let tmpVal=localStorage.getItem("actionWidth");
-          document.getElementById("actionsColumn").style.width=tmpVal+"px";
-          document.getElementById("nextActionsListContainer").style.width=(tmpVal-120)+"px";
-          \$('#actionWidth').val(tmpVal);
+        Koviko.options.actionWidth=localStorage.getItem("actionWidth");
+        if (Koviko.options.actionWidth!==null) {
+          document.getElementById("actionsColumn").style.width=Koviko.options.actionWidth+"px";
+          document.getElementById("nextActionsListContainer").style.width=(Koviko.options.actionWidth-120)+"px";
+          \$('#actionWidth').val(Koviko.options.actionWidth);
         }
-
-        if (localStorage.getItem("repeatPrediction")!==null) {
-          let tmpVal=localStorage.getItem("repeatPrediction");
-          \$('#repeatPrediction').prop( "checked", tmpVal=='true' );
+        Koviko.options.repeatPrediction=localStorage.getItem("repeatPrediction")=='true';
+        if (Koviko.options.repeatPrediction!==null) {
+          \$('#repeatPrediction').prop( "checked", Koviko.options.repeatPrediction);
         }
-        if (localStorage.getItem('trackedStat') !== null) {
-          var loadedVal = localStorage.getItem('trackedStat');
-          \$('#trackedStat').val(loadedVal);
+        let tmpVal=localStorage.getItem("trackedStat");
+        if (Koviko.options.trackedStat !== null) {
+          \$('#trackedStat').val(tmpVal);
+          Koviko.options.trackedStat=[tmpVal.charAt(0),tmpVal.slice(1)];
         } else {
-          \$('#trackedStat').val('soul');
+          \$('#trackedStat').val('Rsoul');
+          Koviko.options.trackedStat=['R','soul']; 
         }
       }
       // Prepare \`updateNextActions\` to be hooked
@@ -553,20 +555,21 @@ const Koviko = {
           if(\$(this).val() < 1) {
               \$(this).val(1);
           }
-          localStorage.setItem('timePrecision', \$(this).val());
+          Koviko.options.timePrecision=\$(this).val();
+          localStorage.setItem('timePrecision', Koviko.options.timePrecision);
       });
       \$('#preditorSettings').append("<br /><label>Width of the Action List</label><input id='actionWidth' type='number' value='500' min='100' max='4000' style='width: 50px; margin-left:40px'>");
       \$('#actionWidth').focusout(function() {
-          let tmpVal=\$(this).val();
-          localStorage.setItem('actionWidth',tmpVal );       
-          document.getElementById("actionsColumn").style.width=tmpVal+"px";
-          document.getElementById("nextActionsListContainer").style.width=(tmpVal-120)+"px";
+          Koviko.options.actionWidth=\$(this).val();
+          localStorage.setItem('actionWidth',Koviko.options.actionWidth );       
+          document.getElementById("actionsColumn").style.width=Koviko.options.actionWidth+"px";
+          document.getElementById("nextActionsListContainer").style.width=(Koviko.options.actionWidth-120)+"px";
       });
 
       \$('#preditorSettings').append(\`<br /><input id='repeatPrediction' type='checkbox'><label for='repeatPrediction'> "Repeat last action on list" applies to the Predictor</label>\`);
       \$('#repeatPrediction').change(function() {
-          let tmpVal=\$(this).is(':checked');
-          localStorage.setItem('repeatPrediction',tmpVal );       
+          Koviko.options.repeatPrediction=\$(this).is(':checked');
+          localStorage.setItem('repeatPrediction',Koviko.options.repeatPrediction );       
       });
 
       \$('#actionChanges').children('div:nth-child(2)').append("<select id='trackedStat' class='button'></select>");
@@ -584,7 +587,8 @@ const Koviko = {
       }
       \$('#trackedStat').change(function() {
         let tmpVal=\$(this).val();
-        localStorage.setItem('trackedStat',tmpVal );
+        localStorage.setItem('trackedStat',tmpVal);
+        Koviko.options.trackedStat=[tmpVal.charAt(0),tmpVal.slice(1)];
         view.updateNextActions();
       });
       this.updateTrackedList();
@@ -1904,25 +1908,18 @@ const Koviko = {
       // returns false on cache miss
       let cache = this.cache.reset([state, affected]);
 
-      /**
-       *This is used to see when the loop becomes invalid due to mana cost
-       */
-      //This is the precision of the Time field
-      let precisionForTime = \$('#updateTimePrecision').val();
-      const repeatLast = \$('#repeatPrediction').is(':checked');
-
+      
       //Statistik parammeters
-      let statisticType=(\$('#trackedStat').val()||"Rsoul");
       let statisticStart=0;
-      switch(statisticType.charAt(0)) {
+      switch(Koviko.options.trackedStat[0]) {
         case 'R':
           break;
         case 'S':
         case 'Q':
-          statisticStart=state.skills[statisticType.slice(1)];
+          statisticStart=state.skills[Koviko.options.trackedStat[1]];
           break;
         case 'T':
-          statisticStart=state.talents[statisticType.slice(1)];
+          statisticStart=state.talents[Koviko.options.trackedStat[1]];
           break;
       }
 
@@ -1971,7 +1968,7 @@ const Koviko = {
            */
           let div = container ? container.children[i] : null;
 
-          let repeatLoop = repeatLast && options.repeatLastAction && (i == finalIndex) && (prediction.action.allowed==undefined);
+          let repeatLoop = Koviko.options.repeatPrediction && options.repeatLastAction && (i == finalIndex) && (prediction.action.allowed==undefined);
           
           if(!cache || i == finalIndex) {
             // Reinitialise variables on cache miss
@@ -2121,37 +2118,37 @@ const Koviko = {
       var h = Math.floor(totalTicks / 3600);
       var m = Math.floor(totalTicks % 3600 / 60);
       var s = Math.floor(totalTicks % 3600 % 60);
-      var ms = Math.floor(totalTicks % 1 * Math.pow(10,precisionForTime));
-      while(ms.toString().length < precisionForTime) { ms = "0" + ms; }
+      var ms = Math.floor(totalTicks % 1 * Math.pow(10,Koviko.options.timePrecision));
+      while(ms.toString().length < Koviko.options.timePrecision) { ms = "0" + ms; }
 
       let totalTime = ('0' + h).slice(-2) + ":" + ('0' + m).slice(-2) + ":" + ('0' + s).slice(-2) + "." + ms;
 
       let newStatisticValue=0;
       let legend="";
 
-      switch(statisticType.charAt(0)) {
+      switch(Koviko.options.trackedStat[0]) {
         case 'R':
-          if (statisticType=="Rsoul") {
+          if (Koviko.options.trackedStat[1]=="soul") {
             let dungeonEquilibrium = Math.min(Math.sqrt(total / 200000),1);
             let dungeonSS = state.resources.soul - (state.resources.nonDungeonSS || 0);
             newStatisticValue = ((state.resources.nonDungeonSS || 0) + dungeonEquilibrium * (dungeonSS || 0)) / totalTicks * 60;
             legend="SS";
-          } else if (statisticType=="Ract") {
+          } else if (Koviko.options.trackedStat[1]=="act") {
             newStatisticValue= loop / totalTicks * 60;
             legend=finalIndex>=0?actions[finalIndex].name:"---";
-          } else if (statisticType=="Rsurvey") {
-            newStatisticValue= getExploreSkill()* (state.resources.completedMap+2*state.resources.submittedMap)  / totalTicks * 60;
+          } else if (Koviko.options.trackedStat[1]=="survey") {
+            newStatisticValue= getExploreSkill()* (state.resources.completedMap+3*state.resources.submittedMap)  / totalTicks * 60;
             legend="Survey";
           }
           break;
         case 'S':
         case 'Q':
-          newStatisticValue=(state.skills[statisticType.slice(1)]-statisticStart)/ totalTicks * 60;
-          legend=this.getShortSkill(statisticType.slice(1));
+          newStatisticValue=(state.skills[Koviko.options.trackedStat[1]]-statisticStart)/ totalTicks * 60;
+          legend=this.getShortSkill(Koviko.options.trackedStat[1]);
           break;
         case 'T':
-          newStatisticValue=(state.talents[statisticType.slice(1)]-statisticStart)/ totalTicks * 60;
-          legend=_txt('stats>'+statisticType.slice(1)+'>short_form');
+          newStatisticValue=(state.talents[Koviko.options.trackedStat[1]]-statisticStart)/ totalTicks * 60;
+          legend=_txt('stats>'+Koviko.options.trackedStat[1]+'>short_form');
           break;
       }
 
