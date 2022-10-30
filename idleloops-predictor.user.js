@@ -2339,7 +2339,11 @@ const Koviko = {
 
           tooltip += '<tr><td><b>'
           tooltip+=this.getShortSkill(i);
-          tooltip += '</b></td><td>' + intToString(level.end, 1) + '</td><td>(+' + intToString(level.end - level.start, 1) + ')</td></tr>';
+          if (level.end>level.start) {
+            tooltip += '</b></td><td>' + intToString(level.end, 1) + '</td><td>(+' + intToString(level.end - level.start, 1) + ')</td></tr>';
+          } else {
+            tooltip += '<td>' +Math.floor(skills[i].delta/(level.end+1)*1000)/1000 +'%</td><td><' + intToString(skills[i].delta, 1) + ' XP></td></tr>';
+          }
         }
       }
 
