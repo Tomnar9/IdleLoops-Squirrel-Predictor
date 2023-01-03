@@ -2,7 +2,7 @@
 // @name         IdleLoops Squirrel Predictor Makro
 // @namespace    https://github.com/Tomnar9/
 // @downloadURL  https://raw.githubusercontent.com/Tomnar9/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      0.2.4
+// @version      0.2.5
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops Reworked  v.0.2.7/Morana.
 // @author       Koviko <koviko.net@gmail.com>, Tomnar <Tomnar#4672 on discord>
 // @match        https://mopatissier.github.io/IdleLoopsReworked/
@@ -213,7 +213,7 @@ const Koviko = {
       const soulstoneBonus = stats[statName].soulstone ? calcSoulstoneMult(stats[statName].soulstone) : 1;
       return soulstoneBonus * calcTalentMult(getLevelFromTalent(t[statName]));
     }
-  
+
   },
 
   /** A collection of attributes and a comparison of those attributes from one snapshot to the next. */
@@ -387,7 +387,7 @@ const Koviko = {
       this.initPredictions();
       this.state;
       Koviko.options={};
-      if(typeof localStorage !== "undefined") { 
+      if(typeof localStorage !== "undefined") {
         Koviko.options.timePrecision=localStorage.getItem('timePrecision');
         if (Koviko.options.timePrecision !== null) {
           \$('#updateTimePrecision').val(Koviko.options.timePrecision);
@@ -408,7 +408,7 @@ const Koviko = {
           Koviko.options.trackedStat=[tmpVal.charAt(0),tmpVal.slice(1)];
         } else {
           \$('#trackedStat').val('Rsoul');
-          Koviko.options.trackedStat=['R','soul']; 
+          Koviko.options.trackedStat=['R','soul'];
         }
 
         Koviko.options.slowMode=localStorage.getItem("slowMode")=='true';
@@ -443,9 +443,9 @@ const Koviko = {
       stopGame = () => {
         _stopGame()
         view.updateNextActions();
-      };    
+      };
 
-      //Hook checkbox repeatLastActionInput with the predictor's update function 
+      //Hook checkbox repeatLastActionInput with the predictor's update function
       repeatLastActionInput.addEventListener('change',e =>{
         view.updateNextActions();
       });
@@ -576,7 +576,7 @@ const Koviko = {
       \$('#preditorSettings').append("<br /><label>Width of the Action List</label><input id='actionWidth' type='number' value='500' min='100' max='4000' style='width: 50px; margin-left:40px'>");
       \$('#actionWidth').focusout(function() {
           Koviko.options.actionWidth=\$(this).val();
-          localStorage.setItem('actionWidth',Koviko.options.actionWidth );       
+          localStorage.setItem('actionWidth',Koviko.options.actionWidth );
           document.getElementById("actionsColumn").style.width=Koviko.options.actionWidth+"px";
           document.getElementById("nextActionsListContainer").style.width=(Koviko.options.actionWidth-120)+"px";
       });
@@ -584,7 +584,7 @@ const Koviko = {
       \$('#preditorSettings').append(\`<br /><input id='repeatPrediction' type='checkbox'><label for='repeatPrediction'> "Repeat last action on list" applies to the Predictor</label>\`);
       \$('#repeatPrediction').change(function() {
           Koviko.options.repeatPrediction=\$(this).is(':checked');
-          localStorage.setItem('repeatPrediction',Koviko.options.repeatPrediction );       
+          localStorage.setItem('repeatPrediction',Koviko.options.repeatPrediction );
       });
 
       \$('#actionChanges').children('div:nth-child(2)').append("<select id='trackedStat' class='button'></select>");
@@ -611,7 +611,7 @@ const Koviko = {
       \$('#preditorSettings').append(\`<br /><input id='slowMode' type='checkbox'><label for='slowMode'> Only update the predictor every <input id='slowTimer' type='number' value='1' min='0'style='width: 20px;'> Minutes</label>\`);
       \$('#slowMode').change(function() {
           Koviko.options.slowMode=\$(this).is(':checked');
-          localStorage.setItem('slowMode',Koviko.options.slowMode );       
+          localStorage.setItem('slowMode',Koviko.options.slowMode );
       });
 
       \$('#slowTimer').focusout(function() {
@@ -755,7 +755,7 @@ const Koviko = {
        * @type {Object.<string, Koviko.Prediction~Parameters>}
        */
       const predictions = {
- 
+
 
 
 
@@ -942,7 +942,7 @@ const Koviko = {
           r.mana += r.gold *  Action.BuyManaZ1.goldCost();
           r.gold = 0;
           r.stolenGoods=0;
-          
+
         }},
         'Meet People':{ affected:[''],
           canStart:true},
@@ -954,7 +954,7 @@ const Koviko = {
           let gCost=Action.ShortQuest.goldCost();
           if (sq) {
             switch(getLevelSquirrelAction("Short Quest")) {
-              case 1: 
+              case 1:
                 return;
               case 3:
                 gCost=gCost*1.1;
@@ -1000,7 +1000,7 @@ const Koviko = {
           effect:(r, k, sq) => {
           if (sq) {
             if (getLevelSquirrelAction("Warrior Lessons")<=1) {
-              return; 
+              return;
             } else {
               k.combat += ((getLevelSquirrelAction("Warrior Lessons")>=3)?1000:300)*(1+getBuffLevel("Heroism") * 0.02)
               h.killSquirrel(r);
@@ -1011,10 +1011,10 @@ const Koviko = {
         }},
         'Mage Lessons':{ affected:[''],
           canStart:(input) => input.rep >= 2,
-          effect:(r, k, sq) => { 
+          effect:(r, k, sq) => {
           if (sq) {
             if (getLevelSquirrelAction("Mage Lessons")<=1) {
-              return; 
+              return;
             } else {
               k.magic += ((getLevelSquirrelAction("Mage Lessons")>=3)?1000:300);
               h.killSquirrel(r);
@@ -1116,7 +1116,7 @@ const Koviko = {
           canStart:true,
           effect:(r,k,sq) => {
           r.temp5 = (r.temp5 || 0) + 1;
-          const sqBonus= (sq &&getLevelSquirrelAction("Wild Mana")) ? 100:0;
+          const sqBonus= (sq &&getLevelSquirrelAction("Wild Mana")>=2) ? 100:0;
           r.mana += r.temp5 <= towns[FORESTPATH].goodWildMana ?  Action.WildMana.goldCost()+sqBonus : 0;
         }},
         'Gather Herbs':{ affected:['herbs'],
@@ -1854,7 +1854,7 @@ const Koviko = {
           this.predictions["Secret Trial"].updateTicks= (a, s, state) => {
             if (!state.currProgress["Secret Trial"]) {
               return this.predictions["Secret Trial"]._updateTicks(a, s, state);
-            } 
+            }
             return this._ticks;
           }
         }
@@ -1862,7 +1862,7 @@ const Koviko = {
     }
 
     /**
-     * Fires before the main action list update, stores the current list to reduce flickering while updating. 
+     * Fires before the main action list update, stores the current list to reduce flickering while updating.
      * @param {HTMLElement} [container] Parent element of the action list
      */
     preUpdate(container) {
@@ -1894,7 +1894,7 @@ const Koviko = {
        * @var {Koviko.Predictor~State}
        */
       let state;
-      
+
       //"Slowmode means only update the initial state every X Minutes
       if(Koviko.options.slowMode) {
         if (this.initState && (new Date()<this.nextUpdate)) {
@@ -1926,7 +1926,7 @@ const Koviko = {
       if(getLevelSquirrelAction("Pet Squirrel") >= 2) state.resources.squirrel=1;
 
 
-      //Challenge Mode 
+      //Challenge Mode
         if ((typeof challengeSave!="undefined")&&(challengeSave.challengeMode==1)) {
           state.resources.isManaDrought=true;
           state.resources.manaBought=7500;
@@ -1951,12 +1951,12 @@ const Koviko = {
        * @var {Array.<string>}
        */
       const affected = Object.keys(actions.reduce((stats, x) => (x.name in this.predictions && this.predictions[x.name].affected || []).reduce((stats, name) => (stats[name] = true, stats), stats), {}));
-      
+
       // Reset the cache's index
       // returns false on cache miss
       let cache = this.cache.reset([state, affected]);
 
-      
+
       //Statistik parammeters
       let statisticStart=0;
       switch(Koviko.options.trackedStat[0]) {
@@ -1985,7 +1985,7 @@ const Koviko = {
       let isValid;
       let loop;
 
-      // If id != update.id, then another update was triggered and we need to stop processing this one 
+      // If id != update.id, then another update was triggered and we need to stop processing this one
       let id = {};
       this.update.id = id;
 
@@ -2002,10 +2002,10 @@ const Koviko = {
           cache = this.cache.next([listedAction.name, listedAction.squirrelAction, listedAction.loops, listedAction.disabled]);
           if(cache) {
             [state, isValid] = cache
-            
+
           }
         }
-        
+
         /** @var {Koviko.Prediction} */
         let prediction = this.predictions[listedAction.name];
 
@@ -2017,7 +2017,7 @@ const Koviko = {
           let div = container ? container.children[i] : null;
 
           let repeatLoop = Koviko.options.repeatPrediction && options.repeatLastAction && (i == finalIndex) && (prediction.action.allowed==undefined);
-          
+
           if(!cache || i == finalIndex) {
             // Reinitialise variables on cache miss
             isValid = (prediction.action.townNum==state.resources.town);
@@ -2037,7 +2037,7 @@ const Koviko = {
 
             state.resources.actionTicks=0;
 
-            // Complicated mess of ifs to use the cache for 90% of the last action 
+            // Complicated mess of ifs to use the cache for 90% of the last action
 
             if(i == finalIndex && cache){
               let key = [listedAction.name, listedAction.squirrelAction, listedAction.disabled];
@@ -2155,7 +2155,7 @@ const Koviko = {
             }
             div.className += ' showthat';
             div.innerHTML += this.template(listedAction.name, affected, state.resources, snapshots, isValid);
-          }          
+          }
         }
       }
 
@@ -2213,7 +2213,7 @@ const Koviko = {
         this.statisticDisplay.style='color: #8293ff'
       }
      this.resourcePerMinute=newStatisticValue;
-     
+
      this.totalDisplay.parentElement.classList.remove('expired');
 
       // Log useful debugging data
@@ -2247,7 +2247,7 @@ const Koviko = {
 
       // chronomancy
       speedMult *= Math.pow(1 + getSkillLevelFromExp(k.chronomancy) / 60, 0.25);
-    
+
       //Imbue Soul
       speedMult += 0.5 * getBuffLevel("Imbuement3");
 
@@ -2410,7 +2410,7 @@ const Koviko = {
           tooltip += '</b></td><td>' + intToString(level.end, 1) + '</td><td>(+' + intToString(level.end - level.start, 1) + ')</td></tr>';
         }
       }
-      //Timer 
+      //Timer
       tooltip+= '<tr><td><b>TIME</b></td><td>' + precision3(resources.totalTicks/100, 1) + '</td><td>(+' + precision3(resources.actionTicks/100, 1) + ')</td></tr>';
 
       var Affec = affected.map(name => {
@@ -2533,7 +2533,7 @@ const Koviko = {
       // Update the amount of ticks necessary to complete the action, but only once at the start of the action
       prediction.updateTicks(prediction.action, state.stats, state, isSquirrel);
 
-      //update statistic parameters, only if not in a looping action 
+      //update statistic parameters, only if not in a looping action
       if (!prediction.loop) {
         const actionDuration=prediction.ticks()/this.getSpeedMult(state.resources,state.skills);
         state.resources.totalTicks += actionDuration;

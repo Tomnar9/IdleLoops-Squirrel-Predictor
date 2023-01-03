@@ -2398,7 +2398,7 @@ creatorCache['Wild Mana'].effect.game=\`finish() {
     }\`;
 creatorCache['Wild Mana'].effect.pred=\`(r,k,sq) => {
           r.temp5 = (r.temp5 || 0) + 1;
-          const sqBonus= (sq &&getLevelSquirrelAction("Wild Mana")) ? 100:0;
+          const sqBonus= (sq &&getLevelSquirrelAction("Wild Mana")>=2) ? 100:0;
           r.mana += r.temp5 <= towns[FORESTPATH].goodWildMana ?  Action.WildMana.goldCost()+sqBonus : 0;
         }\`;
 creatorCache['Gather Herbs']={};
