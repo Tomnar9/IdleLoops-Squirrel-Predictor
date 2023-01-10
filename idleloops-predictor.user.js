@@ -2,7 +2,7 @@
 // @name         IdleLoops Squirrel Predictor Makro
 // @namespace    https://github.com/Tomnar9/
 // @downloadURL  https://raw.githubusercontent.com/Tomnar9/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      0.2.5
+// @version      0.3.5
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops Reworked  v.0.2.7/Morana.
 // @author       Koviko <koviko.net@gmail.com>, Tomnar <Tomnar#4672 on discord>
 // @match        https://mopatissier.github.io/IdleLoopsReworked/
@@ -942,7 +942,7 @@ const Koviko = {
           r.mana += r.gold *  Action.BuyManaZ1.goldCost();
           r.gold = 0;
           r.stolenGoods=0;
-
+          
         }},
         'Meet People':{ affected:[''],
           canStart:true},
@@ -954,7 +954,7 @@ const Koviko = {
           let gCost=Action.ShortQuest.goldCost();
           if (sq) {
             switch(getLevelSquirrelAction("Short Quest")) {
-              case 1:
+              case 1: 
                 return;
               case 3:
                 gCost=gCost*1.1;
@@ -1000,7 +1000,7 @@ const Koviko = {
           effect:(r, k, sq) => {
           if (sq) {
             if (getLevelSquirrelAction("Warrior Lessons")<=1) {
-              return;
+              return; 
             } else {
               k.combat += ((getLevelSquirrelAction("Warrior Lessons")>=3)?1000:300)*(1+getBuffLevel("Heroism") * 0.02)
               h.killSquirrel(r);
@@ -1011,10 +1011,10 @@ const Koviko = {
         }},
         'Mage Lessons':{ affected:[''],
           canStart:(input) => input.rep >= 2,
-          effect:(r, k, sq) => {
+          effect:(r, k, sq) => { 
           if (sq) {
             if (getLevelSquirrelAction("Mage Lessons")<=1) {
-              return;
+              return; 
             } else {
               k.magic += ((getLevelSquirrelAction("Mage Lessons")>=3)?1000:300);
               h.killSquirrel(r);
@@ -1133,7 +1133,7 @@ const Koviko = {
                 r.mana+=200
                 return;
               case 3:
-                r.mana+=250
+                r.mana+=275
                 return;
             }
           } else {
@@ -1190,7 +1190,7 @@ const Koviko = {
           canStart:(input) => {
           return (input.herbs>=10 && input.rep>=10);
         }, loop: {
-          cost:(p) => segment =>  Math.floor(Math.pow(1.4, p.completed/3)+0.0000001)*40000,
+          cost:(p) => segment =>  Math.floor(Math.pow(1.6, p.completed/3)+0.0000001)*40000,
           tick:(p, a, s, k, r,sq) => offset => (r.herbs<10||sq) ? 0 : (getSkillLevelFromExp(k.alchemy) + getSkillLevelFromExp(k.brewing)/2) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
           effect:{loop:(r,k) => {
             r.herbs-=10;
@@ -1310,7 +1310,7 @@ const Koviko = {
           canStart:(input) => {
             return (input.rep<=-10 && input.darkEssences>=10);
           }, loop: {
-          cost:(p) => segment =>  precision3(Math.pow(1.4, p.completed/3))*50000,
+          cost:(p) => segment =>  precision3(Math.pow(1.6, p.completed/3))*50000,
           tick:(p, a, s, k, r, sq) => offset => (sq || r.darkEssences<10)?0: (getSkillLevelFromExp(k.alchemy)/2 + getSkillLevelFromExp(k.brewing)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
           effect:{loop:(r,k) => {
             r.darkEssences-=10;
@@ -1330,18 +1330,73 @@ const Koviko = {
           canStart:true,
           effect:(r,k,sq) => r.town = (sq?SANCTUARY:MERCHANTON)},
         'Explore City':{ affected:['']},
-        'Gamble':{ affected:['gold','rep'],
-          canStart:(input) => (input.rep >= -5 && input.gold >= 20),
-          effect:(r) => {
-          r.temp8 = (r.temp8 || 0) + 1;
-          r.gold += (r.temp8 <= towns[2].goodGamble ? Math.floor(60 * Math.pow(1 + getSkillLevel("Thievery") / 60, 0.25)) : 0)-20;
-          r.rep--;
-        }},
         'Get Drunk':{ affected:['rep'],
-          canStart:(input) => (input.rep >= -3),
+          canStart:(input) => (input.rep > 0),
           effect:(r) => r.rep--},
+        'Help Slums':{ affected:['rep'],
+          canStart:(input) => (input.rep < 0),
+          effect:(r,k,sq) => r.rep++},
+        'Gamble':{ affected:['gold','rep'],
+          canStart:(input) => {
+        input.gamblesInARow=input.gamblesInARow||0;
+		let costs = 20 + (input.gamblesInARow*(input.gamblesInARow+1)/2) * 2;
+		return input.gold >= costs && input.rep > 0;
+    },
+          effect:(r) => {
+          let wonGamble=false;
+          if (! r.gambleActions) {
+            r.gambleActions=( r.gambleActions || 0);
+            r.gamblesInARow=(r.gamblesInARow||0);
+          }
+          r.gambleActions++;
+          r.rep--;
+
+          if ( r.gambleActions <= towns[MERCHANTON].goodGamble) {
+            wonGamble=true; //Normal Success
+          } else {
+            let totalChecked=r.gambleActions-towns[MERCHANTON].goodGamble+towns[MERCHANTON].checkedGamble;
+            if ((totalChecked<=towns[MERCHANTON].totalGamble) && (totalChecked%10==0)) {
+              wonGamble=true;
+            }
+          }
+
+          if (wonGamble) {
+            r.gamblesInARow++;
+            r.gold+=r.gamblesInARow*2;
+          } else {
+            r.gold-=(20 + gamblesInARow*(gamblesInARow+1));
+            r.gamblesInARow=0;
+          }
+        }},
+        'Slave Auction':{ affected:['gold','rep'],
+          canStart:(input) => {
+        let minCost = 70 + input.rep;
+		return input.gold >= minCost && input.rep < 0;
+        },
+          effect:(r,k) => {
+
+		let totalSlaves = towns[MERCHANTON].goodSlaveAuction + (towns[MERCHANTON].totalSlaveAuction - towns[MERCHANTON].checkedSlaveAuction);
+		let costPerSlave = 70 + r.rep;
+		let bounty = 60;
+		let slavesBought = (Math.min(Math.floor(r.gold/costPerSlave), totalSlaves));
+		
+        r.rep = 0;
+		r.gold-=slavesBought*costPerSlave;
+        
+        if (towns[MERCHANTON].goodSlaveAuction>=slavesBought) {
+          r.gold+=slavesBought*bounty;
+        } else {
+           r.gold+=towns[MERCHANTON].goodSlaveAuction*bounty;
+           slavesBought-=towns[MERCHANTON].goodSlaveAuction;
+           for (let i = 1; i <= slavesBought; i++){
+              if ((i+towns[MERCHANTON].checkedSlaveAuction)%10==0) {
+                r.gold+=bounty;
+              }
+           }
+
+        }
+      }},
         'Buy Mana Z3':{ affected:['mana','gold'],
-          canStart:true,
           effect:(r) => (r.mana += r.gold *  Action.BuyManaZ3.goldCost(), r.gold = 0)},
         'Sell Potions':{ affected:['gold','potions'],
           effect:(r, k) => (r.gold += r.potions *  getSkillLevelFromExp(k.alchemy), r.potions = 0)},
@@ -1700,7 +1755,6 @@ const Koviko = {
           r.submittedMap=r.completedMap;
           r.completedMap=0;
           r.guild='explorer';
-          r.completedMap=0;
           if (r.map==0) {
             r.map=30;
           }
@@ -1813,6 +1867,7 @@ const Koviko = {
           canStart:(input) => {
           return input.loopPotion
         }},
+
 
 
         //SPECIAL ACTIONS
