@@ -1701,7 +1701,7 @@ creatorCache['Heal The Sick']={};
 creatorCache['Heal The Sick'].affected=['rep'];
 creatorCache['Heal The Sick'].canStart={};
 creatorCache['Heal The Sick'].canStart.game=\`canStart() {
-		const squirrelRequirements = (!this.squirrelAction || resources.squirrel) && alreadyHealed === false;
+		const squirrelRequirements = (!this.squirrelAction || (resources.squirrel && !alreadyHealed ));
 		return squirrelRequirements && resources.reputation >= 1;
     }\`;
 creatorCache['Heal The Sick'].canStart.pred=\`(input,sq) => {
@@ -1791,7 +1791,7 @@ creatorCache['Fight Monsters']={};
 creatorCache['Fight Monsters'].affected=['gold'];
 creatorCache['Fight Monsters'].canStart={};
 creatorCache['Fight Monsters'].canStart.game=\`canStart() {
-		const squirrelRequirements = (!this.squirrelAction || resources.squirrel) && alreadyFought === false;
+		const squirrelRequirements = (!this.squirrelAction || (resources.squirrel && !alreadyFought ));
 		return squirrelRequirements && resources.reputation >= 2;
     }\`;
 creatorCache['Fight Monsters'].canStart.pred=\`(input,sq) => {
@@ -1888,14 +1888,105 @@ creatorCache['Fight Monsters'].loop.loop.game=\`loopsFinished() {
     }\`;
 creatorCache['Fight Monsters'].loop.loop.pred=\`\`;
 creatorCache['Fight Monsters'].loop.max=\`\`;
+creatorCache['Training Dummy']={};
+creatorCache['Training Dummy'].affected=['magicFight'];
+creatorCache['Training Dummy'].canStart={};
+creatorCache['Training Dummy'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		const curPowerLevel = Math.floor((towns[BEGINNERSVILLE].TDummyLoopCounter) / 9 + 0.0000001);
+		
+		return squirrelRequirements && resources.reputation >= 2 && curPowerLevel < 3;
+    }\`;
+creatorCache['Training Dummy'].canStart.pred=\`(input,sq) => {
+			return (!sq || input.squirrel) && resources.rep >= 2;
+        }\`;
+creatorCache['Training Dummy'].loop={};
+creatorCache['Training Dummy'].loop.cost={};
+creatorCache['Training Dummy'].loop.cost.game=\`loopCost(segment) {
+        return precision3((Math.floor(Math.pow(3, towns[BEGINNERSVILLE].TDummyLoopCounter/this.segments)+ 0.0000001)) * 60000);
+    }\`;
+creatorCache['Training Dummy'].loop.cost.pred=\`(p) => segment =>  precision3(Math.floor(Math.pow(3, p.completed/9)+0.0000001)*60000\`;
+creatorCache['Training Dummy'].loop.tick={};
+creatorCache['Training Dummy'].loop.tick.game=\`tickProgress(offset) {
+		if(this.squirrelAction) return 0;
+        return (getSelfCombat() + getSkillLevel("Magic")) * Math.sqrt(1 + towns[BEGINNERSVILLE].totalTDummy / 100) * (1 + getLevel(this.loopStats[(towns[BEGINNERSVILLE].TDummyLoopCounter + offset) % this.loopStats.length]) / 100) ; 
+		
+    }\`;
+creatorCache['Training Dummy'].loop.tick.pred=\`(p, a, s, k, r, sq) => offset => {
+            let floor = Math.floor(p.completed / a.segments + .0000001);
+            if (sq) {
+               return  0;//Math.max((getLevelSquirrelAction("Small Dungeon")-1),0)/2 * lCost(offset) * 7 / a.manaCost();
+            }
+            if (floor>=3) return 0;
+            return h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) *  Math.sqrt(1 + towns[BEGINNERSVILLE].totalTDummy / 100);
+    }\`;
+creatorCache['Training Dummy'].loop.end={};
+creatorCache['Training Dummy'].loop.end.skills={};	
+creatorCache['Training Dummy'].loop.end.skills.Combat=25,	
+creatorCache['Training Dummy'].loop.end.skills.Magic=25,
+creatorCache['Training Dummy'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+		
+		let actionEffect = () => {};
+		let loseSquirrel = false;
+		let nothingHappens = false;
+		
+		switch(getLevelSquirrelAction("Training Dummy")){
+					
+			case 1: break;
+				
+		}
+		
+		if(onlyGetLoseSquirrel){
+			if(loseSquirrel) return true;
+			return false;
+		}
+		
+		if(onlyGetEmptySquirrel){
+			if(String(actionEffect) === "() => {}" || nothingHappens === true) return true;
+			return false;
+		}
+		
+		if(loseSquirrel) addResource("squirrel", false);
+		
+		actionEffect();
+	}\`;
+creatorCache['Training Dummy'].loop.end.game=\`finish() {
+	
+		const curPowerLevel = Math.floor((towns[BEGINNERSVILLE].TDummyLoopCounter) / 9 + 0.0000001);
+		if(curPowerLevel === 3 && magicFighterStrenght === 0){
+			magicFight = true;
+		}
+		
+    }\`;
+creatorCache['Training Dummy'].loop.end.pred=\`(r,k) => {
+      if(r.trainLoop>=3) r.magicFight=1;
+    }\`;
+creatorCache['Training Dummy'].loop.segment={};
+creatorCache['Training Dummy'].loop.segment.game=\`segmentFinished() {
+		handleSkillExp(this.skills);
+    }\`;
+creatorCache['Training Dummy'].loop.segment.pred=\`(r,k) => {
+      k.combat+=25;
+      k.magic+=25;
+    }\`;
+creatorCache['Training Dummy'].loop.loop={};
+creatorCache['Training Dummy'].loop.loop.game=\`loopsFinished() {
+		handleSkillExp(this.skills);
+    }\`;
+creatorCache['Training Dummy'].loop.loop.pred=\`(r,k) => {
+      k.combat+=25;
+      k.magic+=25;
+      r.trainLoop=(r.trainLoop||0)+1;
+    }\`;
+creatorCache['Training Dummy'].loop.max=\`()=>3\`;
 creatorCache['Magic Fighter']={};
-creatorCache['Magic Fighter'].affected=[''];
+creatorCache['Magic Fighter'].affected=['magicFight'];
 creatorCache['Magic Fighter'].canStart={};
 creatorCache['Magic Fighter'].canStart.game=\`canStart() {
 		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
 		const curPowerLevel = Math.floor((towns[BEGINNERSVILLE].MagFgtLoopCounter) / 9 + 0.0000001);
 		
-		return squirrelRequirements && resources.reputation >= 2 && curPowerLevel < 4;
+		return squirrelRequirements && resources.reputation >= 2 && curPowerLevel < magicFighterStrenght;
     }\`;
 creatorCache['Magic Fighter'].canStart.pred=\`(input) => {
           return input.rep>=2;
@@ -1903,21 +1994,21 @@ creatorCache['Magic Fighter'].canStart.pred=\`(input) => {
 creatorCache['Magic Fighter'].loop={};
 creatorCache['Magic Fighter'].loop.cost={};
 creatorCache['Magic Fighter'].loop.cost.game=\`loopCost(segment) {
-        return precision3((Math.floor(Math.pow(4, towns[BEGINNERSVILLE].MagFgtLoopCounter/this.segments)+ 0.0000001)) * 200000);
+        return precision3((Math.floor(Math.pow(5, towns[BEGINNERSVILLE].MagFgtLoopCounter/this.segments)+ 0.0000001)) * 500000);
 		
     }\`;
-creatorCache['Magic Fighter'].loop.cost.pred=\`(p) => segment =>  precision3(Math.floor(Math.pow(4, p.completed/9)+ 0.0000001)*200000)\`;
+creatorCache['Magic Fighter'].loop.cost.pred=\`(p) => segment =>  precision3(Math.floor(Math.pow(5, p.completed/9)+ 0.0000001)*500000)\`;
 creatorCache['Magic Fighter'].loop.tick={};
 creatorCache['Magic Fighter'].loop.tick.game=\`tickProgress(offset) {
 		if(this.squirrelAction) return 0;
-        return (getSelfCombat() + getSkillLevel("Magic")) * Math.sqrt(1 + towns[BEGINNERSVILLE].totalMagFgt / 100) * (1 + getLevel(this.loopStats[(towns[BEGINNERSVILLE].MagFgtLoopCounter + offset) % this.loopStats.length]) / 100) ; 
+        return (getSelfCombat() + getSkillLevel("Magic")) * Math.sqrt(1 + towns[BEGINNERSVILLE].totalMagFgt / 200) * (1 + getLevel(this.loopStats[(towns[BEGINNERSVILLE].MagFgtLoopCounter + offset) % this.loopStats.length]) / 200) ; 
 		
     }\`;
-creatorCache['Magic Fighter'].loop.tick.pred=\`(p, a, s, k, r, sq) => offset => sq ? 0 : (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100)\`;
+creatorCache['Magic Fighter'].loop.tick.pred=\`(p, a, s, k, r, sq) => offset => sq ? 0 : (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 200)\`;
 creatorCache['Magic Fighter'].loop.end={};
 creatorCache['Magic Fighter'].loop.end.skills={};	
-creatorCache['Magic Fighter'].loop.end.skills.Combat=50,	
-creatorCache['Magic Fighter'].loop.end.skills.Magic=50,
+creatorCache['Magic Fighter'].loop.end.skills.Combat=75,	
+creatorCache['Magic Fighter'].loop.end.skills.Magic=75,
 creatorCache['Magic Fighter'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
 		
 		let actionEffect = () => {};
@@ -1945,20 +2036,25 @@ creatorCache['Magic Fighter'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLo
 		actionEffect();
 	}\`;
 creatorCache['Magic Fighter'].loop.end.game=\`finish() {
-		unlockStory("foughtMagicFighter");
+		const curPowerLevel = Math.floor((towns[BEGINNERSVILLE].MagFgtLoopCounter) / 9 + 0.0000001);
+		if(curPowerLevel === magicFighterStrenght){
+			magicFight = true;
+		}
     }\`;
-creatorCache['Magic Fighter'].loop.end.pred=\`\`;
+creatorCache['Magic Fighter'].loop.end.pred=\`(r,k)=> {
+       if (r.magicLoop>=magicFighterStrenght) r.magicFight=1;
+    }\`;
 creatorCache['Magic Fighter'].loop.segment={};
 creatorCache['Magic Fighter'].loop.segment.game=\`segmentFinished() {
 		handleSkillExp(this.skills);
     }\`;
-creatorCache['Magic Fighter'].loop.segment.pred=\`(r,k) => {k.combat += 50*(1+getBuffLevel("Heroism") * 0.02); k.magic += 50;}\`;
+creatorCache['Magic Fighter'].loop.segment.pred=\`(r,k) => {k.combat += 75; k.magic += 75;}\`;
 creatorCache['Magic Fighter'].loop.loop={};
 creatorCache['Magic Fighter'].loop.loop.game=\`loopsFinished() {
 		handleSkillExp(this.skills);
     }\`;
-creatorCache['Magic Fighter'].loop.loop.pred=\`(r,k) => {k.combat += 50*(1+getBuffLevel("Heroism") * 0.02); k.magic += 50;}\`;
-creatorCache['Magic Fighter'].loop.max=\`()=>4\`;
+creatorCache['Magic Fighter'].loop.loop.pred=\`(r,k) => {k.combat += 75; k.magic += 75;r.magicLoop=(r.magicLoop||0)+1;}\`;
+creatorCache['Magic Fighter'].loop.max=\`()=>magicFighterStrenght\`;
 creatorCache['Small Dungeon']={};
 creatorCache['Small Dungeon'].affected=['soul'];
 creatorCache['Small Dungeon'].canStart={};
@@ -2146,13 +2242,15 @@ creatorCache['Haggle'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirre
 			case 1: break;
 			
 			case 2: actionEffect = () => {
-						towns[BEGINNERSVILLE].suppliesCost -= 30;
-						if (towns[BEGINNERSVILLE].suppliesCost < 0) {
-							towns[BEGINNERSVILLE].suppliesCost = 0;
+						if(!squirrelHaggle){
+							towns[BEGINNERSVILLE].suppliesCost -= 30;
+							if (towns[BEGINNERSVILLE].suppliesCost < 0) {
+								towns[BEGINNERSVILLE].suppliesCost = 0;
+							}
+							view.adjustGoldCost("BuySupplies", towns[BEGINNERSVILLE].suppliesCost);
+							squirrelHaggle = true;
+							addResource("reputation", 1);
 						}
-						view.adjustGoldCost("BuySupplies", towns[BEGINNERSVILLE].suppliesCost);
-						squirrelHaggle = true;
-						addResource("reputation", 1);
 					};
 					break;
 				
@@ -3781,7 +3879,6 @@ creatorCache['Gamble'].effect.cost=\`cost() {
 		
 		let costs = (20 + (gamblesInARow*(gamblesInARow+1)/2) * 2) * (-1)
         addResource("gold", costs);
-        addResource("reputation", -1);
 		
 		if(this.gambleWon){
 			gamblesInARow ++;
@@ -3790,6 +3887,9 @@ creatorCache['Gamble'].effect.cost=\`cost() {
 		else {
 			gamblesInARow = 0;
 		}
+		
+		let reputationLost = Math.floor((gamblesInARow+5)/10);
+        addResource("reputation", reputationLost * (-1));
 		
 		view.adjustGoldCost("Gamble", Action.Gamble.goldCost());
 		
@@ -3818,7 +3918,7 @@ creatorCache['Gamble'].effect.pred=\`(r) => {
             r.gamblesInARow=(r.gamblesInARow||0);
           }
           r.gambleActions++;
-          r.rep--;
+          
 
           if ( r.gambleActions <= towns[MERCHANTON].goodGamble) {
             wonGamble=true; //Normal Success
@@ -3836,6 +3936,7 @@ creatorCache['Gamble'].effect.pred=\`(r) => {
             r.gold-=(20 + gamblesInARow*(gamblesInARow+1));
             r.gamblesInARow=0;
           }
+          r.rep-=Math.floor((r.gamblesInARow+5)/10);
         }\`;
 creatorCache['Slave Auction']={};
 creatorCache['Slave Auction'].affected=['gold','rep'];
@@ -3852,17 +3953,18 @@ creatorCache['Slave Auction'].effect={};
 creatorCache['Slave Auction'].effect.cost=\`cost() {
         
 		let totalSlaves = towns[MERCHANTON].goodSlaveAuction + (towns[MERCHANTON].totalSlaveAuction - towns[MERCHANTON].checkedSlaveAuction);
-		let costPerSlave = 70 + resources.reputation;
+		let costPerSlave = Math.max(70 + resources.reputation, 0);
 		
 		let costs = (Math.min(Math.floor(resources.gold/costPerSlave) * costPerSlave, totalSlaves * costPerSlave)) * (-1);
 		
+		resetResource("reputation");
 		addResource("gold", costs);
-        resources.reputation = 0;
+        
     }\`;
 creatorCache['Slave Auction'].effect.game=\`finish() {
 		
 		let totalSlaves = towns[MERCHANTON].goodSlaveAuction + (towns[MERCHANTON].totalSlaveAuction - towns[MERCHANTON].checkedSlaveAuction);
-		let costPerSlave = 70 + resources.reputation;
+		let costPerSlave = Math.max(70 + resources.reputation, 0);
 		let bounty = 60;
 		
 		let numberOfLoops = Math.min(Math.floor(resources.gold/costPerSlave), totalSlaves);
@@ -3879,7 +3981,7 @@ creatorCache['Slave Auction'].effect.game=\`finish() {
 creatorCache['Slave Auction'].effect.pred=\`(r,k) => {
 
 		let totalSlaves = towns[MERCHANTON].goodSlaveAuction + (towns[MERCHANTON].totalSlaveAuction - towns[MERCHANTON].checkedSlaveAuction);
-		let costPerSlave = 70 + r.rep;
+		let costPerSlave = Math.max(70 + resources.reputation, 0);
 		let bounty = 60;
 		let slavesBought = (Math.min(Math.floor(r.gold/costPerSlave), totalSlaves));
 		
@@ -3899,25 +4001,6 @@ creatorCache['Slave Auction'].effect.pred=\`(r,k) => {
 
         }
       }\`;
-creatorCache['Buy Mana Z3']={};
-creatorCache['Buy Mana Z3'].affected=['mana','gold'];
-creatorCache['Buy Mana Z3'].effect={};
-creatorCache['Buy Mana Z3'].effect.game=\`finish() {
-        addMana(resources.gold * this.goldCost());
-        resetResource("gold");
-    }\`;
-creatorCache['Buy Mana Z3'].effect.pred=\`(r) => (r.mana += r.gold *  Action.BuyManaZ3.goldCost(), r.gold = 0)\`;
-creatorCache['Sell Potions']={};
-creatorCache['Sell Potions'].affected=['gold','potions'];
-creatorCache['Sell Potions'].effect={};
-creatorCache['Sell Potions'].effect.game=\`finish() {
-        /*if (resources.potions >= 20) unlockStory("sell20PotionsInALoop");
-        addResource("gold", resources.potions * getSkillLevel("Alchemy"));
-        resetResource("potions");
-        unlockStory("potionSold");
-        if (getSkillLevel("Alchemy") >= 100) unlockStory("sellPotionFor100Gold");*/
-    }\`;
-creatorCache['Sell Potions'].effect.pred=\`(r, k) => (r.gold += r.potions *  getSkillLevelFromExp(k.alchemy), r.potions = 0)\`;
 creatorCache['Adventure Guild']={};
 creatorCache['Adventure Guild'].affected=['gold','adventures'];
 creatorCache['Adventure Guild'].canStart={};
@@ -4142,6 +4225,89 @@ creatorCache['Architect'].effect.game=\`finish() {
         handleSkillExp(this.skills);
     }\`;
 creatorCache['Architect'].effect.pred=\`(r, k) => Math.min((r.architect = (r.architect || towns[2].expArchitect) + 10 * h.getGuildRankBonus(r.crafts || 0),505000), k.crafting += 40 * (1 + h.getTownLevelFromExp(r.architect) / 100))\`;
+creatorCache['Delivery Address Zero']={};
+creatorCache['Delivery Address Zero'].affected=['magicFighterStrenght'];
+creatorCache['Delivery Address Zero'].effect={};
+creatorCache['Delivery Address Zero'].effect.game=\`finish() {
+       r.magicFighterStrenght = 0;
+    }\`;
+creatorCache['Delivery Address Zero'].effect.pred=\`(r,k) => {
+          r.magicFighterStrenght=1;
+        }\`;
+creatorCache['Delivery Address One']={};
+creatorCache['Delivery Address One'].affected=['magicFight','magicFighterStrenght'];
+creatorCache['Delivery Address One'].effect={};
+creatorCache['Delivery Address One'].effect.game=\`finish() {
+		if(magicFight && magicFighterStrenght === 0) magicFighterStrenght = 1;
+    }\`;
+creatorCache['Delivery Address One'].effect.pred=\`(r,k) => {
+          if(r.magicFight>0) r.magicFighterStrenght = 2;
+        }\`;
+creatorCache['Delivery Address Two']={};
+creatorCache['Delivery Address Two'].affected=['magicFight','magicFighterStrenght'];
+creatorCache['Delivery Address Two'].effect={};
+creatorCache['Delivery Address Two'].effect.game=\`finish() {
+		if(magicFight && magicFighterStrenght === 1) magicFighterStrenght = 2;
+    }\`;
+creatorCache['Delivery Address Two'].effect.pred=\`(r,k) => {
+          if(r.magicFight>0) r.magicFighterStrenght = 3;
+        }\`;
+creatorCache['Delivery Address Three']={};
+creatorCache['Delivery Address Three'].affected=['magicFight','magicFighterStrenght'];
+creatorCache['Delivery Address Three'].effect={};
+creatorCache['Delivery Address Three'].effect.game=\`finish() {
+		if(magicFight && magicFighterStrenght === 2) magicFighterStrenght = 3;
+    }\`;
+creatorCache['Delivery Address Three'].effect.pred=\`(r,k) => {
+          if(r.magicFight>0) r.magicFighterStrenght = 4;
+        }\`;
+creatorCache['Delivery Address Four']={};
+creatorCache['Delivery Address Four'].affected=['magicFight','magicFighterStrenght'];
+creatorCache['Delivery Address Four'].effect={};
+creatorCache['Delivery Address Four'].effect.game=\`finish() {
+		if(magicFight && magicFighterStrenght === 3) magicFighterStrenght = 4;
+    }\`;
+creatorCache['Delivery Address Four'].effect.pred=\`(r,k) => {
+          if(r.magicFight>0) r.magicFighterStrenght = 5;
+        }\`;
+creatorCache['Delivery Address Five']={};
+creatorCache['Delivery Address Five'].affected=['magicFight','teamMembers'];
+creatorCache['Delivery Address Five'].effect={};
+creatorCache['Delivery Address Five'].effect.game=\`finish() {
+		if(magicFight && magicFighterStrenght === 4){
+			//Give an adventurer buddy.
+		}
+    }\`;
+creatorCache['Delivery Address Five'].effect.pred=\`(r,k) => {
+          if(r.magicFight>0) r.teamMembers++;
+        }\`;
+creatorCache['Buy Mana Z3']={};
+creatorCache['Buy Mana Z3'].affected=['mana','gold'];
+creatorCache['Buy Mana Z3'].effect={};
+creatorCache['Buy Mana Z3'].effect.game=\`finish() {
+        addMana(resources.gold * this.goldCost());
+        resetResource("gold");
+    }\`;
+creatorCache['Buy Mana Z3'].effect.pred=\`(r) => (r.mana += r.gold *  Action.BuyManaZ3.goldCost(), r.gold = 0)\`;
+creatorCache['Sell Potions']={};
+creatorCache['Sell Potions'].affected=['gold','potions','darkPotions'];
+creatorCache['Sell Potions'].effect={};
+creatorCache['Sell Potions'].effect.game=\`finish() {
+		if(resources.potions > 0){
+			addResource("gold", resources.potions * 200);
+			resetResource("potions");
+		}
+		
+		if(resources.darkPotions > 0){
+			addResource("gold", resources.darkPotions * 200);
+			resetResource("darkPotions");
+		}
+    }\`;
+creatorCache['Sell Potions'].effect.pred=\`(r, k) =>  {
+       r.gold += r.potions * 2+r.darkPotions*2;
+       r.potions = 0;
+       r.darkPotions=0;
+    }\`;
 creatorCache['Read Books']={};
 creatorCache['Read Books'].affected=[''];
 creatorCache['Read Books'].canStart={};

@@ -2,7 +2,7 @@
 // @name         IdleLoops Squirrel Predictor Makro
 // @namespace    https://github.com/Tomnar9/
 // @downloadURL  https://raw.githubusercontent.com/Tomnar9/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      0.3.5
+// @version      0.3.6
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops Reworked  v.0.2.7/Morana.
 // @author       Koviko <koviko.net@gmail.com>, Tomnar <Tomnar#4672 on discord>
 // @match        https://mopatissier.github.io/IdleLoopsReworked/
@@ -516,7 +516,8 @@ const Koviko = {
       ul.koviko .map{color:#2ea9bd}
       ul.koviko .completedMap{color:#45e5ff}
       ul.koviko .finLoops{color:#777777}
-      ul.koviko .heart{color:#ca0b0b}
+      ul.koviko .magicFight{color:#8A2BE2}
+      ul.koviko .magicFighterStrenght{color:#FF00FF}
       \`;
       document.getElementById("actionsColumn").style.width="500px";
       document.getElementById("nextActionsListContainer").style.width="380px";
@@ -1053,14 +1054,41 @@ const Koviko = {
           }
         }, segment:(r,k) => (r.gold += 20,k.combat += 50*(1+getBuffLevel("Heroism") * 0.02))}
         }},
-        'Magic Fighter':{ affected:[''],
+        'Training Dummy':{ affected:['magicFight'],
+          canStart:(input,sq) => {
+			return (!sq || input.squirrel) && input.rep >= 2;
+        }, loop: {
+          max:()=>3,
+          cost:(p) => segment =>  precision3(Math.floor(Math.pow(3, p.completed/9)+0.0000001)*60000),
+          tick:(p, a, s, k, r,sq) => offset => {
+            let floor = Math.floor(p.completed / a.segments + .0000001);
+            if (sq) {
+               return  0;//Math.max((getLevelSquirrelAction("Small Dungeon")-1),0)/2 * lCost(offset) * 7 / a.manaCost();
+            }
+            if (floor>=3) return 0;
+            return h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic) * h.getStatProgress(p, a, s, offset) *  Math.sqrt(1 + towns[BEGINNERSVILLE].totalTDummy / 100);
+    },
+          effect:{ end:(r,k) => {
+      if(r.trainLoop>=3) r.magicFight=1;
+    }, segment:(r,k) => {
+      k.combat+=25;
+      k.magic+=25;
+    }, loop:(r,k) => {
+      k.combat+=25;
+      k.magic+=25;
+      r.trainLoop=(r.trainLoop||0)+1;
+    }}
+        }},
+        'Magic Fighter':{ affected:['magicFight'],
           canStart:(input) => {
           return input.rep>=2;
         }, loop: {
-          max:()=>4,
-          cost:(p) => segment =>  precision3(Math.floor(Math.pow(4, p.completed/9)+ 0.0000001)*200000),
-          tick:(p, a, s, k, r, sq) => offset => sq ? 0 : (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
-          effect:{segment:(r,k) => {k.combat += 50*(1+getBuffLevel("Heroism") * 0.02); k.magic += 50;}, loop:(r,k) => {k.combat += 50*(1+getBuffLevel("Heroism") * 0.02); k.magic += 50;}}
+          max:()=>magicFighterStrenght,
+          cost:(p) => segment =>  precision3(Math.floor(Math.pow(5, p.completed/9)+ 0.0000001)*500000),
+          tick:(p, a, s, k, r, sq) => offset => sq ? 0 : (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 200),
+          effect:{ end:(r,k)=> {
+       if (r.magicLoop>=magicFighterStrenght) r.magicFight=1;
+    }, segment:(r,k) => {k.combat += 75; k.magic += 75;}, loop:(r,k) => {k.combat += 75; k.magic += 75;r.magicLoop=(r.magicLoop||0)+1;}}
         }},
         'Small Dungeon':{ affected:['soul'],
           canStart:(input,sq) => {
@@ -1349,12 +1377,12 @@ const Koviko = {
             r.gamblesInARow=(r.gamblesInARow||0);
           }
           r.gambleActions++;
-          r.rep--;
+          
 
           if ( r.gambleActions <= towns[MERCHANTON].goodGamble) {
             wonGamble=true; //Normal Success
           } else {
-            let totalChecked=r.gambleActions-towns[MERCHANTON].goodGamble+towns[MERCHANTON].checkedGamble;
+            let totalChecked=r.gambleActions-towns[MERCHANTON].goodGamble+towns[MERCHANTON].checkedGamble
             if ((totalChecked<=towns[MERCHANTON].totalGamble) && (totalChecked%10==0)) {
               wonGamble=true;
             }
@@ -1367,6 +1395,7 @@ const Koviko = {
             r.gold-=(20 + gamblesInARow*(gamblesInARow+1));
             r.gamblesInARow=0;
           }
+          r.rep-=Math.floor((r.gamblesInARow+5)/10);
         }},
         'Slave Auction':{ affected:['gold','rep'],
           canStart:(input) => {
@@ -1376,7 +1405,7 @@ const Koviko = {
           effect:(r,k) => {
 
 		let totalSlaves = towns[MERCHANTON].goodSlaveAuction + (towns[MERCHANTON].totalSlaveAuction - towns[MERCHANTON].checkedSlaveAuction);
-		let costPerSlave = 70 + r.rep;
+		let costPerSlave = Math.max(70 + resources.reputation, 0);
 		let bounty = 60;
 		let slavesBought = (Math.min(Math.floor(r.gold/costPerSlave), totalSlaves));
 		
@@ -1396,10 +1425,6 @@ const Koviko = {
 
         }
       }},
-        'Buy Mana Z3':{ affected:['mana','gold'],
-          effect:(r) => (r.mana += r.gold *  Action.BuyManaZ3.goldCost(), r.gold = 0)},
-        'Sell Potions':{ affected:['gold','potions'],
-          effect:(r, k) => (r.gold += r.potions *  getSkillLevelFromExp(k.alchemy), r.potions = 0)},
         'Adventure Guild':{ affected:['gold','adventures'],
           canStart:(input) => (input.guild==''), loop: {
           cost:(p) => segment =>  precision3(Math.pow(1.2, p.completed + segment)) * 5e6,
@@ -1437,6 +1462,38 @@ const Koviko = {
         'Architect':{ affected:[''],
           canStart:(input) => (input.guild=='crafting'),
           effect:(r, k) => Math.min((r.architect = (r.architect || towns[2].expArchitect) + 10 * h.getGuildRankBonus(r.crafts || 0),505000), k.crafting += 40 * (1 + h.getTownLevelFromExp(r.architect) / 100))},
+        'Delivery Address Zero':{ affected:['magicFighterStrenght'],
+          effect:(r,k) => {
+          r.magicFighterStrenght=1;
+        }},
+        'Delivery Address One':{ affected:['magicFight','magicFighterStrenght'],
+          effect:(r,k) => {
+          if(r.magicFight>0) r.magicFighterStrenght = 2;
+        }},
+        'Delivery Address Two':{ affected:['magicFight','magicFighterStrenght'],
+          effect:(r,k) => {
+          if(r.magicFight>0) r.magicFighterStrenght = 3;
+        }},
+        'Delivery Address Three':{ affected:['magicFight','magicFighterStrenght'],
+          effect:(r,k) => {
+          if(r.magicFight>0) r.magicFighterStrenght = 4;
+        }},
+        'Delivery Address Four':{ affected:['magicFight','magicFighterStrenght'],
+          effect:(r,k) => {
+          if(r.magicFight>0) r.magicFighterStrenght = 5;
+        }},
+        'Delivery Address Five':{ affected:['magicFight','teamMembers'],
+          effect:(r,k) => {
+          if(r.magicFight>0) r.teamMembers++;
+        }},
+        'Buy Mana Z3':{ affected:['mana','gold'],
+          effect:(r) => (r.mana += r.gold *  Action.BuyManaZ3.goldCost(), r.gold = 0)},
+        'Sell Potions':{ affected:['gold','potions','darkPotions'],
+          effect:(r, k) =>  {
+       r.gold += r.potions * 2+r.darkPotions*2;
+       r.potions = 0;
+       r.darkPotions=0;
+    }},
         'Read Books':{ affected:[''],
           canStart:(input) => input.glasses},
         'Buy Pickaxe':{ affected:['gold'],
@@ -1998,7 +2055,7 @@ const Koviko = {
         stats: new Koviko.Snapshot(state.stats),
         skills: new Koviko.Snapshot(state.skills),
         currProgress: new Koviko.Snapshot({"Fight Monsters": 0, "Heal The Sick": 0, "Small Dungeon": 0, "Large Dungeon": 0, "Hunt Trolls": 0, "Tidy Up":0,"Fight Frost Giants":0, "The Spire":0, "Fight Jungle Monsters":0,"Rescue Survivors":0,"Heroes Trial":0,
-          "Dead Trial":0, "Secret Trial":0, "Gods Trial":0, "Challenge Gods":0, "Magic Fighter":0})
+          "Dead Trial":0, "Secret Trial":0, "Gods Trial":0, "Challenge Gods":0, "Magic Fighter":0, "Training Dummy":0})
       };
 
       /**
@@ -2458,6 +2515,9 @@ const Koviko = {
               break;
             case "Magic Fighter":
               tooltip += "M FI";
+              break;
+            case "Training Dummy":
+              tooltip += "Dummy";
               break;
             default:
               tooltip += i.toUpperCase();
