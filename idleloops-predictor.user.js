@@ -2,7 +2,7 @@
 // @name         IdleLoops Squirrel Predictor Makro
 // @namespace    https://github.com/Tomnar9/
 // @downloadURL  https://raw.githubusercontent.com/Tomnar9/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      0.3.6
+// @version      0.3.7
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops Reworked  v.0.2.7/Morana.
 // @author       Koviko <koviko.net@gmail.com>, Tomnar <Tomnar#4672 on discord>
 // @match        https://mopatissier.github.io/IdleLoopsReworked/
@@ -670,7 +670,7 @@ const Koviko = {
          * @return {number} Current bonus from guild rank
          * @memberof Koviko.Predictor#helpers
          */
-        getGuildRankBonus: (guild) => Math.floor(guild / 3 + .00001) >= 14 ? 10 :  precision3(1 + guild / 20 + (guild ** 2) / 300),
+        getGuildRankBonus: (guild) => guild>= 27 ? 10 : Math.floor(1 + guild / 3) + (guild%3) * 0.25,
 
         /**
          * Calculate the bonus given by "Wizard College"
@@ -707,7 +707,7 @@ const Koviko = {
 
         getTeamStrength: (r, k) => (( getSkillLevelFromExp(k.combat) +  getSkillLevelFromExp(k.restoration) * 2) * ((r.team||0) / 2) * (r.adventures?h.getGuildRankBonus(r.adventures):1)),
 
-        getTeamCombat: (r, k) => (h.getSelfCombat(r, k) + h.getTeamStrength(r, k)),
+        getTeamCombat: (r, k) => (h.getSelfCombat(r, k)/200 * Math.pow(200,r.teamMembers) * (1+getSkillLevelFromExp(k.teamwork)/10)),
 
         getRewardSS: (dNum) => Math.floor(Math.pow(10, dNum) * Math.pow(1 + getSkillLevel("Divine") / 60, 0.25)),
 
@@ -1056,17 +1056,17 @@ const Koviko = {
         }},
         'Training Dummy':{ affected:['magicFight'],
           canStart:(input,sq) => {
-			return (!sq || input.squirrel) && input.rep >= 2;
+			return ((!sq || input.squirrel) && input.rep >= 2);
         }, loop: {
           max:()=>3,
           cost:(p) => segment =>  precision3(Math.floor(Math.pow(3, p.completed/9)+0.0000001)*60000),
-          tick:(p, a, s, k, r,sq) => offset => {
+          tick:(p, a, s, k, r, sq) => offset => {
             let floor = Math.floor(p.completed / a.segments + .0000001);
             if (sq) {
                return  0;//Math.max((getLevelSquirrelAction("Small Dungeon")-1),0)/2 * lCost(offset) * 7 / a.manaCost();
             }
             if (floor>=3) return 0;
-            return h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic) * h.getStatProgress(p, a, s, offset) *  Math.sqrt(1 + towns[BEGINNERSVILLE].totalTDummy / 100);
+            return (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) *  Math.sqrt(1 + towns[BEGINNERSVILLE].totalTDummy / 100);
     },
           effect:{ end:(r,k) => {
       if(r.trainLoop>=3) r.magicFight=1;
@@ -1405,9 +1405,9 @@ const Koviko = {
           effect:(r,k) => {
 
 		let totalSlaves = towns[MERCHANTON].goodSlaveAuction + (towns[MERCHANTON].totalSlaveAuction - towns[MERCHANTON].checkedSlaveAuction);
-		let costPerSlave = Math.max(70 + resources.reputation, 0);
+		let costPerSlave = Math.max(70 + r.rep, 0);
 		let bounty = 60;
-		let slavesBought = (Math.min(Math.floor(r.gold/costPerSlave), totalSlaves));
+		let slavesBought = (costPerSlave === 0 ? totalSlaves : Math.min(Math.floor(r.gold/costPerSlave),totalSlaves));
 		
         r.rep = 0;
 		r.gold-=slavesBought*costPerSlave;
@@ -1427,22 +1427,50 @@ const Koviko = {
       }},
         'Adventure Guild':{ affected:['gold','adventures'],
           canStart:(input) => (input.guild==''), loop: {
-          cost:(p) => segment =>  precision3(Math.pow(1.2, p.completed + segment)) * 5e6,
-          tick:(p, a, s, k, r) => offset => (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic) / 2) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000),
-          effect:{ end:(r) => (r.guild='adventure'), segment:(r) => (r.mana += 200, r.adventures++)}
+          cost:(p) => segment =>  precision3(Math.pow(1.65, p.completed + segment)) * 230000,
+          tick:(p, a, s, k, r) => offset => (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic) / 2) * Math.sqrt(h.getStatProgress(p, a, s, offset)) * Math.sqrt(1 + p.total),
+          effect:{ end:(r) => (r.guild='Adventure'), segment:(r) => (r.adventures++)}
         }},
-        'Gather Team':{ affected:['team','gold'],
-          canStart:(input) => ((input.guild=='adventure')&&(input.gold>=(input.team+1) * 100)),
-          effect:(r) => (r.team = (r.team || 0) + 1, r.gold -= r.team * 100)},
-        'Large Dungeon':{ affected:['team','soul'],
-          canStart:(input) => (input.team>0), loop: {
+        'Training Facility':{ affected:['gold','teamMembers','adventures'],
+          canStart:(input) => {
+          return (input.teamMembers === 0 || input.gold >= 25) && input.guild === "Adventure"
+        },
+          effect:(r,k) => {
+          if (r.teamMembers>0) {
+            r.gold-=25;
+          }
+          let exp = 40;
+		  exp = exp * h.getGuildRankBonus(r.adventures);
+		  exp = exp * ( 1 + r.teamMembers);
+	      return exp;
+        
+        }},
+        'Gather Team':{ affected:['teamMembers','adventures'],
+          canStart:(input) => {
+		  let teamLimit = Math.floor (h.getGuildRankBonus(input.adventures) / 2);
+          return input.guild === "Adventure" && input.teamMembers < teamLimit;
+        },
+          effect:(r) => (r.teamMembers++)},
+        'Large Dungeon':{ affected:['teamMembers','soul'],
+          canStart:(input) => (input.teamMembers>0), loop: {
           max:(a) =>  dungeons[a.dungeonNum].length,
-          cost:(p, a) => segment =>  precision3(Math.pow(3, Math.floor((p.completed + segment) / a.segments + .0000001)) * 5e5),
+          cost:(p, a) => segment =>  precision3(Math.pow(4, Math.floor((p.completed + segment) / a.segments + .0000001)) * 300000),
           tick:(p, a, s, k, r) => offset => {
             let floor = Math.floor(p.completed / a.segments + .0000001);
-            return floor in  dungeons[a.dungeonNum] ? (h.getTeamCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 +  dungeons[a.dungeonNum][floor].completed / 200) : 0;
+            return floor in  dungeons[a.dungeonNum] ? h.getTeamCombat(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 +  dungeons[a.dungeonNum][floor].completed / 100) : 0;
           },
-          effect:{ end:(r, k) => (k.combat += 15*(1+getBuffLevel("Heroism") * 0.02), k.magic += 15), loop:(r) => r.soul +=h.getRewardSS(1)}
+          effect:{loop:(r,k) => {
+      r.soul +=Math.min(10,Math.floor(10 / (1 +r.teamMembers) * (1 + getSkillLevelFromExp(k.teamwork)/100)));
+      k.teamwork+=100;
+    }}
+        }},
+        'Mock Battle':{ affected:['climbingGears'],
+          canStart:(input) => {
+          return input.guild=="Adventure";
+        }, loop: {
+          cost:(p,a) => segment =>  Math.floor(Math.pow(10, Math.floor((p.completed + segment) / a.segments + .0000001)))*150000,
+          tick:(p, a, s, k, r) => offset => getSkillLevelFromExp(k.teamwork) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
+          effect:{loop:(r,k) => {r.climbingGears++}}
         }},
         'Crafting Guild':{ affected:['gold','crafts'],
           canStart:(input) => (input.guild==''), loop: {
@@ -1496,9 +1524,10 @@ const Koviko = {
     }},
         'Read Books':{ affected:[''],
           canStart:(input) => input.glasses},
-        'Buy Pickaxe':{ affected:['gold'],
-          canStart:(input) =>(input.gold>=200),
-          effect:(r) => (r.gold -= 200, r.pickaxe = true)},
+        'Tail Judges':{ affected:[''],
+          effect:(r,k) => {
+          //NYI
+        }},
         'Heroes Trial':{ affected:['heroism'],
           canStart:true, loop: {
           max:(a) => trialFloors[a.trialNum],
@@ -1510,7 +1539,8 @@ const Koviko = {
           effect:{ end:(r,k) => (k.combat+=500*(1+getBuffLevel("Heroism") * 0.02),k.pyromancy+=100*(1+getBuffLevel("Heroism") * 0.02),k.restoration+=100*(1+getBuffLevel("Heroism") * 0.02)), loop:(r) => (r.heroism=(r.heroism||0)+1)}
         }},
         'Start Trek':{ affected:[''],
-          effect:(r) => r.town = 3},
+          canStart:(input) => input.climbingGears>=1,
+          effect:(r) => r.town = MTOLYMPUS},
         'Underworld':{ affected:['gold'],
           canStart:(input)=>(input.gold>=500),
           effect:(r) => (r.town = 7,r.gold-=500)},
@@ -1993,7 +2023,7 @@ const Koviko = {
      */
     async update(actions, container, isDebug) {
 
-      if(this.update.pre?.length){
+      if ((this.update.pre?.length)&&!isDebug) {
         Array.from(container.children).map((element, i) => {
           if(i < this.update.pre.length){
             element.appendChild(this.update.pre[i]);
@@ -2055,7 +2085,7 @@ const Koviko = {
         stats: new Koviko.Snapshot(state.stats),
         skills: new Koviko.Snapshot(state.skills),
         currProgress: new Koviko.Snapshot({"Fight Monsters": 0, "Heal The Sick": 0, "Small Dungeon": 0, "Large Dungeon": 0, "Hunt Trolls": 0, "Tidy Up":0,"Fight Frost Giants":0, "The Spire":0, "Fight Jungle Monsters":0,"Rescue Survivors":0,"Heroes Trial":0,
-          "Dead Trial":0, "Secret Trial":0, "Gods Trial":0, "Challenge Gods":0, "Magic Fighter":0, "Training Dummy":0})
+          "Dead Trial":0, "Secret Trial":0, "Gods Trial":0, "Challenge Gods":0, "Magic Fighter":0, "Training Dummy":0,"Mock Battle":0})
       };
 
       /**
@@ -2518,6 +2548,9 @@ const Koviko = {
               break;
             case "Training Dummy":
               tooltip += "Dummy";
+              break;
+            case "Mock Battle":
+              tooltip += "MOCK";
               break;
             default:
               tooltip += i.toUpperCase();

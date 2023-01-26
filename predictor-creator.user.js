@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name     Squirrel Predictor Creator
-// @version  1.3
+// @version  1.3.1
 // @description Author script for the predictor. To use: 1.call crUpdatePredictions in the console 2. copy the result into the script, replacing everything between the "CACHE File" markers 3. Fix any TODOs in the copied cache, those are actions that changed and (maybe) need attention, if a function shouldn't be in the output replace it with '' (or\`\`) 4. call crOutputPredictions 5. paste the output into the main script, replacing the content of the "predictions" object EXEPT those after "SPECIAL ACTIONS" those are special cases that should be done by hand  // @match https://lloyd-delacroix.github.io/omsi-loops/
 // @author Tomnar <Tomnar#4672 on discord>
 // @match https://mopatissier.github.io/IdleLoopsReworked/
@@ -1898,14 +1898,15 @@ creatorCache['Training Dummy'].canStart.game=\`canStart() {
 		return squirrelRequirements && resources.reputation >= 2 && curPowerLevel < 3;
     }\`;
 creatorCache['Training Dummy'].canStart.pred=\`(input,sq) => {
-			return (!sq || input.squirrel) && resources.rep >= 2;
+			return ((!sq || input.squirrel) && input.rep >= 2);
         }\`;
 creatorCache['Training Dummy'].loop={};
 creatorCache['Training Dummy'].loop.cost={};
 creatorCache['Training Dummy'].loop.cost.game=\`loopCost(segment) {
         return precision3((Math.floor(Math.pow(3, towns[BEGINNERSVILLE].TDummyLoopCounter/this.segments)+ 0.0000001)) * 60000);
+		
     }\`;
-creatorCache['Training Dummy'].loop.cost.pred=\`(p) => segment =>  precision3(Math.floor(Math.pow(3, p.completed/9)+0.0000001)*60000\`;
+creatorCache['Training Dummy'].loop.cost.pred=\`(p) => segment =>  precision3(Math.floor(Math.pow(3, p.completed/9)+0.0000001)*60000)\`;
 creatorCache['Training Dummy'].loop.tick={};
 creatorCache['Training Dummy'].loop.tick.game=\`tickProgress(offset) {
 		if(this.squirrelAction) return 0;
@@ -1918,7 +1919,7 @@ creatorCache['Training Dummy'].loop.tick.pred=\`(p, a, s, k, r, sq) => offset =>
                return  0;//Math.max((getLevelSquirrelAction("Small Dungeon")-1),0)/2 * lCost(offset) * 7 / a.manaCost();
             }
             if (floor>=3) return 0;
-            return h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) *  Math.sqrt(1 + towns[BEGINNERSVILLE].totalTDummy / 100);
+            return (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) *  Math.sqrt(1 + towns[BEGINNERSVILLE].totalTDummy / 100);
     }\`;
 creatorCache['Training Dummy'].loop.end={};
 creatorCache['Training Dummy'].loop.end.skills={};	
@@ -3955,7 +3956,8 @@ creatorCache['Slave Auction'].effect.cost=\`cost() {
 		let totalSlaves = towns[MERCHANTON].goodSlaveAuction + (towns[MERCHANTON].totalSlaveAuction - towns[MERCHANTON].checkedSlaveAuction);
 		let costPerSlave = Math.max(70 + resources.reputation, 0);
 		
-		let costs = (Math.min(Math.floor(resources.gold/costPerSlave) * costPerSlave, totalSlaves * costPerSlave)) * (-1);
+		let affordableMaxSlaves = (costPerSlave === 0 ? totalSlaves : Math.floor(resources.gold/costPerSlave));
+		let costs = (Math.min(affordableMaxSlaves * costPerSlave, totalSlaves * costPerSlave)) * (-1);
 		
 		resetResource("reputation");
 		addResource("gold", costs);
@@ -3967,7 +3969,8 @@ creatorCache['Slave Auction'].effect.game=\`finish() {
 		let costPerSlave = Math.max(70 + resources.reputation, 0);
 		let bounty = 60;
 		
-		let numberOfLoops = Math.min(Math.floor(resources.gold/costPerSlave), totalSlaves);
+		let affordableMaxSlaves = (costPerSlave === 0 ? totalSlaves : Math.floor(resources.gold/costPerSlave));
+		let numberOfLoops = Math.min(affordableMaxSlaves, totalSlaves);
 		
 		for(let i = 0; i <= numberOfLoops; i++){
 			
@@ -3981,9 +3984,9 @@ creatorCache['Slave Auction'].effect.game=\`finish() {
 creatorCache['Slave Auction'].effect.pred=\`(r,k) => {
 
 		let totalSlaves = towns[MERCHANTON].goodSlaveAuction + (towns[MERCHANTON].totalSlaveAuction - towns[MERCHANTON].checkedSlaveAuction);
-		let costPerSlave = Math.max(70 + resources.reputation, 0);
+		let costPerSlave = Math.max(70 + r.rep, 0);
 		let bounty = 60;
-		let slavesBought = (Math.min(Math.floor(r.gold/costPerSlave), totalSlaves));
+		let slavesBought = (costPerSlave === 0 ? totalSlaves : Math.min(Math.floor(r.gold/costPerSlave),totalSlaves));
 		
         r.rep = 0;
 		r.gold-=slavesBought*costPerSlave;
@@ -4011,102 +4014,166 @@ creatorCache['Adventure Guild'].canStart.pred=\`(input) => (input.guild=='')\`;
 creatorCache['Adventure Guild'].loop={};
 creatorCache['Adventure Guild'].loop.cost={};
 creatorCache['Adventure Guild'].loop.cost.game=\`loopCost(segment) {
-        return precision3(Math.pow(1.2, towns[MERCHANTON]['@{this.varName}LoopCounter'] + segment)) * 5e6;
+        return precision3(Math.pow(1.65, towns[MERCHANTON]['@{this.varName}LoopCounter'] + segment)) * 230000;
     }\`;
-creatorCache['Adventure Guild'].loop.cost.pred=\`(p) => segment =>  precision3(Math.pow(1.2, p.completed + segment)) * 5e6\`;
+creatorCache['Adventure Guild'].loop.cost.pred=\`(p) => segment =>  precision3(Math.pow(1.65, p.completed + segment)) * 230000\`;
 creatorCache['Adventure Guild'].loop.tick={};
 creatorCache['Adventure Guild'].loop.tick.game=\`tickProgress(offset) {
-        return (getSkillLevel("Magic") / 2 +
-                getSelfCombat("Combat")) *
-                (1 + getLevel(this.loopStats[(towns[MERCHANTON]['@{this.varName}LoopCounter'] + offset) % this.loopStats.length]) / 100) *
-                Math.sqrt(1 + towns[MERCHANTON]['total@{this.varName}'] / 1000);
+        return (getSkillLevel("Magic") / 2 + getSelfCombat("Combat") / 2) *
+                Math.sqrt((1 + getLevel(this.loopStats[(towns[MERCHANTON]['@{this.varName}LoopCounter'] + offset) % this.loopStats.length]) / 100)) *
+                Math.sqrt(1 + towns[MERCHANTON]['total@{this.varName}']);
     }\`;
-creatorCache['Adventure Guild'].loop.tick.pred=\`(p, a, s, k, r) => offset => (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic) / 2) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000)\`;
+creatorCache['Adventure Guild'].loop.tick.pred=\`(p, a, s, k, r) => offset => (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic) / 2) * Math.sqrt(h.getStatProgress(p, a, s, offset)) * Math.sqrt(1 + p.total)\`;
 creatorCache['Adventure Guild'].loop.end={};
 creatorCache['Adventure Guild'].loop.end.game=\`finish() {
         guild = "Adventure";
-        unlockStory("advGuildTestsTaken");
+		view.adjustExpGain(Action.TrainingFacility);
+		view.adjustGoldCost("TailJudges", Action.TailJudges.goldCost());
     }\`;
-creatorCache['Adventure Guild'].loop.end.pred=\`(r) => (r.guild='adventure')\`;
+creatorCache['Adventure Guild'].loop.end.pred=\`(r) => (r.guild='Adventure')\`;
 creatorCache['Adventure Guild'].loop.segment={};
 creatorCache['Adventure Guild'].loop.segment.game=\`segmentFinished() {
         curAdvGuildSegment++;
-        addMana(200);
     }\`;
-creatorCache['Adventure Guild'].loop.segment.pred=\`(r) => (r.mana += 200, r.adventures++)\`;
+creatorCache['Adventure Guild'].loop.segment.pred=\`(r) => (r.adventures++)\`;
 creatorCache['Adventure Guild'].loop.loop={};
 creatorCache['Adventure Guild'].loop.loop.game=\`loopsFinished() {
-        if (curAdvGuildSegment >= 0) unlockStory("advGuildRankEReached");
-        if (curAdvGuildSegment >= 3) unlockStory("advGuildRankDReached");
-        if (curAdvGuildSegment >= 6) unlockStory("advGuildRankCReached");
-        if (curAdvGuildSegment >= 9) unlockStory("advGuildRankBReached");
-        if (curAdvGuildSegment >= 12) unlockStory("advGuildRankAReached");
-        if (curAdvGuildSegment >= 15) unlockStory("advGuildRankSReached");
-        if (curAdvGuildSegment >= 27) unlockStory("advGuildRankUReached");
-        if (curAdvGuildSegment >= 39) unlockStory("advGuildRankGodlikeReached");
+		gotERankAdv = true;
     }\`;
 creatorCache['Adventure Guild'].loop.loop.pred=\`\`;
 creatorCache['Adventure Guild'].loop.max=\`\`;
+creatorCache['Training Facility']={};
+creatorCache['Training Facility'].affected=['gold','teamMembers','adventures'];
+creatorCache['Training Facility'].canStart={};
+creatorCache['Training Facility'].canStart.game=\`canStart() {
+		let membersCheck = false;
+		if(resources.teamMembers === 0 || resources.gold >= 25){
+			membersCheck = true;
+		}
+		
+		return guild === "Adventure" && membersCheck;
+    }\`;
+creatorCache['Training Facility'].canStart.pred=\`(input) => {
+          return (input.teamMembers === 0 || input.gold >= 25) && input.guild === "Adventure"
+        }\`;
+creatorCache['Training Facility'].effect={};
+creatorCache['Training Facility'].effect.skills={};	
+creatorCache['Training Facility'].effect.skills.TeamWork=\`TeamWork() {
+			let exp = 40;
+			exp = exp * getAdvGuildRank().bonus;
+			exp = exp * ( 1 + resources.teamMembers);
+			return exp;
+		}\`,
+creatorCache['Training Facility'].effect.cost=\`cost() {
+		if(resources.teamMembers > 0){
+			addResource("gold", -25);
+		}
+    }\`;
+creatorCache['Training Facility'].effect.game=\`finish() {
+		handleSkillExp(this.skills);
+    }\`;
+creatorCache['Training Facility'].effect.pred=\`(r,k) => {
+          if (r.teamMembers>0) {
+            r.gold-=25;
+          }
+          let exp = 40;
+		  exp = exp * h.getGuildRankBonus(r.adventures);
+		  exp = exp * ( 1 + r.teamMembers);
+	      return exp;
+        
+        }\`;
 creatorCache['Gather Team']={};
-creatorCache['Gather Team'].affected=['team','gold'];
+creatorCache['Gather Team'].affected=['teamMembers','adventures'];
 creatorCache['Gather Team'].canStart={};
 creatorCache['Gather Team'].canStart.game=\`canStart() {
-        return guild === "Adventure" && resources.gold >= (resources.teamMembers + 1) * 100;
+		let teamLimit = Math.floor (getAdvGuildRank().bonus / 2);
+        return guild === "Adventure" && resources.teamMembers < teamLimit;
     }\`;
-creatorCache['Gather Team'].canStart.pred=\`(input) => ((input.guild=='adventure')&&(input.gold>=(input.team+1) * 100))\`;
+creatorCache['Gather Team'].canStart.pred=\`input) => {
+		  let teamLimit = Math.floor (h.getGuildRankBonus(input.adventures) / 2);
+          return input.guild === "Adventure" && input.teamMembers < teamLimit;
+    }\`;
 creatorCache['Gather Team'].effect={};
-creatorCache['Gather Team'].effect.cost=\`cost() {
-        // cost comes after finish
-        addResource("gold", -(resources.teamMembers) * 100);
-    }\`;
 creatorCache['Gather Team'].effect.game=\`finish() {
         addResource("teamMembers", 1);
-        unlockStory("teammateGathered");
-        if (resources.teamMembers >= 5) unlockStory("fullParty");
+		view.adjustExpGain(Action.TrainingFacility);
     }\`;
-creatorCache['Gather Team'].effect.pred=\`(r) => (r.team = (r.team || 0) + 1, r.gold -= r.team * 100)\`;
+creatorCache['Gather Team'].effect.pred=\`(r) => (r.teamMembers++)\`;
 creatorCache['Large Dungeon']={};
-creatorCache['Large Dungeon'].affected=['team','soul'];
+creatorCache['Large Dungeon'].affected=['teamMembers','soul'];
 creatorCache['Large Dungeon'].canStart={};
 creatorCache['Large Dungeon'].canStart.game=\`canStart() {
         const curFloor = Math.floor((towns[this.townNum].LDungeonLoopCounter) / this.segments + 0.0000001);
         return resources.teamMembers >= 1 && curFloor < dungeons[this.dungeonNum].length;
     }\`;
-creatorCache['Large Dungeon'].canStart.pred=\`(input) => (input.team>0)\`;
+creatorCache['Large Dungeon'].canStart.pred=\`(input) => (input.teamMembers>0)\`;
 creatorCache['Large Dungeon'].loop={};
 creatorCache['Large Dungeon'].loop.cost={};
 creatorCache['Large Dungeon'].loop.cost.game=\`loopCost(segment) {
-        return precision3(Math.pow(3, Math.floor((towns[this.townNum].LDungeonLoopCounter + segment) / this.segments + 0.0000001)) * 5e5);
+        return precision3(Math.pow(4, Math.floor((towns[this.townNum].LDungeonLoopCounter + segment) / this.segments + 0.0000001)) * 300000);
     }\`;
-creatorCache['Large Dungeon'].loop.cost.pred=\`(p, a) => segment =>  precision3(Math.pow(3, Math.floor((p.completed + segment) / a.segments + .0000001)) * 5e5)\`;
+creatorCache['Large Dungeon'].loop.cost.pred=\`(p, a) => segment =>  precision3(Math.pow(4, Math.floor((p.completed + segment) / a.segments + .0000001)) * 300000)\`;
 creatorCache['Large Dungeon'].loop.tick={};
 creatorCache['Large Dungeon'].loop.tick.game=\`tickProgress(offset) {
         const floor = Math.floor((towns[this.townNum].LDungeonLoopCounter) / this.segments + 0.0000001);
-        return (getTeamCombat() + getSkillLevel("Magic")) *
+        return getTeamCombat() *
             (1 + getLevel(this.loopStats[(towns[this.townNum].LDungeonLoopCounter + offset) % this.loopStats.length]) / 100) *
-            Math.sqrt(1 + dungeons[this.dungeonNum][floor].completed / 200);
+            Math.sqrt(1 + dungeons[this.dungeonNum][floor].completed / 100);
     }\`;
 creatorCache['Large Dungeon'].loop.tick.pred=\`(p, a, s, k, r) => offset => {
             let floor = Math.floor(p.completed / a.segments + .0000001);
-            return floor in  dungeons[a.dungeonNum] ? (h.getTeamCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 +  dungeons[a.dungeonNum][floor].completed / 200) : 0;
+            return floor in  dungeons[a.dungeonNum] ? h.getTeamCombat(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 +  dungeons[a.dungeonNum][floor].completed / 100) : 0;
           }\`;
 creatorCache['Large Dungeon'].loop.end={};
 creatorCache['Large Dungeon'].loop.end.skills={};	
-creatorCache['Large Dungeon'].loop.end.skills.Combat=15,	
-creatorCache['Large Dungeon'].loop.end.skills.Magic=15,
+creatorCache['Large Dungeon'].loop.end.skills.TeamWork=100,
 creatorCache['Large Dungeon'].loop.end.game=\`finish() {
-        handleSkillExp(this.skills);
-        unlockStory("largeDungeonAttempted");
-        if (towns[MERCHANTON].LDungeonLoopCounter >= 63) unlockStory("clearLDungeon");
+        
     }\`;
-creatorCache['Large Dungeon'].loop.end.pred=\`(r, k) => (k.combat += 15*(1+getBuffLevel("Heroism") * 0.02), k.magic += 15)\`;
+creatorCache['Large Dungeon'].loop.end.pred=\`\`;
 creatorCache['Large Dungeon'].loop.loop={};
 creatorCache['Large Dungeon'].loop.loop.game=\`loopsFinished() {
         const curFloor = Math.floor((towns[this.townNum].LDungeonLoopCounter) / this.segments + 0.0000001 - 1);
-        finishDungeon(this.dungeonNum, curFloor);
+        finishDungeon(this.dungeonNum, curFloor, true);
+		handleSkillExp(this.skills);
     }\`;
-creatorCache['Large Dungeon'].loop.loop.pred=\`(r) => r.soul +=h.getRewardSS(1)\`;
+creatorCache['Large Dungeon'].loop.loop.pred=\`(r,k) => {
+      r.soul +=Math.min(10,Math.floor(10 / (1 +r.teamMembers) * (1 + getSkillLevelFromExp(k.teamwork)/100)));
+      k.teamwork+=100;
+    }\`;
 creatorCache['Large Dungeon'].loop.max=\`(a) =>  dungeons[a.dungeonNum].length\`;
+creatorCache['Mock Battle']={};
+creatorCache['Mock Battle'].affected=['climbingGears'];
+creatorCache['Mock Battle'].canStart={};
+creatorCache['Mock Battle'].canStart.game=\`canStart() {
+		return guild === "Adventure";
+    }\`;
+creatorCache['Mock Battle'].canStart.pred=\`(input) => {
+          return input.guild=="Adventure";
+        }\`;
+creatorCache['Mock Battle'].loop={};
+creatorCache['Mock Battle'].loop.cost={};
+creatorCache['Mock Battle'].loop.cost.game=\`loopCost(segment) {
+		const numberLoops = towns[this.townNum].MockLoopCounter / 5;
+        return Math.floor(Math.pow(10, numberLoops)+ 0.0000001) * 150000;
+    }\`;
+creatorCache['Mock Battle'].loop.cost.pred=\`(p,a) => segment =>  Math.floor(Math.pow(10, Math.floor((p.completed + segment) / a.segments + .0000001)))*150000\`;
+creatorCache['Mock Battle'].loop.tick={};
+creatorCache['Mock Battle'].loop.tick.game=\`tickProgress(offset) {
+        return (getSkillLevel("TeamWork")) * Math.sqrt(1 + getLevel(this.loopStats[(towns[this.townNum].MockLoopCounter + offset) % this.loopStats.length]) / 100) * Math.sqrt(1 + towns[this.townNum].totalMock / 100);
+    }\`;
+creatorCache['Mock Battle'].loop.tick.pred=\`(p, a, s, k, r) => offset => getSkillLevelFromExp(k.teamwork) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100)\`;
+creatorCache['Mock Battle'].loop.end={};
+creatorCache['Mock Battle'].loop.end.game=\`finish() {
+			
+    }\`;
+creatorCache['Mock Battle'].loop.end.pred='';
+creatorCache['Mock Battle'].loop.loop={};
+creatorCache['Mock Battle'].loop.loop.game=\`loopsFinished() {
+		addResource("climbingGears", 1);
+    }\`;
+creatorCache['Mock Battle'].loop.loop.pred=\`(r,k) => {r.climbingGears++}\`;
+creatorCache['Mock Battle'].loop.max=\`\`;
 creatorCache['Crafting Guild']={};
 creatorCache['Crafting Guild'].affected=['gold','crafts'];
 creatorCache['Crafting Guild'].canStart={};
@@ -4134,6 +4201,7 @@ creatorCache['Crafting Guild'].loop.end.skills.Crafting=50,
 creatorCache['Crafting Guild'].loop.end.game=\`finish() {
         guild = "Crafting";
         unlockStory("craftGuildTestsTaken");
+		//view.adjustGoldCost("TailJudges", Action.TailJudges.goldCost());
     }\`;
 creatorCache['Crafting Guild'].loop.end.pred=\`(r) => (r.guild='crafting')\`;
 creatorCache['Crafting Guild'].loop.segment={};
@@ -4229,7 +4297,7 @@ creatorCache['Delivery Address Zero']={};
 creatorCache['Delivery Address Zero'].affected=['magicFighterStrenght'];
 creatorCache['Delivery Address Zero'].effect={};
 creatorCache['Delivery Address Zero'].effect.game=\`finish() {
-       r.magicFighterStrenght = 0;
+       magicFighterStrenght = 0;
     }\`;
 creatorCache['Delivery Address Zero'].effect.pred=\`(r,k) => {
           r.magicFighterStrenght=1;
@@ -4239,6 +4307,7 @@ creatorCache['Delivery Address One'].affected=['magicFight','magicFighterStrengh
 creatorCache['Delivery Address One'].effect={};
 creatorCache['Delivery Address One'].effect.game=\`finish() {
 		if(magicFight && magicFighterStrenght === 0) magicFighterStrenght = 1;
+		view.adjustGoldCost("MagicFighter", magicFighterStrenght);
     }\`;
 creatorCache['Delivery Address One'].effect.pred=\`(r,k) => {
           if(r.magicFight>0) r.magicFighterStrenght = 2;
@@ -4248,6 +4317,7 @@ creatorCache['Delivery Address Two'].affected=['magicFight','magicFighterStrengh
 creatorCache['Delivery Address Two'].effect={};
 creatorCache['Delivery Address Two'].effect.game=\`finish() {
 		if(magicFight && magicFighterStrenght === 1) magicFighterStrenght = 2;
+		view.adjustGoldCost("MagicFighter", magicFighterStrenght);
     }\`;
 creatorCache['Delivery Address Two'].effect.pred=\`(r,k) => {
           if(r.magicFight>0) r.magicFighterStrenght = 3;
@@ -4257,6 +4327,7 @@ creatorCache['Delivery Address Three'].affected=['magicFight','magicFighterStren
 creatorCache['Delivery Address Three'].effect={};
 creatorCache['Delivery Address Three'].effect.game=\`finish() {
 		if(magicFight && magicFighterStrenght === 2) magicFighterStrenght = 3;
+		view.adjustGoldCost("MagicFighter", magicFighterStrenght);
     }\`;
 creatorCache['Delivery Address Three'].effect.pred=\`(r,k) => {
           if(r.magicFight>0) r.magicFighterStrenght = 4;
@@ -4266,6 +4337,7 @@ creatorCache['Delivery Address Four'].affected=['magicFight','magicFighterStreng
 creatorCache['Delivery Address Four'].effect={};
 creatorCache['Delivery Address Four'].effect.game=\`finish() {
 		if(magicFight && magicFighterStrenght === 3) magicFighterStrenght = 4;
+		view.adjustGoldCost("MagicFighter", magicFighterStrenght);
     }\`;
 creatorCache['Delivery Address Four'].effect.pred=\`(r,k) => {
           if(r.magicFight>0) r.magicFighterStrenght = 5;
@@ -4275,7 +4347,8 @@ creatorCache['Delivery Address Five'].affected=['magicFight','teamMembers'];
 creatorCache['Delivery Address Five'].effect={};
 creatorCache['Delivery Address Five'].effect.game=\`finish() {
 		if(magicFight && magicFighterStrenght === 4){
-			//Give an adventurer buddy.
+			addResource("teamMembers", 1);
+			view.adjustExpGain(Action.TrainingFacility);
 		}
     }\`;
 creatorCache['Delivery Address Five'].effect.pred=\`(r,k) => {
@@ -4320,22 +4393,23 @@ creatorCache['Read Books'].effect.game=\`finish() {
         unlockStory("booksRead");
     }\`;
 creatorCache['Read Books'].effect.pred=\`\`;
-creatorCache['Buy Pickaxe']={};
-creatorCache['Buy Pickaxe'].affected=['gold'];
-creatorCache['Buy Pickaxe'].canStart={};
-creatorCache['Buy Pickaxe'].canStart.game=\`canStart() {
-        return resources.gold >= 200;
+creatorCache['Tail Judges']={};
+creatorCache['Tail Judges'].affected=[];
+creatorCache['Tail Judges'].effect={};
+creatorCache['Tail Judges'].effect.game=\`finish() {
+		if(guild === "Adventure"){
+			towns[MERCHANTON]["totalAdvGuild"] = towns[MERCHANTON]["totalAdvGuild"] + Math.floor(Math.pow(10, Math.floor(getAdvGuildRank().bonus - 1)));
+		} else if(guild === "Crafting"){
+			towns[MERCHANTON]["totalCraftGuild"] = towns[MERCHANTON]["totalCraftGuild"] + Math.floor(Math.pow(10, Math.floor(getCraftGuildRank().bonus - 1)));
+		} else {
+			//addResource("climbingGears", 1);
+			//add boat
+			//but only if both have already been already taken at level 3.
+		}
     }\`;
-creatorCache['Buy Pickaxe'].canStart.pred=\`(input) =>(input.gold>=200)\`;
-creatorCache['Buy Pickaxe'].effect={};
-creatorCache['Buy Pickaxe'].effect.cost=\`cost() {
-        addResource("gold", -200);
-    }\`;
-creatorCache['Buy Pickaxe'].effect.game=\`finish() {
-        addResource("pickaxe", true);
-        unlockStory("pickaxeBought");
-    }\`;
-creatorCache['Buy Pickaxe'].effect.pred=\`(r) => (r.gold -= 200, r.pickaxe = true)\`;
+creatorCache['Tail Judges'].effect.pred=\`(r,k) => {
+          //NYI
+        }\`;
 creatorCache['Heroes Trial']={};
 creatorCache['Heroes Trial'].affected=['heroism'];
 creatorCache['Heroes Trial'].canStart={};
@@ -4383,16 +4457,16 @@ creatorCache['Heroes Trial'].loop.loop.pred=\`(r) => (r.heroism=(r.heroism||0)+1
 creatorCache['Heroes Trial'].loop.max=\`(a) => trialFloors[a.trialNum]\`;
 creatorCache['Start Trek']={};
 creatorCache['Start Trek'].affected=[''];
-creatorCache['Start Trek'].manaCost={};
-creatorCache['Start Trek'].manaCost.game=\`manaCost() {
-        return Math.ceil(12000);
+creatorCache['Start Trek'].canStart={};
+creatorCache['Start Trek'].canStart.game=\`canStart() {
+		return resources.climbingGears >= 1;
     }\`;
-creatorCache['Start Trek'].manaCost.pred=\`\`;
+creatorCache['Start Trek'].canStart.pred=\`(input) => input.climbingGears>=1\`;
 creatorCache['Start Trek'].effect={};
 creatorCache['Start Trek'].effect.game=\`finish() {
-        //unlockTown(3);
+        //unlockTown(MTOLYMPUS);
     }\`;
-creatorCache['Start Trek'].effect.pred=\`(r) => r.town = 3\`;
+creatorCache['Start Trek'].effect.pred=\`(r) => r.town = MTOLYMPUS\`;
 creatorCache['Underworld']={};
 creatorCache['Underworld'].affected=['gold'];
 creatorCache['Underworld'].canStart={};
