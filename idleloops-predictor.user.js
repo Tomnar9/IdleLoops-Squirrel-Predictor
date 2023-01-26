@@ -593,10 +593,10 @@ const Koviko = {
       \$('#trackedStat').append("<option value=Ract hidden=''>(R) Final Actions</option>");
       \$('#trackedStat').append("<option value=Rsurvey hidden=''>(R) Surveys</option>");
       for (let i in skillList) {
-        \$('#trackedStat').append("<option value=S"+skillList[i].toLowerCase()+" hidden=''>(S) "+skillList[i]+"</option>");
+        \$('#trackedStat').append("<option value=S"+skillList[i]+" hidden=''>(S) "+skillList[i]+"</option>");
       }
       for (let i in skillSquirrelList) {
-        \$('#trackedStat').append("<option value=Q"+skillSquirrelList[i].toLowerCase()+"Squirrel hidden=''>(Q) "+skillSquirrelList[i]+"</option>");
+        \$('#trackedStat').append("<option value=Q"+skillSquirrelList[i]+"Squirrel hidden=''>(Q) "+skillSquirrelList[i]+"</option>");
       }
       for (let i in statList) {
         \$('#trackedStat').append("<option value=T"+statList[i]+" >(T) "+_txt('stats>'+statList[i]+'>long_form')+"</option>");
@@ -634,10 +634,10 @@ const Koviko = {
               statisticList[i].hidden=((statisticList[i].value=="Rsurvey") && (getExploreSkill()==0));
               break;
             case 'S':
-              statisticList[i].hidden=(!skills[statisticList[i].value.charAt(1).toUpperCase()+statisticList[i].value.slice(2)].exp>0);
+              statisticList[i].hidden=(!skills[statisticList[i].value.slice(1)].exp>0);
               break;
             case 'Q':
-              statisticList[i].hidden=(!skillsSquirrel[statisticList[i].value.charAt(1).toUpperCase()+statisticList[i].value.substring(2,statisticList[i].value.indexOf("Squirrel"))].exp>0);
+              statisticList[i].hidden=(!skillsSquirrel[statisticList[i].value.substring(1,statisticList[i].value.indexOf("Squirrel"))].exp>0);
               break;
             case 'T':
               break;
@@ -2076,7 +2076,7 @@ const Koviko = {
           break;
         case 'S':
         case 'Q':
-          statisticStart=state.skills[Koviko.options.trackedStat[1]];
+          statisticStart=state.skills[Koviko.options.trackedStat[1].toLowerCase()];
           break;
         case 'T':
           statisticStart=state.talents[Koviko.options.trackedStat[1]];
@@ -2307,7 +2307,7 @@ const Koviko = {
           break;
         case 'S':
         case 'Q':
-          newStatisticValue=(state.skills[Koviko.options.trackedStat[1]]-statisticStart)/ totalTicks * 60;
+          newStatisticValue=(state.skills[Koviko.options.trackedStat[1].toLowerCase()]-statisticStart)/ totalTicks * 60;
           legend=this.getShortSkill(Koviko.options.trackedStat[1]);
           break;
         case 'T':
