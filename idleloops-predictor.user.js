@@ -1518,7 +1518,7 @@ const Koviko = {
           effect:(r) => (r.mana += r.gold *  Action.BuyManaZ3.goldCost(), r.gold = 0)},
         'Sell Potions':{ affected:['gold','potions','darkPotions'],
           effect:(r, k) =>  {
-       r.gold += r.potions * 2+r.darkPotions*2;
+       r.gold += r.potions * 200 + r.darkPotions * 200;
        r.potions = 0;
        r.darkPotions=0;
     }},
