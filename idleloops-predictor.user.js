@@ -2,7 +2,7 @@
 // @name         IdleLoops Squirrel Predictor Makro
 // @namespace    https://github.com/Tomnar9/
 // @downloadURL  https://raw.githubusercontent.com/Tomnar9/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      0.3.7
+// @version      0.3.8
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops Reworked  v.0.2.7/Morana.
 // @author       Koviko <koviko.net@gmail.com>, Tomnar <Tomnar#4672 on discord>
 // @match        https://mopatissier.github.io/IdleLoopsReworked/
@@ -760,6 +760,7 @@ const Koviko = {
 
 
 
+ 
         'RuinsZ1':{ affected:['']},
         'RuinsZ3':{ affected:['']},
         'RuinsZ5':{ affected:['']},
@@ -1405,9 +1406,9 @@ const Koviko = {
           effect:(r,k) => {
 
 		let totalSlaves = towns[MERCHANTON].goodSlaveAuction + (towns[MERCHANTON].totalSlaveAuction - towns[MERCHANTON].checkedSlaveAuction);
-		let costPerSlave = Math.max(70 + r.rep, 0);
-		let bounty = 60;
-		let slavesBought = (costPerSlave === 0 ? totalSlaves : Math.min(Math.floor(r.gold/costPerSlave),totalSlaves));
+		let costPerSlave = Math.max(60 + Math.ceil(r.rep/2), 10);
+		let bounty = 75;
+		let slavesBought = Math.min(Math.floor(r.gold/costPerSlave),totalSlaves);
 		
         r.rep = 0;
 		r.gold-=slavesBought*costPerSlave;
@@ -1449,7 +1450,7 @@ const Koviko = {
           canStart:(input) => {
 		  let teamLimit = Math.floor (h.getGuildRankBonus(input.adventures) / 2);
           return input.guild === "Adventure" && input.teamMembers < teamLimit;
-        },
+    },
           effect:(r) => (r.teamMembers++)},
         'Large Dungeon':{ affected:['teamMembers','soul'],
           canStart:(input) => (input.teamMembers>0), loop: {
@@ -1468,7 +1469,8 @@ const Koviko = {
           canStart:(input) => {
           return input.guild=="Adventure";
         }, loop: {
-          cost:(p,a) => segment =>  Math.floor(Math.pow(10, Math.floor((p.completed + segment) / a.segments + .0000001)))*150000,
+          max:(a) => 3,
+          cost:(p,a) => segment =>  Math.floor(Math.pow(20, Math.floor((p.completed + segment) / a.segments + .0000001)))*170000,
           tick:(p, a, s, k, r) => offset => getSkillLevelFromExp(k.teamwork) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100),
           effect:{loop:(r,k) => {r.climbingGears++}}
         }},
@@ -1490,7 +1492,7 @@ const Koviko = {
         'Architect':{ affected:[''],
           canStart:(input) => (input.guild=='crafting'),
           effect:(r, k) => Math.min((r.architect = (r.architect || towns[2].expArchitect) + 10 * h.getGuildRankBonus(r.crafts || 0),505000), k.crafting += 40 * (1 + h.getTownLevelFromExp(r.architect) / 100))},
-        'Delivery Address Zero':{ affected:['magicFighterStrenght'],
+        'Delivery Address':{ affected:['magicFighterStrenght'],
           effect:(r,k) => {
           r.magicFighterStrenght=1;
         }},
@@ -1518,7 +1520,7 @@ const Koviko = {
           effect:(r) => (r.mana += r.gold *  Action.BuyManaZ3.goldCost(), r.gold = 0)},
         'Sell Potions':{ affected:['gold','potions','darkPotions'],
           effect:(r, k) =>  {
-       r.gold += r.potions * 2+r.darkPotions*2;
+       r.gold += r.potions * 200+r.darkPotions*200;
        r.potions = 0;
        r.darkPotions=0;
     }},
@@ -1954,8 +1956,6 @@ const Koviko = {
           canStart:(input) => {
           return input.loopPotion
         }},
-
-
 
         //SPECIAL ACTIONS
         //Survey Actions
