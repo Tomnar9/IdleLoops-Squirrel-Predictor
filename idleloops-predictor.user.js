@@ -869,7 +869,7 @@ const Koviko = {
           canStart:true,
           effect:(r,k,sq)=>{
           if (sq && getLevelSquirrelAction("Wander")<=1)
-            h.killSquirrel();
+            h.killSquirrel(r);
         }},
         'Smash Pots':{ affected:['mana'],
           canStart:true,

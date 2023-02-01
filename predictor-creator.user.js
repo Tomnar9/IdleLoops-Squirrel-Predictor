@@ -820,7 +820,7 @@ creatorCache['Wander'].effect.game=\`finish() {
     }\`;
 creatorCache['Wander'].effect.pred=\`(r,k,sq)=>{
           if (sq && getLevelSquirrelAction("Wander")<=1)
-            h.killSquirrel();
+            h.killSquirrel(r);
         }\`;
 creatorCache['Smash Pots']={};
 creatorCache['Smash Pots'].affected=['mana'];
