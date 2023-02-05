@@ -1443,7 +1443,7 @@ const Koviko = {
           let exp = 40;
 		  exp = exp * h.getGuildRankBonus(r.adventures);
 		  exp = exp * ( 1 + r.teamMembers);
-	      return exp;
+	      k.teamwork+=exp;
         
         }},
         'Gather Team':{ affected:['teamMembers','adventures'],
@@ -2427,8 +2427,8 @@ const Koviko = {
           return 'GLUTT';
         case "thievery":
           return 'THIEF';
-        case "TeamWork":
-          return 'LEAD';
+        case "teamwork":
+          return 'TWork';
         case "assassin":
           return 'ASSA';
         case "trust_squirrel":

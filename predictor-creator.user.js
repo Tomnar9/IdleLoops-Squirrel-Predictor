@@ -4080,7 +4080,7 @@ creatorCache['Training Facility'].effect.pred=\`(r,k) => {
           let exp = 40;
 		  exp = exp * h.getGuildRankBonus(r.adventures);
 		  exp = exp * ( 1 + r.teamMembers);
-	      return exp;
+	      k.teamwork+=exp;
         
         }\`;
 creatorCache['Gather Team']={};
