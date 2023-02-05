@@ -596,7 +596,7 @@ const Koviko = {
         \$('#trackedStat').append("<option value=S"+skillList[i]+" hidden=''>(S) "+skillList[i]+"</option>");
       }
       for (let i in skillSquirrelList) {
-        \$('#trackedStat').append("<option value=Q"+skillSquirrelList[i]+"Squirrel hidden=''>(Q) "+skillSquirrelList[i]+"</option>");
+        \$('#trackedStat').append("<option value=Q"+skillSquirrelList[i]+"_squirrel hidden=''>(Q) "+skillSquirrelList[i]+"</option>");
       }
       for (let i in statList) {
         \$('#trackedStat').append("<option value=T"+statList[i]+" >(T) "+_txt('stats>'+statList[i]+'>long_form')+"</option>");
@@ -637,7 +637,7 @@ const Koviko = {
               statisticList[i].hidden=(!skills[statisticList[i].value.slice(1)].exp>0);
               break;
             case 'Q':
-              statisticList[i].hidden=(!skillsSquirrel[statisticList[i].value.substring(1,statisticList[i].value.indexOf("Squirrel"))].exp>0);
+              statisticList[i].hidden=(!skillsSquirrel[statisticList[i].value.substring(1,statisticList[i].value.indexOf("_squirrel"))].exp>0);
               break;
             case 'T':
               break;
@@ -842,7 +842,7 @@ const Koviko = {
         }},
         'Imbue Squirrel':{ affected:['ImbueSoulStone'],
           effect:(r,k,sq) => {
-            k.magicSquirrel+=Math.pow(4, getBuffLevel("SpiritBlessing")- (sq?1:0));
+            k.magic_squirrel+=Math.pow(4, getBuffLevel("SpiritBlessing")- (sq?1:0));
         }},
         'Imbue Soulstones':{ affected:[''],
           canStart:(input) => {
@@ -882,7 +882,7 @@ const Koviko = {
         }},
         'Pet Squirrel':{ affected:[''], manaCost:(r,k,sq) => {
           if(sq && getLevelSquirrelAction("Pet Squirrel") >= 3) return 2500;
-          return 100 + getSkillSquirrelLevelFromExp(k.trustSquirrel) * 100;
+          return 100 + getSkillSquirrelLevelFromExp(k.trust_squirrel) * 100;
         },
           canStart:(input,sq) => {
           if(sq){
@@ -896,10 +896,10 @@ const Koviko = {
           effect:(r,k,sq) => {
           if (sq) {
             if (getLevelSquirrelAction("Pet Squirrel")>=3) {
-              k.trustSquirrel+=200;
+              k.trust_squirrel+=200;
             }
           } else {
-            k.trustSquirrel+=100;
+            k.trust_squirrel+=100;
             r.squirrel=1;
           }
         }},
@@ -1247,7 +1247,7 @@ const Koviko = {
               smult=10;
             }
           }
-          k.combatSquirrel+=smult * 4* h.getSelfCombat(r, k);
+          k.combat_squirrel+=smult * 4* h.getSelfCombat(r, k);
         }},
         'Feed Animals':{ affected:['herbs'],
           canStart:(input) => {
@@ -2053,7 +2053,7 @@ const Koviko = {
           resources: { mana: (500+50*getBuffLevel("ImbueSoulstones")), town: 0, guild: "",rep:0, total:0, totalTicks:0,  squirrel:0, deadSquirrel:0},
           stats: Koviko.globals.statList.reduce((stats, name) => (stats[name] = getExpOfLevel(buffs.Imbuement2.amt*(Koviko.globals.skills.Wunderkind.exp>=100?2:1)), stats), {}),
           talents:  Koviko.globals.statList.reduce((talents, name) => (talents[name] = stats[name].talent, talents), {}),
-          skills: Object.assign(Object.entries(skills).reduce((skills, x) => (skills[x[0].toLowerCase()] = x[1].exp, skills), {}),Object.entries(skillsSquirrel).reduce((skills, x) => (skills[x[0].toLowerCase()+"Squirrel"] = x[1].exp, skills), {})),
+          skills: Object.assign(Object.entries(skills).reduce((skills, x) => (skills[x[0].toLowerCase()] = x[1].exp, skills), {}),Object.entries(skillsSquirrel).reduce((skills, x) => (skills[x[0].toLowerCase()+"_squirrel"] = x[1].exp, skills), {})),
           progress: {},
           currProgress: {}
         };
@@ -2338,7 +2338,7 @@ const Koviko = {
         case 'S':
         case 'Q':
           newStatisticValue=(state.skills[Koviko.options.trackedStat[1].toLowerCase()]-statisticStart)/ totalTicks * 60;
-          legend=this.getShortSkill(Koviko.options.trackedStat[1]);
+          legend=this.getShortSkill(Koviko.options.trackedStat[1].toLowerCase());
           break;
         case 'T':
           newStatisticValue=(state.talents[Koviko.options.trackedStat[1]]-statisticStart)/ totalTicks * 60;
@@ -2398,7 +2398,7 @@ const Koviko = {
     }
 
     getShortSkill(name) {
-      switch(name) {
+      switch(name.toLowerCase()) {
         case "chronomancy":
           return 'CHRO';
         case "crafting":
@@ -2427,15 +2427,15 @@ const Koviko = {
           return 'GLUTT';
         case "thievery":
           return 'THIEF';
-        case "leadership":
+        case "TeamWork":
           return 'LEAD';
         case "assassin":
           return 'ASSA';
-        case "trustSquirrel":
+        case "trust_squirrel":
           return 'TRUST';
-        case "combatSquirrel":
+        case "combat_squirrel":
           return 'SCOMB';
-        case "magicSquirrel":
+        case "magic_squirrel":
           return 'SMAGE';
         default:
           return name.toUpperCase().substring(0,5);

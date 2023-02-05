@@ -571,7 +571,7 @@ creatorCache['Imbue Squirrel'].effect.game=\`finish() {
 		
     }\`;
 creatorCache['Imbue Squirrel'].effect.pred=\`(r,k,sq) => {
-            k.magicSquirrel+=Math.pow(4, getBuffLevel("SpiritBlessing")- (sq?1:0));
+            k.magic_squirrel+=Math.pow(4, getBuffLevel("SpiritBlessing")- (sq?1:0));
         }\`;
 creatorCache['Imbue Soulstones']={};
 creatorCache['Imbue Soulstones'].affected=[''];
@@ -911,7 +911,7 @@ creatorCache['Pet Squirrel'].manaCost.game=\`manaCost(squirrelTooltip) {
     }\`;
 creatorCache['Pet Squirrel'].manaCost.pred=\`(r,k,sq) => {
           if(sq && getLevelSquirrelAction("Pet Squirrel") >= 3) return 2500;
-          return 100 + getSkillSquirrelLevelFromExp(k.trustSquirrel) * 100;
+          return 100 + getSkillSquirrelLevelFromExp(k.trust_squirrel) * 100;
         }\`;
 creatorCache['Pet Squirrel'].canStart={};
 creatorCache['Pet Squirrel'].canStart.game=\`canStart() {
@@ -981,10 +981,10 @@ creatorCache['Pet Squirrel'].effect.game=\`finish() {
 creatorCache['Pet Squirrel'].effect.pred=\`(r,k,sq) => {
           if (sq) {
             if (getLevelSquirrelAction("Pet Squirrel")>=3) {
-              k.trustSquirrel+=200;
+              k.trust_squirrel+=200;
             }
           } else {
-            k.trustSquirrel+=100;
+            k.trust_squirrel+=100;
             r.squirrel=1;
           }
         }\`;
@@ -3111,7 +3111,7 @@ creatorCache['Train Squirrel'].effect.pred=\`(r,k,sq) => {
               smult=10;
             }
           }
-          k.combatSquirrel+=smult * 4* h.getSelfCombat(r, k);
+          k.combat_squirrel+=smult * 4* h.getSelfCombat(r, k);
         }\`;
 creatorCache['Feed Animals']={};
 creatorCache['Feed Animals'].affected=['herbs'];
