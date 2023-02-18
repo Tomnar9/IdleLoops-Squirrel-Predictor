@@ -217,7 +217,7 @@ function crUpdatePredictions() {
 				toEdit=toEdit||rObject.toEdit;
 			}
 			if(typeof Action[act].tickProgress=="function") {
-				rObject=crCheckCache(Action[act],"tickProgress", "tick",cacheString,\`(p, a, s, k, r) => offset => h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000) //TODO: Add function\`,true)
+				rObject=crCheckCache(Action[act],"tickProgress", "tick",cacheString,\`(p, a, s, k, r) => offset => h.getStatProgress(p, a, s, offset, 100) * Math.sqrt(1 + p.total / 1000) //TODO: Add function\`,true)
 				item+=rObject.txt;
 				toEdit=toEdit||rObject.toEdit;
 			}
@@ -1731,7 +1731,7 @@ creatorCache['Heal The Sick'].loop.tick.game=\`tickProgress(offset) {
 		}
         return getSkillLevel("Magic") * Math.max(getSkillLevel("Restoration") / 50, 1) * (1 + getLevel(this.loopStats[(towns[BEGINNERSVILLE].HealLoopCounter + offset) % this.loopStats.length]) / 100) * Math.sqrt(1 + towns[BEGINNERSVILLE].totalHeal / 100);
     }\`;
-creatorCache['Heal The Sick'].loop.tick.pred=\`(p, a, s, k, r, sq, lCost) => offset =>  sq ?  Math.max(getLevelSquirrelAction("Heal The Sick")-1,0) * lCost(offset) * 3 / a.manaCost() : getSkillLevelFromExp(k.magic) * Math.max( getSkillLevelFromExp(k.restoration) / 50, 1) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100)\`;
+creatorCache['Heal The Sick'].loop.tick.pred=\`(p, a, s, k, r, sq, lCost) => offset =>  sq ?  Math.max(getLevelSquirrelAction("Heal The Sick")-1,0) * lCost(offset) * 3 / a.manaCost() : getSkillLevelFromExp(k.magic) * Math.max( getSkillLevelFromExp(k.restoration) / 50, 1) * h.getStatProgress(p, a, s, offset, 100) * Math.sqrt(1 + p.total / 100)\`;
 creatorCache['Heal The Sick'].loop.end={};
 creatorCache['Heal The Sick'].loop.end.skills={};	
 creatorCache['Heal The Sick'].loop.end.skills.Magic=50,
@@ -1823,7 +1823,7 @@ creatorCache['Fight Monsters'].loop.tick.game=\`tickProgress(offset) {
 		
         return getSelfCombat() * (1 + getLevel(this.loopStats[(towns[BEGINNERSVILLE].FightLoopCounter + offset) % this.loopStats.length]) / 100) * Math.sqrt(1 + towns[BEGINNERSVILLE].totalFight / 100);
     }\`;
-creatorCache['Fight Monsters'].loop.tick.pred=\`(p, a, s, k, r, sq, lCost) => offset => sq ? Math.max(getLevelSquirrelAction("Fight Monsters")-1,0) * lCost(offset) * 3 / a.manaCost() : h.getSelfCombat(r, k) * Math.sqrt(1 + p.total / 100) * h.getStatProgress(p, a, s, offset)\`;
+creatorCache['Fight Monsters'].loop.tick.pred=\`(p, a, s, k, r, sq, lCost) => offset => sq ? Math.max(getLevelSquirrelAction("Fight Monsters")-1,0) * lCost(offset) * 3 / a.manaCost() : h.getSelfCombat(r, k) * Math.sqrt(1 + p.total / 100) * h.getStatProgress(p, a, s, offset, 100)\`;
 creatorCache['Fight Monsters'].loop.end={};
 creatorCache['Fight Monsters'].loop.end.skills={};	
 creatorCache['Fight Monsters'].loop.end.skills.Combat=50,
@@ -1919,7 +1919,7 @@ creatorCache['Training Dummy'].loop.tick.pred=\`(p, a, s, k, r, sq) => offset =>
                return  0;//Math.max((getLevelSquirrelAction("Small Dungeon")-1),0)/2 * lCost(offset) * 7 / a.manaCost();
             }
             if (floor>=3) return 0;
-            return (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) *  Math.sqrt(1 + towns[BEGINNERSVILLE].totalTDummy / 100);
+            return (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset, 100) *  Math.sqrt(1 + towns[BEGINNERSVILLE].totalTDummy / 100);
     }\`;
 creatorCache['Training Dummy'].loop.end={};
 creatorCache['Training Dummy'].loop.end.skills={};	
@@ -2005,7 +2005,7 @@ creatorCache['Magic Fighter'].loop.tick.game=\`tickProgress(offset) {
         return (getSelfCombat() + getSkillLevel("Magic")) * Math.sqrt(1 + towns[BEGINNERSVILLE].totalMagFgt / 200) * (1 + getLevel(this.loopStats[(towns[BEGINNERSVILLE].MagFgtLoopCounter + offset) % this.loopStats.length]) / 200) ; 
 		
     }\`;
-creatorCache['Magic Fighter'].loop.tick.pred=\`(p, a, s, k, r, sq) => offset => sq ? 0 : (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 200)\`;
+creatorCache['Magic Fighter'].loop.tick.pred=\`(p, a, s, k, r, sq) => offset => sq ? 0 : (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset, 200) * Math.sqrt(1 + p.total / 200)\`;
 creatorCache['Magic Fighter'].loop.end={};
 creatorCache['Magic Fighter'].loop.end.skills={};	
 creatorCache['Magic Fighter'].loop.end.skills.Combat=75,	
@@ -2104,7 +2104,7 @@ creatorCache['Small Dungeon'].loop.tick.pred=\`(p, a, s, k, r, sq, lCost) => off
             if (sq) {
                return  Math.max((getLevelSquirrelAction("Small Dungeon")-1),0)/2 * lCost(offset) * 7 / a.manaCost();
             }
-            return floor in  dungeons[a.dungeonNum] ? (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 +  dungeons[a.dungeonNum][floor].completed / 200) : 0;
+            return floor in  dungeons[a.dungeonNum] ? (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset, 100) * Math.sqrt(1 +  dungeons[a.dungeonNum][floor].completed / 200) : 0;
           }\`;
 creatorCache['Small Dungeon'].loop.end={};
 creatorCache['Small Dungeon'].loop.end.skills={};	
@@ -2982,7 +2982,7 @@ creatorCache['Distill Potions'].loop.tick.game=\`tickProgress(offset) {
 		if(this.squirrelAction) return 0;
         return (getSkillLevel("Alchemy") + getSkillLevel("Brewing")/2) * (1 + getLevel(this.loopStats[(towns[FORESTPATH].DistillLoopCounter + offset) % this.loopStats.length]) / 100) * Math.sqrt(1 + towns[FORESTPATH].totalDistill / 100);
     }\`;
-creatorCache['Distill Potions'].loop.tick.pred=\`(p, a, s, k, r,sq) => offset => (r.herbs<10||sq) ? 0 : (getSkillLevelFromExp(k.alchemy) + getSkillLevelFromExp(k.brewing)/2) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100)\`;
+creatorCache['Distill Potions'].loop.tick.pred=\`(p, a, s, k, r,sq) => offset => (r.herbs<10||sq) ? 0 : (getSkillLevelFromExp(k.alchemy) + getSkillLevelFromExp(k.brewing)/2) * h.getStatProgress(p, a, s, offset, 100) * Math.sqrt(1 + p.total / 100)\`;
 creatorCache['Distill Potions'].loop.end={};
 creatorCache['Distill Potions'].loop.end.skills={};	
 creatorCache['Distill Potions'].loop.end.skills.Alchemy=\`Alchemy() {
@@ -3311,7 +3311,7 @@ creatorCache['Burn Forest'].loop.tick.game=\`tickProgress(offset) {
 		const squirrelHelp = ((this.squirrelAction && getLevelSquirrelAction("Burn Forest") >= 1) ? 10 : 0);
         return (resources.herbs + squirrelHelp) *  Math.sqrt((1 + getLevel(this.loopStats[(towns[FORESTPATH].BurnLoopCounter + offset) % this.loopStats.length]) / 1000));
     }\`;
-creatorCache['Burn Forest'].loop.tick.pred=\`(p, a, s, k, r, sq) => offset => r.herbs<10 ? 0 : (r.herbs+(sq?10:0)) *  Math.sqrt(1 +  getLevelFromExp(s[a.loopStats[(p.completed + offset) % a.loopStats.length]]) / 1000)\`;
+creatorCache['Burn Forest'].loop.tick.pred=\`(p, a, s, k, r, sq) => offset => r.herbs<10 ? 0 : (r.herbs+(sq?10:0)) *  Math.sqrt(h.getStatProgress(p, a, s, offset, 1000))\`;
 creatorCache['Burn Forest'].loop.end={};
 creatorCache['Burn Forest'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
 		
@@ -3692,7 +3692,7 @@ creatorCache['Concoct Potions'].loop.tick.game=\`tickProgress(offset) {
 		if(this.squirrelAction) return 0;
         return (getSkillLevel("Brewing") + getSkillLevel("Alchemy")/2) * (1 + getLevel(this.loopStats[(towns[FORESTPATH].ConcoctLoopCounter + offset) % this.loopStats.length]) / 100) * Math.sqrt(1 + towns[FORESTPATH].totalConcoct / 100);
     }\`;
-creatorCache['Concoct Potions'].loop.tick.pred=\`(p, a, s, k, r, sq) => offset => (sq || r.darkEssences<10)?0: (getSkillLevelFromExp(k.alchemy)/2 + getSkillLevelFromExp(k.brewing)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100)\`;
+creatorCache['Concoct Potions'].loop.tick.pred=\`(p, a, s, k, r, sq) => offset => (sq || r.darkEssences<10)?0: (getSkillLevelFromExp(k.alchemy)/2 + getSkillLevelFromExp(k.brewing)) * h.getStatProgress(p, a, s, offset, 100) * Math.sqrt(1 + p.total / 100)\`;
 creatorCache['Concoct Potions'].loop.end={};
 creatorCache['Concoct Potions'].loop.end.skills={};	
 creatorCache['Concoct Potions'].loop.end.skills.Brewing=\`Brewing() {
@@ -4024,7 +4024,7 @@ creatorCache['Adventure Guild'].loop.tick.game=\`tickProgress(offset) {
                 Math.sqrt((1 + getLevel(this.loopStats[(towns[MERCHANTON]['@{this.varName}LoopCounter'] + offset) % this.loopStats.length]) / 100)) *
                 Math.sqrt(1 + towns[MERCHANTON]['total@{this.varName}']);
     }\`;
-creatorCache['Adventure Guild'].loop.tick.pred=\`(p, a, s, k, r) => offset => (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic) / 2) * Math.sqrt(h.getStatProgress(p, a, s, offset)) * Math.sqrt(1 + p.total)\`;
+creatorCache['Adventure Guild'].loop.tick.pred=\`(p, a, s, k, r) => offset => (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic) / 2) * Math.sqrt(h.getStatProgress(p, a, s, offset, 100)) * Math.sqrt(1 + p.total)\`;
 creatorCache['Adventure Guild'].loop.end={};
 creatorCache['Adventure Guild'].loop.end.game=\`finish() {
         guild = "Adventure";
@@ -4123,7 +4123,7 @@ creatorCache['Large Dungeon'].loop.tick.game=\`tickProgress(offset) {
     }\`;
 creatorCache['Large Dungeon'].loop.tick.pred=\`(p, a, s, k, r) => offset => {
             let floor = Math.floor(p.completed / a.segments + .0000001);
-            return floor in  dungeons[a.dungeonNum] ? h.getTeamCombat(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 +  dungeons[a.dungeonNum][floor].completed / 100) : 0;
+            return floor in  dungeons[a.dungeonNum] ? h.getTeamCombat(r, k) * h.getStatProgress(p, a, s, offset, 100) * Math.sqrt(1 +  dungeons[a.dungeonNum][floor].completed / 100) : 0;
           }\`;
 creatorCache['Large Dungeon'].loop.end={};
 creatorCache['Large Dungeon'].loop.end.skills={};	
@@ -4164,7 +4164,7 @@ creatorCache['Mock Battle'].loop.tick={};
 creatorCache['Mock Battle'].loop.tick.game=\`tickProgress(offset) {
         return (getSkillLevel("TeamWork")) * Math.sqrt(1 + getLevel(this.loopStats[(towns[this.townNum].MockLoopCounter + offset) % this.loopStats.length]) / 100) * Math.sqrt(1 + towns[this.townNum].totalMock / 100);
     }\`;
-creatorCache['Mock Battle'].loop.tick.pred=\`(p, a, s, k, r) => offset => getSkillLevelFromExp(k.teamwork) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100)\`;
+creatorCache['Mock Battle'].loop.tick.pred=\`(p, a, s, k, r) => offset => getSkillLevelFromExp(k.teamwork) * h.getStatProgress(p, a, s, offset, 100) * Math.sqrt(1 + p.total / 100)\`;
 creatorCache['Mock Battle'].loop.end={};
 creatorCache['Mock Battle'].loop.end.game=\`finish() {
 			
@@ -4196,7 +4196,7 @@ creatorCache['Crafting Guild'].loop.tick.game=\`tickProgress(offset) {
                 (1 + getLevel(this.loopStats[(towns[MERCHANTON]['@{this.varName}LoopCounter'] + offset) % this.loopStats.length]) / 100) *
                 Math.sqrt(1 + towns[MERCHANTON]['total@{this.varName}'] / 1000);
     }\`;
-creatorCache['Crafting Guild'].loop.tick.pred=\`(p, a, s, k) => offset => ( getSkillLevelFromExp(k.magic) / 2 +  getSkillLevelFromExp(k.crafting)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000)\`;
+creatorCache['Crafting Guild'].loop.tick.pred=\`(p, a, s, k) => offset => ( getSkillLevelFromExp(k.magic) / 2 +  getSkillLevelFromExp(k.crafting)) * h.getStatProgress(p, a, s, offset, 100) * Math.sqrt(1 + p.total / 1000)\`;
 creatorCache['Crafting Guild'].loop.end={};
 creatorCache['Crafting Guild'].loop.end.skills={};	
 creatorCache['Crafting Guild'].loop.end.skills.Crafting=50,
@@ -4448,7 +4448,7 @@ creatorCache['Heroes Trial'].loop.tick.game=\`function(offset) {
 }\`;
 creatorCache['Heroes Trial'].loop.tick.pred=\`(p, a, s, k, r) => offset => {
             const floor = Math.floor(p.completed / a.segments + .0000001);
-            return floor in trials[a.trialNum] ? h.getTeamCombat(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
+            return floor in trials[a.trialNum] ? h.getTeamCombat(r, k) * h.getStatProgress(p, a, s, offset, 100) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
           }\`;
 creatorCache['Heroes Trial'].loop.end={};
 creatorCache['Heroes Trial'].loop.end.skills={};	
@@ -4690,7 +4690,7 @@ creatorCache['Imbue Mind'].loop.tick.game=\`tickProgress(offset) {
 creatorCache['Imbue Mind'].loop.tick.pred=\`(p, a, s, k) => offset => {
             let attempt = Math.floor(p.completed / a.segments + .0000001);
 
-            return attempt < 1 ? ( getSkillLevelFromExp(k.magic) * h.getStatProgress(p, a, s, offset)) : 0;
+            return attempt < 1 ? ( getSkillLevelFromExp(k.magic) * h.getStatProgress(p, a, s, offset, 100)) : 0;
           }\`;
 creatorCache['Imbue Mind'].loop.end={};
 creatorCache['Imbue Mind'].loop.end.game=\`finish() {
@@ -4733,7 +4733,7 @@ creatorCache['Imbue Body'].loop.tick.game=\`tickProgress(offset) {
 creatorCache['Imbue Body'].loop.tick.pred=\`(p, a, s, k) => offset => {
             let attempt = Math.floor(p.completed / a.segments + .0000001);
 
-            return attempt < 1 ? ( getSkillLevelFromExp(k.magic) * h.getStatProgress(p, a, s, offset)) : 0;
+            return attempt < 1 ? ( getSkillLevelFromExp(k.magic) * h.getStatProgress(p, a, s, offset, 100)) : 0;
           }\`;
 creatorCache['Imbue Body'].loop.end={};
 creatorCache['Imbue Body'].loop.end.game=\`finish() {
@@ -4861,7 +4861,7 @@ creatorCache['Tidy Up'].loop.tick={};
 creatorCache['Tidy Up'].loop.tick.game=\`tickProgress(offset) {
         return (1 + getLevel(this.loopStats[(towns[VALHALLA].TidyLoopCounter + offset) % this.loopStats.length]) / 100) * Math.sqrt(1 + towns[VALHALLA].totalTidy / 100);
     }\`;
-creatorCache['Tidy Up'].loop.tick.pred=\`(p, a, s, k) => offset =>  h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100)\`;
+creatorCache['Tidy Up'].loop.tick.pred=\`(p, a, s, k) => offset =>  h.getStatProgress(p, a, s, offset, 100) * Math.sqrt(1 + p.total / 100)\`;
 creatorCache['Tidy Up'].loop.end={};
 creatorCache['Tidy Up'].loop.end.game=\`finish(){
         // empty
@@ -5022,7 +5022,7 @@ creatorCache['Wizard College'].loop.tick.game=\`tickProgress(offset) {
     }\`;
 creatorCache['Wizard College'].loop.tick.pred=\`(p, a, s, k) => offset => ( getSkillLevelFromExp(k.magic) +
                                            getSkillLevelFromExp(k.chronomancy) +  getSkillLevelFromExp(k.pyromancy) +  getSkillLevelFromExp(k.restoration) +  getSkillLevelFromExp(k.spatiomancy)) *
-                                          h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000)\`;
+                                          h.getStatProgress(p, a, s, offset, 100) * Math.sqrt(1 + p.total / 1000)\`;
 creatorCache['Wizard College'].loop.end={};
 creatorCache['Wizard College'].loop.end.cost=\`cost() {
         addResource("gold", -500);
@@ -5162,7 +5162,7 @@ creatorCache['Great Feast'].loop.tick.game=\`tickProgress(offset) {
         return (1 + getLevel(this.loopStats[(towns[VALHALLA].GreatFeastLoopCounter + offset) % this.loopStats.length]) / 100);
     }\`;
 creatorCache['Great Feast'].loop.tick.pred=\`(p, a, s, k) => offset => {
-            return   h.getStatProgress(p, a, s, offset);
+            return   h.getStatProgress(p, a, s, offset, 100);
           }\`;
 creatorCache['Great Feast'].loop.end={};
 creatorCache['Great Feast'].loop.end.game=\`finish() {
@@ -5197,7 +5197,7 @@ creatorCache['Fight Frost Giants'].loop.tick.game=\`tickProgress(offset) {
             (1 + getLevel(this.loopStats[(towns[VALHALLA]['@{this.varName}LoopCounter'] + offset) % this.loopStats.length]) / 100) * 
             Math.sqrt(1 + towns[VALHALLA]['total@{this.varName}'] / 1000));
     }\`;
-creatorCache['Fight Frost Giants'].loop.tick.pred=\`(p, a, s, k, r) => offset => h.getSelfCombat(r, k) * Math.sqrt(1 + p.total / 1000) * h.getStatProgress(p, a, s, offset)\`;
+creatorCache['Fight Frost Giants'].loop.tick.pred=\`(p, a, s, k, r) => offset => h.getSelfCombat(r, k) * Math.sqrt(1 + p.total / 1000) * h.getStatProgress(p, a, s, offset, 100)\`;
 creatorCache['Fight Frost Giants'].loop.end={};
 creatorCache['Fight Frost Giants'].loop.end.skills={};	
 creatorCache['Fight Frost Giants'].loop.end.skills.Combat=1250,
@@ -5368,7 +5368,7 @@ creatorCache['The Spire'].loop.tick.pred=\`(p, a, s, k, r) => offset => {
 
             return floor in  dungeons[a.dungeonNum] ?
                 h.getTeamCombat(r, k) *
-                h.getStatProgress(p, a, s, offset) *
+                h.getStatProgress(p, a, s, offset, 100) *
                 Math.sqrt(1 +  dungeons[a.dungeonNum][floor].completed / 200) : 0;
           }\`;
 creatorCache['The Spire'].loop.end={};
@@ -5426,7 +5426,7 @@ creatorCache['Dead Trial'].loop.tick.game=\`function(offset) {
 }\`;
 creatorCache['Dead Trial'].loop.tick.pred=\`(p, a, s, k, r) => offset => {
             const floor = Math.floor(p.completed / a.segments + .0000001);
-            return floor in trials[a.trialNum] ? h.getZombieStrength(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
+            return floor in trials[a.trialNum] ? h.getZombieStrength(r, k) * h.getStatProgress(p, a, s, offset, 100) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
           }\`;
 creatorCache['Dead Trial'].loop.end={};
 creatorCache['Dead Trial'].loop.end.game=\`finish() {
@@ -5488,7 +5488,7 @@ creatorCache['Fight Jungle Monsters'].loop.tick.game=\`tickProgress(offset) {
             (1 + getLevel(this.loopStats[(towns[JUNGLEPATH]['@{this.varName}LoopCounter'] + offset) % this.loopStats.length]) / 100) * 
             Math.sqrt(1 + towns[JUNGLEPATH]['total@{this.varName}'] / 1000));
     }\`;
-creatorCache['Fight Jungle Monsters'].loop.tick.pred=\`(p, a, s, k, r) => offset => h.getSelfCombat(r, k) * h.getStatProgress(p, a, s, offset) *
+creatorCache['Fight Jungle Monsters'].loop.tick.pred=\`(p, a, s, k, r) => offset => h.getSelfCombat(r, k) * h.getStatProgress(p, a, s, offset, 100) *
                                              Math.sqrt(1 + p.total / 1000)\`;
 creatorCache['Fight Jungle Monsters'].loop.end={};
 creatorCache['Fight Jungle Monsters'].loop.end.skills={};	
@@ -5526,7 +5526,7 @@ creatorCache['Rescue Survivors'].loop.tick={};
 creatorCache['Rescue Survivors'].loop.tick.game=\`tickProgress(offset) {
         return getSkillLevel("Magic") * Math.max(getSkillLevel("Restoration") / 100, 1) * (1 + getLevel(this.loopStats[(towns[JUNGLEPATH].RescueLoopCounter + offset) % this.loopStats.length]) / 100) * Math.sqrt(1 + towns[JUNGLEPATH].totalRescue / 100);
     }\`;
-creatorCache['Rescue Survivors'].loop.tick.pred=\`(p, a, s, k) => offset =>  getSkillLevelFromExp(k.magic) * Math.max( getSkillLevelFromExp(k.restoration) / 100, 1) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 100)\`;
+creatorCache['Rescue Survivors'].loop.tick.pred=\`(p, a, s, k) => offset =>  getSkillLevelFromExp(k.magic) * Math.max( getSkillLevelFromExp(k.restoration) / 100, 1) * h.getStatProgress(p, a, s, offset, 100) * Math.sqrt(1 + p.total / 100)\`;
 creatorCache['Rescue Survivors'].loop.end={};
 creatorCache['Rescue Survivors'].loop.end.skills={};	
 creatorCache['Rescue Survivors'].loop.end.skills.Restoration=25,
@@ -5664,7 +5664,7 @@ creatorCache['Thieves Guild'].loop.tick.game=\`tickProgress(offset) {
                 (1 + getLevel(this.loopStats[(towns[COMMERCEVILLE]['@{this.varName}LoopCounter'] + offset) % this.loopStats.length]) / 100) *
                 Math.sqrt(1 + towns[COMMERCEVILLE]['total@{this.varName}'] / 1000);
     }\`;
-creatorCache['Thieves Guild'].loop.tick.pred=\`(p, a, s, k, r) => offset => (getSkillLevelFromExp(k.thievery)) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + p.total / 1000)\`;
+creatorCache['Thieves Guild'].loop.tick.pred=\`(p, a, s, k, r) => offset => (getSkillLevelFromExp(k.thievery)) * h.getStatProgress(p, a, s, offset, 100) * Math.sqrt(1 + p.total / 1000)\`;
 creatorCache['Thieves Guild'].loop.end={};
 creatorCache['Thieves Guild'].loop.end.skills={};	
 creatorCache['Thieves Guild'].loop.end.skills.Thievery=50,
@@ -5838,7 +5838,7 @@ creatorCache['Secret Trial'].loop.tick.game=\`function(offset) {
 creatorCache['Secret Trial'].loop.tick.pred=\`(p, a, s, k, r) => offset => {
             const floor = Math.floor(p.completed / a.segments + .0000001);
             if (!p.progress) p.teamCombat = h.getTeamCombat(r, k);
-            return floor in trials[a.trialNum] ?  p.teamCombat * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
+            return floor in trials[a.trialNum] ?  p.teamCombat * h.getStatProgress(p, a, s, offset, 100) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
           }\`;
 creatorCache['Secret Trial'].loop.end={};
 creatorCache['Secret Trial'].loop.end.game=\`finish() {
@@ -5893,7 +5893,7 @@ creatorCache['Imbue Soul'].loop.tick.game=\`tickProgress(offset) {
 creatorCache['Imbue Soul'].loop.tick.pred=\`(p, a, s, k) => offset => {
             let attempt = Math.floor(p.completed / a.segments + .0000001);
 
-            return attempt < 1 ? ( getSkillLevelFromExp(k.magic) * h.getStatProgress(p, a, s, offset)) : 0;
+            return attempt < 1 ? ( getSkillLevelFromExp(k.magic) * h.getStatProgress(p, a, s, offset, 100)) : 0;
           }\`;
 creatorCache['Imbue Soul'].loop.end={};
 creatorCache['Imbue Soul'].loop.end.game=\`finish() {
@@ -5953,7 +5953,7 @@ creatorCache['Gods Trial'].loop.tick.game=\`function(offset) {
 }\`;
 creatorCache['Gods Trial'].loop.tick.pred=\`(p, a, s, k, r) => offset => {
             const floor = Math.floor(p.completed / a.segments + .0000001);
-            return floor in trials[a.trialNum] ? h.getTeamCombat(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
+            return floor in trials[a.trialNum] ? h.getTeamCombat(r, k) * h.getStatProgress(p, a, s, offset, 100) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
           }\`;
 creatorCache['Gods Trial'].loop.end={};
 creatorCache['Gods Trial'].loop.end.skills={};	
@@ -6002,7 +6002,7 @@ creatorCache['Challenge Gods'].loop.tick.game=\`function(offset) {
 }\`;
 creatorCache['Challenge Gods'].loop.tick.pred=\`(p, a, s, k, r) => offset => {
             const floor = Math.floor(p.completed / a.segments + .0000001);
-            return floor in trials[a.trialNum] ? h.getSelfCombat(r, k) * h.getStatProgress(p, a, s, offset) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
+            return floor in trials[a.trialNum] ? h.getSelfCombat(r, k) * h.getStatProgress(p, a, s, offset, 100) * Math.sqrt(1 + trials[a.trialNum][floor].completed / 200) : 0;
           }\`;
 creatorCache['Challenge Gods'].loop.end={};
 creatorCache['Challenge Gods'].loop.end.skills={};	
