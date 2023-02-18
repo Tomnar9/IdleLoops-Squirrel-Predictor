@@ -3058,7 +3058,7 @@ creatorCache['Train Squirrel'].canStart={};
 creatorCache['Train Squirrel'].canStart.game=\`canStart() {
 		return resources.squirrel;
     }\`;
-creatorCache['Train Squirrel'].canStart.pred=\`true\`;
+creatorCache['Train Squirrel'].canStart.pred=\`(input,sq) => input.squirrel\`;
 creatorCache['Train Squirrel'].effect={};
 creatorCache['Train Squirrel'].effect.skillsSquirrel={};	
 creatorCache['Train Squirrel'].effect.skillsSquirrel.Combat=\`Combat() {
@@ -3105,13 +3105,12 @@ creatorCache['Train Squirrel'].effect.pred=\`(r,k,sq) => {
           let smult=1;
           if (sq) {
             h.killSquirrel(r);
-            if (getLevelSquirrelAction("Train Squirrel")<2) {
-              smult=0;
-            } else {
-              smult=10;
+            if (getLevelSquirrelAction("Train Squirrel")>=2) {
+              k.combat_squirrel+=getLevelFromExp(k.combat_squirrel)*10;
             }
-          }
-          k.combat_squirrel+=smult * 4* h.getSelfCombat(r, k);
+          } else {
+            k.combat_squirrel+=smult * 4* h.getSelfCombat(r, k);
+		  }
         }\`;
 creatorCache['Feed Animals']={};
 creatorCache['Feed Animals'].affected=['herbs'];
@@ -3179,7 +3178,8 @@ creatorCache['Feed Animals'].effect.game=\`finish() {
 	   
     }\`;
 creatorCache['Feed Animals'].effect.pred=\`(r,k,sq) => {
-          sq ? h.killSquirrel(r) : r.herbs-=10;
+          if (sq) h.killSquirrel(r);
+          r.herbs-=10;
         }\`;
 creatorCache['Pot Fairy']={};
 creatorCache['Pot Fairy'].affected=['rep','mana','herbs'];

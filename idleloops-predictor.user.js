@@ -2,7 +2,7 @@
 // @name         IdleLoops Squirrel Predictor Makro
 // @namespace    https://github.com/Tomnar9/
 // @downloadURL  https://raw.githubusercontent.com/Tomnar9/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      0.3.9
+// @version      0.3.10
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops Reworked  v.0.2.7/Morana.
 // @author       Koviko <koviko.net@gmail.com>, Tomnar <Tomnar#4672 on discord>
 // @match        https://mopatissier.github.io/IdleLoopsReworked/
@@ -1236,25 +1236,25 @@ const Koviko = {
             }}
         }},
         'Train Squirrel':{ affected:[''],
-          canStart:true,
+          canStart:(input,sq) => input.squirrel,
           effect:(r,k,sq) => {
-          let smult=1;
+           let smult=1;
           if (sq) {
             h.killSquirrel(r);
-            if (getLevelSquirrelAction("Train Squirrel")<2) {
-              smult=0;
-            } else {
-              smult=10;
+            if (getLevelSquirrelAction("Train Squirrel")>=2) {
+              k.combat_squirrel+=getLevelFromExp(k.combat_squirrel)*10;
             }
-          }
-          k.combat_squirrel+=smult * 4* h.getSelfCombat(r, k);
+          } else {
+            k.combat_squirrel+=smult * 4* h.getSelfCombat(r, k);
+		  }
         }},
         'Feed Animals':{ affected:['herbs'],
           canStart:(input) => {
           return input.herbs>=10;
         },
           effect:(r,k,sq) => {
-          sq ? h.killSquirrel(r) : r.herbs-=10;
+          if (sq) h.killSquirrel(r);
+          r.herbs-=10;
         }},
         'Pot Fairy':{ affected:['rep','mana','herbs'],
           canStart:true,
