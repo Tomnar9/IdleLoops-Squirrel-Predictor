@@ -1429,7 +1429,7 @@ const Koviko = {
         'Adventure Guild':{ affected:['gold','adventures'],
           canStart:(input) => (input.guild==''), loop: {
           cost:(p) => segment =>  precision3(Math.pow(1.65, p.completed + segment)) * 230000,
-          tick:(p, a, s, k, r) => offset => (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic) / 2) * Math.sqrt(h.getStatProgress(p, a, s, offset, 100)) * Math.sqrt(1 + p.total),
+          tick:(p, a, s, k, r) => offset => ((h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) / 2) * Math.sqrt(h.getStatProgress(p, a, s, offset, 100)) * Math.sqrt(1 + p.total),
           effect:{ end:(r) => (r.guild='Adventure'), segment:(r) => (r.adventures++)}
         }},
         'Training Facility':{ affected:['gold','teamMembers','adventures'],

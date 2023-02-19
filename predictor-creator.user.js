@@ -4024,7 +4024,7 @@ creatorCache['Adventure Guild'].loop.tick.game=\`tickProgress(offset) {
                 Math.sqrt((1 + getLevel(this.loopStats[(towns[MERCHANTON]['@{this.varName}LoopCounter'] + offset) % this.loopStats.length]) / 100)) *
                 Math.sqrt(1 + towns[MERCHANTON]['total@{this.varName}']);
     }\`;
-creatorCache['Adventure Guild'].loop.tick.pred=\`(p, a, s, k, r) => offset => (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic) / 2) * Math.sqrt(h.getStatProgress(p, a, s, offset, 100)) * Math.sqrt(1 + p.total)\`;
+creatorCache['Adventure Guild'].loop.tick.pred=\`(p, a, s, k, r) => offset => ((h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) / 2) * Math.sqrt(h.getStatProgress(p, a, s, offset, 100)) * Math.sqrt(1 + p.total)\`;
 creatorCache['Adventure Guild'].loop.end={};
 creatorCache['Adventure Guild'].loop.end.game=\`finish() {
         guild = "Adventure";
