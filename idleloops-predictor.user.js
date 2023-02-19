@@ -1471,7 +1471,7 @@ const Koviko = {
         }, loop: {
           max:(a) => 3,
           cost:(p,a) => segment =>  Math.floor(Math.pow(20, Math.floor((p.completed + segment) / a.segments + .0000001)))*170000,
-          tick:(p, a, s, k, r) => offset => getSkillLevelFromExp(k.teamwork) * h.getStatProgress(p, a, s, offset, 100) * Math.sqrt(1 + p.total / 100),
+          tick:(p, a, s, k, r) => offset => getSkillLevelFromExp(k.teamwork) * Math.sqrt(h.getStatProgress(p, a, s, offset, 100)) * Math.sqrt(1 + p.total / 100),
           effect:{loop:(r,k) => {r.climbingGears++}}
         }},
         'Crafting Guild':{ affected:['gold','crafts'],

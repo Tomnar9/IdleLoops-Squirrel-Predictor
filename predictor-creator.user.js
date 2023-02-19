@@ -4164,7 +4164,7 @@ creatorCache['Mock Battle'].loop.tick={};
 creatorCache['Mock Battle'].loop.tick.game=\`tickProgress(offset) {
         return (getSkillLevel("TeamWork")) * Math.sqrt(1 + getLevel(this.loopStats[(towns[this.townNum].MockLoopCounter + offset) % this.loopStats.length]) / 100) * Math.sqrt(1 + towns[this.townNum].totalMock / 100);
     }\`;
-creatorCache['Mock Battle'].loop.tick.pred=\`(p, a, s, k, r) => offset => getSkillLevelFromExp(k.teamwork) * h.getStatProgress(p, a, s, offset, 100) * Math.sqrt(1 + p.total / 100)\`;
+creatorCache['Mock Battle'].loop.tick.pred=\`(p, a, s, k, r) => offset => getSkillLevelFromExp(k.teamwork) * Math.sqrt(h.getStatProgress(p, a, s, offset, 100)) * Math.sqrt(1 + p.total / 100)\`;
 creatorCache['Mock Battle'].loop.end={};
 creatorCache['Mock Battle'].loop.end.game=\`finish() {
 			
