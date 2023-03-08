@@ -429,14 +429,15 @@ creatorCache['Look Around'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Look Around'].canStart.pred=\`(input) => (input.glasses)\`;
 creatorCache['Look Around'].effect={};
-creatorCache['Look Around'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Look Around'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Look Around")){
+		switch(additionalLevel + getLevelSquirrelAction("Look Around")){
 						
 				case 1: break;
 										
@@ -472,13 +473,14 @@ creatorCache['Absorb Mana'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Absorb Mana'].canStart.pred=\`true\`;
 creatorCache['Absorb Mana'].effect={};
-creatorCache['Absorb Mana'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Absorb Mana'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Absorb Mana")){
+		switch(additionalLevel + getLevelSquirrelAction("Absorb Mana")){
 						
 				case 1: break;
 										
@@ -535,13 +537,14 @@ creatorCache['Imbue Squirrel'].effect.skillsSquirrel.Magic=\`Magic() {
 			const squirrelMod = ((this.squirrelAction && getLevelSquirrelAction("Imbue Squirrel") >= 1) ? 1 : 0);
 			return Math.pow(4, getBuffLevel("SpiritBlessing") - squirrelMod);
 		}\`,
-creatorCache['Imbue Squirrel'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Imbue Squirrel'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Imbue Squirrel")){
+		switch(additionalLevel + getLevelSquirrelAction("Imbue Squirrel")){
 						
 			case 1: actionEffect = () => {
 						handleSkillSquirrelExp(this.skillsSquirrel);
@@ -584,13 +587,14 @@ creatorCache['Imbue Soulstones'].canStart.pred=\`(input) => {
           return Action.ImbueSoulstones.getMinimumSoulstones();
         }\`;
 creatorCache['Imbue Soulstones'].effect={};
-creatorCache['Imbue Soulstones'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Imbue Soulstones'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Imbue Soulstones")){
+		switch(additionalLevel + getLevelSquirrelAction("Imbue Soulstones")){
 						
 			case 1: break;
 									
@@ -630,13 +634,14 @@ creatorCache['Balance Soulstones'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Balance Soulstones'].canStart.pred=\`true\`;
 creatorCache['Balance Soulstones'].effect={};
-creatorCache['Balance Soulstones'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Balance Soulstones'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Balance Soulstones")){
+		switch(additionalLevel + getLevelSquirrelAction("Balance Soulstones")){
 						
 			case 1: break;
 									
@@ -681,13 +686,14 @@ creatorCache['Mysterious Voice'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Mysterious Voice'].canStart.pred=\`true\`;
 creatorCache['Mysterious Voice'].effect={};
-creatorCache['Mysterious Voice'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Mysterious Voice'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Mysterious Voice")){
+		switch(additionalLevel + getLevelSquirrelAction("Mysterious Voice")){
 						
 			case 1: actionEffect = () => {
 						if(getBuffLevel("SpiritBlessing") == 1) {
@@ -770,13 +776,14 @@ creatorCache['Wander'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Wander'].canStart.pred=\`true\`;
 creatorCache['Wander'].effect={};
-creatorCache['Wander'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Wander'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Wander")){
+		switch(additionalLevel + getLevelSquirrelAction("Wander")){
 						
 			case 1: loseSquirrel = true;
 					break;
@@ -838,13 +845,14 @@ creatorCache['Smash Pots'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Smash Pots'].canStart.pred=\`true\`;
 creatorCache['Smash Pots'].effect={};
-creatorCache['Smash Pots'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Smash Pots'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Smash Pots")){
+		switch(additionalLevel + getLevelSquirrelAction("Smash Pots")){
 						
 				case 1: break;
 						
@@ -935,13 +943,14 @@ creatorCache['Pet Squirrel'].canStart.pred=\`(input,sq) => {
 creatorCache['Pet Squirrel'].effect={};
 creatorCache['Pet Squirrel'].effect.skillsSquirrel={};	
 creatorCache['Pet Squirrel'].effect.skillsSquirrel.Trust=100,
-creatorCache['Pet Squirrel'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Pet Squirrel'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Pet Squirrel")){
+		switch(additionalLevel + getLevelSquirrelAction("Pet Squirrel")){
 						
 				case 1: break;
 						
@@ -997,13 +1006,14 @@ creatorCache['Pick Locks'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Pick Locks'].canStart.pred=\`true\`;
 creatorCache['Pick Locks'].effect={};
-creatorCache['Pick Locks'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Pick Locks'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Pick Locks")){
+		switch(additionalLevel + getLevelSquirrelAction("Pick Locks")){
 						
 			case 1: loseSquirrel = true;
 				break;
@@ -1066,13 +1076,14 @@ creatorCache['Take Glasses'].effect={};
 creatorCache['Take Glasses'].effect.cost=\`cost() {
         addResource("stolenGoods", -1);
     }\`;
-creatorCache['Take Glasses'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Take Glasses'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Take Glasses")){
+		switch(additionalLevel + getLevelSquirrelAction("Take Glasses")){
 						
 			case 1: break;
 												
@@ -1127,13 +1138,14 @@ creatorCache['Buy Mana Z1'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Buy Mana Z1'].canStart.pred=\`true\`;
 creatorCache['Buy Mana Z1'].effect={};
-creatorCache['Buy Mana Z1'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Buy Mana Z1'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Buy Mana Z1")){
+		switch(additionalLevel + getLevelSquirrelAction("Buy Mana Z1")){
 						
 			case 1: actionEffect = () => {
 						addResource("gold", resources.stolenGoods * this.stolenGoodsValue());
@@ -1216,13 +1228,14 @@ creatorCache['Meet People'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Meet People'].canStart.pred=\`true\`;
 creatorCache['Meet People'].effect={};
-creatorCache['Meet People'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Meet People'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Meet People")){
+		switch(additionalLevel + getLevelSquirrelAction("Meet People")){
 						
 			case 1: break;
 					
@@ -1259,13 +1272,14 @@ creatorCache['Train Strength'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Train Strength'].canStart.pred=\`true\`;
 creatorCache['Train Strength'].effect={};
-creatorCache['Train Strength'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Train Strength'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Train Strength")){
+		switch(additionalLevel + getLevelSquirrelAction("Train Strength")){
 						
 				case 1: break;				
 			}
@@ -1297,13 +1311,14 @@ creatorCache['Short Quest'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Short Quest'].canStart.pred=\`true\`;
 creatorCache['Short Quest'].effect={};
-creatorCache['Short Quest'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Short Quest'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Short Quest")){
+		switch(additionalLevel + getLevelSquirrelAction("Short Quest")){
 						
 			case 1: break;		
 
@@ -1372,13 +1387,14 @@ creatorCache['Investigate'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Investigate'].canStart.pred=\`true\`;
 creatorCache['Investigate'].effect={};
-creatorCache['Investigate'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Investigate'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Investigate")){
+		switch(additionalLevel + getLevelSquirrelAction("Investigate")){
 						
 			case 1: break;		
 
@@ -1418,13 +1434,14 @@ creatorCache['Long Quest'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Long Quest'].canStart.pred=\`true\`;
 creatorCache['Long Quest'].effect={};
-creatorCache['Long Quest'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Long Quest'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Long Quest")){
+		switch(additionalLevel + getLevelSquirrelAction("Long Quest")){
 						
 			case 1: break;		
 
@@ -1511,13 +1528,14 @@ creatorCache['Throw Party'].effect={};
 creatorCache['Throw Party'].effect.cost=\`cost() {
         addResource("reputation", -2);
     }\`;
-creatorCache['Throw Party'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Throw Party'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Throw Party")){
+		switch(additionalLevel + getLevelSquirrelAction("Throw Party")){
 						
 			case 1: actionEffect = () => {
 						towns[BEGINNERSVILLE].finishProgress("Met", 2700);
@@ -1570,13 +1588,14 @@ creatorCache['Warrior Lessons'].canStart.pred=\`(input) => input.rep >= 2\`;
 creatorCache['Warrior Lessons'].effect={};
 creatorCache['Warrior Lessons'].effect.skills={};	
 creatorCache['Warrior Lessons'].effect.skills.Combat=100,
-creatorCache['Warrior Lessons'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Warrior Lessons'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Warrior Lessons")){
+		switch(additionalLevel + getLevelSquirrelAction("Warrior Lessons")){
 						
 			case 1:  break;		
 
@@ -1640,13 +1659,14 @@ creatorCache['Mage Lessons'].canStart.pred=\`(input) => input.rep >= 2\`;
 creatorCache['Mage Lessons'].effect={};
 creatorCache['Mage Lessons'].effect.skills={};	
 creatorCache['Mage Lessons'].effect.skills.Magic=100,
-creatorCache['Mage Lessons'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Mage Lessons'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Mage Lessons")){
+		switch(additionalLevel + getLevelSquirrelAction("Mage Lessons")){
 						
 			case 1:  break;		
 
@@ -1735,13 +1755,14 @@ creatorCache['Heal The Sick'].loop.tick.pred=\`(p, a, s, k, r, sq, lCost) => off
 creatorCache['Heal The Sick'].loop.end={};
 creatorCache['Heal The Sick'].loop.end.skills={};	
 creatorCache['Heal The Sick'].loop.end.skills.Magic=50,
-creatorCache['Heal The Sick'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Heal The Sick'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Heal The Sick")){
+		switch(additionalLevel + getLevelSquirrelAction("Heal The Sick")){
 						
 			case 1:  break;
 			
@@ -1827,13 +1848,14 @@ creatorCache['Fight Monsters'].loop.tick.pred=\`(p, a, s, k, r, sq, lCost) => of
 creatorCache['Fight Monsters'].loop.end={};
 creatorCache['Fight Monsters'].loop.end.skills={};	
 creatorCache['Fight Monsters'].loop.end.skills.Combat=50,
-creatorCache['Fight Monsters'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Fight Monsters'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Fight Monsters")){
+		switch(additionalLevel + getLevelSquirrelAction("Fight Monsters")){
 						
 			case 1: loseSquirrel = true;
 				break;
@@ -1925,13 +1947,14 @@ creatorCache['Training Dummy'].loop.end={};
 creatorCache['Training Dummy'].loop.end.skills={};	
 creatorCache['Training Dummy'].loop.end.skills.Combat=25,	
 creatorCache['Training Dummy'].loop.end.skills.Magic=25,
-creatorCache['Training Dummy'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Training Dummy'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Training Dummy")){
+		switch(additionalLevel + getLevelSquirrelAction("Training Dummy")){
 					
 			case 1: break;
 				
@@ -2010,13 +2033,14 @@ creatorCache['Magic Fighter'].loop.end={};
 creatorCache['Magic Fighter'].loop.end.skills={};	
 creatorCache['Magic Fighter'].loop.end.skills.Combat=75,	
 creatorCache['Magic Fighter'].loop.end.skills.Magic=75,
-creatorCache['Magic Fighter'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Magic Fighter'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Magic Fighter")){
+		switch(additionalLevel + getLevelSquirrelAction("Magic Fighter")){
 					
 			case 1: break;
 			
@@ -2110,13 +2134,14 @@ creatorCache['Small Dungeon'].loop.end={};
 creatorCache['Small Dungeon'].loop.end.skills={};	
 creatorCache['Small Dungeon'].loop.end.skills.Combat=100,	
 creatorCache['Small Dungeon'].loop.end.skills.Magic=100,
-creatorCache['Small Dungeon'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Small Dungeon'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Small Dungeon")){
+		switch(additionalLevel + getLevelSquirrelAction("Small Dungeon")){
 						
 			case 1: break;
 			
@@ -2181,13 +2206,14 @@ creatorCache['Buy Supplies'].effect={};
 creatorCache['Buy Supplies'].effect.cost=\`cost() {
         addResource("gold", -towns[BEGINNERSVILLE].suppliesCost);
     }\`;
-creatorCache['Buy Supplies'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Buy Supplies'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Buy Supplies")){
+		switch(additionalLevel + getLevelSquirrelAction("Buy Supplies")){
 						
 			case 1: actionEffect = () => {
 						addResource("gold", towns[BEGINNERSVILLE].suppliesCost);
@@ -2234,13 +2260,14 @@ creatorCache['Haggle'].effect={};
 creatorCache['Haggle'].effect.cost=\`cost() {
         addResource("reputation", -1);
     }\`;
-creatorCache['Haggle'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Haggle'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Haggle")){
+		switch(additionalLevel + getLevelSquirrelAction("Haggle")){
 						
 			case 1: break;
 			
@@ -2305,13 +2332,14 @@ creatorCache['Start Journey'].effect={};
 creatorCache['Start Journey'].effect.cost=\`cost() {
         addResource("supplies", false);
     }\`;
-creatorCache['Start Journey'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Start Journey'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Start Journey")){
+		switch(additionalLevel + getLevelSquirrelAction("Start Journey")){
 						
 				case 1: break;
 				
@@ -2373,13 +2401,14 @@ creatorCache['Explore Forest'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Explore Forest'].canStart.pred=\`true\`;
 creatorCache['Explore Forest'].effect={};
-creatorCache['Explore Forest'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Explore Forest'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Explore Forest")){
+		switch(additionalLevel + getLevelSquirrelAction("Explore Forest")){
 						
 			case 1: loseSquirrel = true;
 				break;
@@ -2435,13 +2464,14 @@ creatorCache['Wild Mana'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Wild Mana'].canStart.pred=\`true\`;
 creatorCache['Wild Mana'].effect={};
-creatorCache['Wild Mana'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Wild Mana'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Wild Mana")){
+		switch(additionalLevel + getLevelSquirrelAction("Wild Mana")){
 						
 			case 1: actionEffect = () => {
 						towns[FORESTPATH].finishRegular(this.varName, 10, () => {
@@ -2516,13 +2546,14 @@ creatorCache['Gather Herbs'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Gather Herbs'].canStart.pred=\`true\`;
 creatorCache['Gather Herbs'].effect={};
-creatorCache['Gather Herbs'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Gather Herbs'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Gather Herbs")){
+		switch(additionalLevel + getLevelSquirrelAction("Gather Herbs")){
 						
 			case 1:	break;
 				
@@ -2602,13 +2633,14 @@ creatorCache['Hunt'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Hunt'].canStart.pred=\`true\`;
 creatorCache['Hunt'].effect={};
-creatorCache['Hunt'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Hunt'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Hunt")){
+		switch(additionalLevel + getLevelSquirrelAction("Hunt")){
 						
 			case 1:	loseSquirrel = true;
 					break;
@@ -2663,13 +2695,14 @@ creatorCache['Sit By Waterfall'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Sit By Waterfall'].canStart.pred=\`true\`;
 creatorCache['Sit By Waterfall'].effect={};
-creatorCache['Sit By Waterfall'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Sit By Waterfall'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Sit By Waterfall")){
+		switch(additionalLevel + getLevelSquirrelAction("Sit By Waterfall")){
 						
 			case 1:	loseSquirrel = true;
 					break;								
@@ -2704,13 +2737,14 @@ creatorCache['Old Shortcut'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Old Shortcut'].canStart.pred=\`true\`;
 creatorCache['Old Shortcut'].effect={};
-creatorCache['Old Shortcut'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Old Shortcut'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Old Shortcut")){
+		switch(additionalLevel + getLevelSquirrelAction("Old Shortcut")){
 						
 			case 1:	loseSquirrel = true;
 					break;
@@ -2761,13 +2795,14 @@ creatorCache['Talk To Hermit'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Talk To Hermit'].canStart.pred=\`true\`;
 creatorCache['Talk To Hermit'].effect={};
-creatorCache['Talk To Hermit'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Talk To Hermit'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Talk To Hermit")){
+		switch(additionalLevel + getLevelSquirrelAction("Talk To Hermit")){
 						
 			case 1:	loseSquirrel = true;
 					break;
@@ -2834,13 +2869,14 @@ creatorCache['Practice Yang'].effect.skills.Yang=\`Yang() {
 			const additionalExp = (resources.reputation >= 0 ? resources.reputation * 25 : 0);
             return 100 + additionalExp;
         }\`,
-creatorCache['Practice Yang'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Practice Yang'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Practice Yang")){
+		switch(additionalLevel + getLevelSquirrelAction("Practice Yang")){
 						
 			case 1:	break;
 
@@ -2914,13 +2950,14 @@ creatorCache['Learn Alchemy'].effect.skills.Alchemy=\`Alchemy() {
 creatorCache['Learn Alchemy'].effect.cost=\`cost() {
         addResource("herbs", -10);
     }\`;
-creatorCache['Learn Alchemy'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Learn Alchemy'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Learn Alchemy")){
+		switch(additionalLevel + getLevelSquirrelAction("Learn Alchemy")){
 						
 			case 1:	break;
 
@@ -3000,13 +3037,14 @@ creatorCache['Distill Potions'].loop.end.skills.Alchemy=\`Alchemy() {
 			
 			return 100 + brewingMultiplier * 10;
 		}\`,
-creatorCache['Distill Potions'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Distill Potions'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Distill Potions")){
+		switch(additionalLevel + getLevelSquirrelAction("Distill Potions")){
 						
 			case 1:	break;
 
@@ -3064,13 +3102,14 @@ creatorCache['Train Squirrel'].effect.skillsSquirrel={};
 creatorCache['Train Squirrel'].effect.skillsSquirrel.Combat=\`Combat() {
 			return getSelfCombat() * 4;
 		}\`,
-creatorCache['Train Squirrel'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Train Squirrel'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Train Squirrel")){
+		switch(additionalLevel + getLevelSquirrelAction("Train Squirrel")){
 						
 			case 1:	loseSquirrel = true;
 				break;
@@ -3126,13 +3165,14 @@ creatorCache['Feed Animals'].effect={};
 creatorCache['Feed Animals'].effect.cost=\`cost() {
         addResource("herbs", -10);
     }\`;
-creatorCache['Feed Animals'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Feed Animals'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Feed Animals")){
+		switch(additionalLevel + getLevelSquirrelAction("Feed Animals")){
 						
 			case 1:	loseSquirrel = true;
 				break;
@@ -3190,13 +3230,14 @@ creatorCache['Pot Fairy'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Pot Fairy'].canStart.pred=\`true\`;
 creatorCache['Pot Fairy'].effect={};
-creatorCache['Pot Fairy'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Pot Fairy'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Pot Fairy")){
+		switch(additionalLevel + getLevelSquirrelAction("Pot Fairy")){
 						
 			case 1:	break;
 			
@@ -3313,13 +3354,14 @@ creatorCache['Burn Forest'].loop.tick.game=\`tickProgress(offset) {
     }\`;
 creatorCache['Burn Forest'].loop.tick.pred=\`(p, a, s, k, r, sq) => offset => r.herbs<10 ? 0 : (r.herbs+(sq?10:0)) *  Math.sqrt(h.getStatProgress(p, a, s, offset, 1000))\`;
 creatorCache['Burn Forest'].loop.end={};
-creatorCache['Burn Forest'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Burn Forest'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Burn Forest")){
+		switch(additionalLevel + getLevelSquirrelAction("Burn Forest")){
 						
 			case 1:	actionEffect = () => {/*Has an effect*/};
 					loseSquirrel = true;
@@ -3370,13 +3412,14 @@ creatorCache['Bird Watching'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Bird Watching'].canStart.pred=\`(input) => input.glasses\`;
 creatorCache['Bird Watching'].effect={};
-creatorCache['Bird Watching'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Bird Watching'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Bird Watching")){
+		switch(additionalLevel + getLevelSquirrelAction("Bird Watching")){
 						
 			case 1:	actionEffect = () => {
 						unlockStory("birdsWatched")
@@ -3415,13 +3458,14 @@ creatorCache['Dark Forest'].canStart.pred=\`(input) => {
           return input.rep<0;
         }\`;
 creatorCache['Dark Forest'].effect={};
-creatorCache['Dark Forest'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Dark Forest'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Dark Forest")){
+		switch(additionalLevel + getLevelSquirrelAction("Dark Forest")){
 						
 			case 1:	loseSquirrel = true;
 				break;
@@ -3474,13 +3518,14 @@ creatorCache['Talk To Witch'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Talk To Witch'].canStart.pred=\`(input)=>(input.rep<0)\`;
 creatorCache['Talk To Witch'].effect={};
-creatorCache['Talk To Witch'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Talk To Witch'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Talk To Witch")){
+		switch(additionalLevel + getLevelSquirrelAction("Talk To Witch")){
 						
 			case 1:	loseSquirrel = true;
 				break;
@@ -3546,13 +3591,14 @@ creatorCache['Practice Yin'].effect.skills.Yin=\`Yin() {
             const additionalExp = (resources.reputation <= 0 ? resources.reputation * (-25) : 0);
             return 100 + additionalExp;
         }\`,
-creatorCache['Practice Yin'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Practice Yin'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Practice Yin")){
+		switch(additionalLevel + getLevelSquirrelAction("Practice Yin")){
 						
 			case 1:	break;
 			
@@ -3625,7 +3671,7 @@ creatorCache['Learn Brewing'].effect.skills.Brewing=\`Brewing() {
 			
 			return 100 + alchemyMultiplier * 10;
 		}\`,
-creatorCache['Learn Brewing'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Learn Brewing'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
@@ -3710,13 +3756,14 @@ creatorCache['Concoct Potions'].loop.end.skills.Brewing=\`Brewing() {
 			
 			return 100 + alchemyMultiplier * 10;
 		}\`,
-creatorCache['Concoct Potions'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Concoct Potions'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Concoct Potions")){
+		switch(additionalLevel + getLevelSquirrelAction("Concoct Potions")){
 						
 			case 1:	break;
 				
@@ -3790,13 +3837,14 @@ creatorCache['Continue On'].canStart.game=\`canStart() {
     }\`;
 creatorCache['Continue On'].canStart.pred=\`true\`;
 creatorCache['Continue On'].effect={};
-creatorCache['Continue On'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel) {
+creatorCache['Continue On'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
 		let actionEffect = () => {};
 		let loseSquirrel = false;
 		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
 		
-		switch(getLevelSquirrelAction("Continue On")){
+		switch(additionalLevel + getLevelSquirrelAction("Continue On")){
 						
 			case 1:	break;
 			
