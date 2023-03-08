@@ -2,7 +2,7 @@
 // @name         IdleLoops Squirrel Predictor Makro
 // @namespace    https://github.com/Tomnar9/
 // @downloadURL  https://raw.githubusercontent.com/Tomnar9/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      0.3.10
+// @version      0.3.11
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops Reworked  v.0.2.7/Morana.
 // @author       Koviko <koviko.net@gmail.com>, Tomnar <Tomnar#4672 on discord>
 // @match        https://mopatissier.github.io/IdleLoopsReworked/
@@ -479,7 +479,7 @@ const Koviko = {
       let css = \`
       .nextActionContainer { width: auto!important; padding-left:4px; padding-right: 4px; grid-template: "a b . c" / auto auto 1fr auto }
       .nextActionContainer[style~='flex;'] {display: grid!important;}
-      .nextActionContainer > div:first-child { width: 70px; }
+      .nextActionContainer > div:first-child { width: 90px; }
       .nextActionContainer > div:nth-child(2) {text-align: right; grid-area: c }
       .koviko.valid, .koviko.invalid  { grid-area: b;pointer-events:auto }
       #nextActionsList{height:100%!important; overflow-y:scroll;}
@@ -761,6 +761,7 @@ const Koviko = {
 
 
  
+
         'RuinsZ1':{ affected:['']},
         'RuinsZ3':{ affected:['']},
         'RuinsZ5':{ affected:['']},
@@ -1085,7 +1086,7 @@ const Koviko = {
           return input.rep>=2;
         }, loop: {
           max:()=>magicFighterStrenght,
-          cost:(p) => segment =>  precision3(Math.floor(Math.pow(5, p.completed/9)+ 0.0000001)*500000),
+          cost:(p) => segment =>  precision3(Math.floor(Math.pow(5, p.completed/9)+ 0.0000001)*275000),
           tick:(p, a, s, k, r, sq) => offset => sq ? 0 : (h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) * h.getStatProgress(p, a, s, offset, 200) * Math.sqrt(1 + p.total / 200),
           effect:{ end:(r,k)=> {
        if (r.magicLoop>=magicFighterStrenght) r.magicFight=1;
@@ -1205,40 +1206,24 @@ const Koviko = {
           effect:(r, k, sq) => {
             if (sq) return;
             r.herbs -= 10;
-            let brewingLevel = getSkillLevelFromExp(k.brewing);
-			let brewingMultiplier = 0;			
-			for(let levelsNeededForBoost = 1; brewingLevel > 0; levelsNeededForBoost++) {
-				for (let i = 0; i < 10 && brewingLevel > 0; i++){
-					brewingMultiplier += 1;
-					brewingLevel -= levelsNeededForBoost;				
-				}
-			}
-            k.alchemy += 100 + brewingMultiplier * 10;
+            k.alchemy += 10 + 10 * getSkillLevelFromExp(k.brewing);
           }},
         'Distill Potions':{ affected:['herbs','potions'],
           canStart:(input) => {
           return (input.herbs>=10 && input.rep>=10);
         }, loop: {
-          cost:(p) => segment =>  Math.floor(Math.pow(1.6, p.completed/3)+0.0000001)*40000,
+          cost:(p) => segment =>  Math.floor(Math.pow(1.3, p.completed/3)+0.0000001)*20000,
           tick:(p, a, s, k, r,sq) => offset => (r.herbs<10||sq) ? 0 : (getSkillLevelFromExp(k.alchemy) + getSkillLevelFromExp(k.brewing)/2) * h.getStatProgress(p, a, s, offset, 100) * Math.sqrt(1 + p.total / 100),
           effect:{loop:(r,k) => {
             r.herbs-=10;
             r.potions++;
-            let brewingLevel = getSkillLevelFromExp(k.brewing);
-			let brewingMultiplier = 0;			
-			for(let levelsNeededForBoost = 1; brewingLevel > 0; levelsNeededForBoost++) {
-				for (let i = 0; i < 10 && brewingLevel > 0; i++){
-					brewingMultiplier += 1;
-					brewingLevel -= levelsNeededForBoost;				
-				}
-			}
-            k.alchemy += 100 + brewingMultiplier * 10;
+            k.alchemy += 10 + 10 * getSkillLevelFromExp(k.brewing);
             }}
         }},
         'Train Squirrel':{ affected:[''],
           canStart:(input,sq) => input.squirrel,
           effect:(r,k,sq) => {
-           let smult=1;
+          let smult=1;
           if (sq) {
             h.killSquirrel(r);
             if (getLevelSquirrelAction("Train Squirrel")>=2) {
@@ -1290,7 +1275,7 @@ const Koviko = {
           if (sq && getLevelSquirrelAction("Burn Forest")<=1) {
             h.killSquirrel(r);
           }
-        }, loop:(r,k) => {r.mana+=3500;r.herbs-=10;r.darkEssences+=Math.floor(towns[FORESTPATH].getLevel("DarkForest")/10 + 0.000001);r.forestBurn=(r.forestBurn||0)+1; if(r.forestBurn%2==0) r.rep-=1;}}
+        }, loop:(r,k) => {r.mana+=4500;r.herbs-=10;r.darkEssences+=Math.floor(towns[FORESTPATH].getLevel("DarkForest")/10 + 0.000001);r.forestBurn=(r.forestBurn||0)+1; if(r.forestBurn%2==0) r.rep-=1;}}
         }},
         'Bird Watching':{ affected:[''],
           canStart:(input) => input.glasses},
@@ -1325,34 +1310,18 @@ const Koviko = {
           effect:(r,k,sq) => {
             if (sq) return;
             r.darkEssences-=10;
-            let alchemyLevel = getSkillLevelFromExp(k.alchemy);
-			let alchemyMultiplier = 0;			
-			for(let levelsNeededForBoost = 1; alchemyLevel > 0; levelsNeededForBoost++) {
-				for (let i = 0; i < 10 && alchemyLevel > 0; i++){
-					alchemyMultiplier += 1;
-					alchemyLevel -= levelsNeededForBoost;				
-				}
-			}
-            k.brewing += 100 + alchemyMultiplier * 10;
+            k.brewing += 10 + 10 * getSkillLevelFromExp(k.alchemy);
           }},
         'Concoct Potions':{ affected:['rep','darkEssences','darkPotions'],
           canStart:(input) => {
             return (input.rep<=-10 && input.darkEssences>=10);
           }, loop: {
-          cost:(p) => segment =>  precision3(Math.pow(1.6, p.completed/3))*50000,
+          cost:(p) => segment =>  precision3(Math.pow(1.3, p.completed/3))*25000,
           tick:(p, a, s, k, r, sq) => offset => (sq || r.darkEssences<10)?0: (getSkillLevelFromExp(k.alchemy)/2 + getSkillLevelFromExp(k.brewing)) * h.getStatProgress(p, a, s, offset, 100) * Math.sqrt(1 + p.total / 100),
           effect:{loop:(r,k) => {
             r.darkEssences-=10;
             r.darkPotions++;
-            let alchemyLevel = getSkillLevelFromExp(k.alchemy);
-			let alchemyMultiplier = 0;			
-			for(let levelsNeededForBoost = 1; alchemyLevel > 0; levelsNeededForBoost++) {
-				for (let i = 0; i < 10 && alchemyLevel > 0; i++){
-					alchemyMultiplier += 1;
-					alchemyLevel -= levelsNeededForBoost;				
-				}
-			}
-            k.brewing += 100 + alchemyMultiplier * 10;
+            k.brewing += 10 + 10 * getSkillLevelFromExp(k.alchemy);
             }}
         }},
         'Continue On':{ affected:[''],
@@ -1397,6 +1366,9 @@ const Koviko = {
             r.gamblesInARow=0;
           }
           r.rep-=Math.floor((r.gamblesInARow+5)/10);
+          if (r.rep<0) {
+            r.rep=0;
+          }
         }},
         'Slave Auction':{ affected:['gold','rep'],
           canStart:(input) => {
@@ -1428,8 +1400,8 @@ const Koviko = {
       }},
         'Adventure Guild':{ affected:['gold','adventures'],
           canStart:(input) => (input.guild==''), loop: {
-          cost:(p) => segment =>  precision3(Math.pow(1.65, p.completed + segment)) * 230000,
-          tick:(p, a, s, k, r) => offset => ((h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) / 2) * Math.sqrt(h.getStatProgress(p, a, s, offset, 100)) * Math.sqrt(1 + p.total),
+          cost:(p) => segment =>  precision3(Math.pow(1.65, p.completed + segment)) * 175000,
+          tick:(p, a, s, k, r) => offset => ((h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) / 2) * Math.sqrt(h.getStatProgress(p, a, s, offset, 100)) * Math.sqrt(1 + p.total/2),
           effect:{ end:(r) => (r.guild='Adventure'), segment:(r) => (r.adventures++)}
         }},
         'Training Facility':{ affected:['gold','teamMembers','adventures'],
@@ -1440,7 +1412,7 @@ const Koviko = {
           if (r.teamMembers>0) {
             r.gold-=25;
           }
-          let exp = 40;
+          let exp = 20;
 		  exp = exp * h.getGuildRankBonus(r.adventures);
 		  exp = exp * ( 1 + r.teamMembers);
 	      k.teamwork+=exp;
@@ -1462,7 +1434,7 @@ const Koviko = {
           },
           effect:{loop:(r,k) => {
       r.soul +=Math.min(10,Math.floor(10 / (1 +r.teamMembers) * (1 + getSkillLevelFromExp(k.teamwork)/100)));
-      k.teamwork+=100;
+      k.teamwork+=200;
     }}
         }},
         'Mock Battle':{ affected:['climbingGears'],
@@ -1470,7 +1442,7 @@ const Koviko = {
           return input.guild=="Adventure";
         }, loop: {
           max:(a) => 3,
-          cost:(p,a) => segment =>  Math.floor(Math.pow(20, Math.floor((p.completed + segment) / a.segments + .0000001)))*170000,
+          cost:(p,a) => segment =>  Math.floor(Math.pow(20, Math.floor((p.completed + segment) / a.segments + .0000001)))*200000,
           tick:(p, a, s, k, r) => offset => getSkillLevelFromExp(k.teamwork) * Math.sqrt(h.getStatProgress(p, a, s, offset, 100)) * Math.sqrt(1 + p.total / 100),
           effect:{loop:(r,k) => {r.climbingGears++}}
         }},
@@ -1520,7 +1492,7 @@ const Koviko = {
           effect:(r) => (r.mana += r.gold *  Action.BuyManaZ3.goldCost(), r.gold = 0)},
         'Sell Potions':{ affected:['gold','potions','darkPotions'],
           effect:(r, k) =>  {
-       r.gold += r.potions * 200+r.darkPotions*200;
+       r.gold += r.potions * 100+r.darkPotions*100;
        r.potions = 0;
        r.darkPotions=0;
     }},

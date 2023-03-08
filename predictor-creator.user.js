@@ -2018,10 +2018,10 @@ creatorCache['Magic Fighter'].canStart.pred=\`(input) => {
 creatorCache['Magic Fighter'].loop={};
 creatorCache['Magic Fighter'].loop.cost={};
 creatorCache['Magic Fighter'].loop.cost.game=\`loopCost(segment) {
-        return precision3((Math.floor(Math.pow(5, towns[BEGINNERSVILLE].MagFgtLoopCounter/this.segments)+ 0.0000001)) * 500000);
+        return precision3((Math.floor(Math.pow(5, towns[BEGINNERSVILLE].MagFgtLoopCounter/this.segments)+ 0.0000001)) * 275000);
 		
     }\`;
-creatorCache['Magic Fighter'].loop.cost.pred=\`(p) => segment =>  precision3(Math.floor(Math.pow(5, p.completed/9)+ 0.0000001)*500000)\`;
+creatorCache['Magic Fighter'].loop.cost.pred=\`(p) => segment =>  precision3(Math.floor(Math.pow(5, p.completed/9)+ 0.0000001)*275000)\`;
 creatorCache['Magic Fighter'].loop.tick={};
 creatorCache['Magic Fighter'].loop.tick.game=\`tickProgress(offset) {
 		if(this.squirrelAction) return 0;
@@ -2933,19 +2933,7 @@ creatorCache['Learn Alchemy'].canStart.pred=\`(input) => (input.herbs >= 10)\`;
 creatorCache['Learn Alchemy'].effect={};
 creatorCache['Learn Alchemy'].effect.skills={};	
 creatorCache['Learn Alchemy'].effect.skills.Alchemy=\`Alchemy() {
-			let brewingLevel = getSkillLevel("Brewing");
-			let brewingMultiplier = 0;
-			
-			for(let levelsNeededForBoost = 1; brewingLevel > 0; levelsNeededForBoost++) {
-				for (let i = 0; i < 10 && brewingLevel > 0; i++){
-				
-					brewingMultiplier += 1;
-					brewingLevel -= levelsNeededForBoost;
-				
-				}
-			}
-			
-			return 100 + brewingMultiplier * 10;
+			return 10 + 10 * getSkillLevel("Brewing");
 		}\`,
 creatorCache['Learn Alchemy'].effect.cost=\`cost() {
         addResource("herbs", -10);
@@ -2987,15 +2975,7 @@ creatorCache['Learn Alchemy'].effect.game=\`finish() {
 creatorCache['Learn Alchemy'].effect.pred=\`(r, k, sq) => {
             if (sq) return;
             r.herbs -= 10;
-            let brewingLevel = getSkillLevelFromExp(k.brewing);
-			let brewingMultiplier = 0;			
-			for(let levelsNeededForBoost = 1; brewingLevel > 0; levelsNeededForBoost++) {
-				for (let i = 0; i < 10 && brewingLevel > 0; i++){
-					brewingMultiplier += 1;
-					brewingLevel -= levelsNeededForBoost;				
-				}
-			}
-            k.alchemy += 100 + brewingMultiplier * 10;
+            k.alchemy += 10 + 10 * getSkillLevelFromExp(k.brewing);
           }\`;
 creatorCache['Distill Potions']={};
 creatorCache['Distill Potions'].affected=['herbs','potions'];
@@ -3011,9 +2991,9 @@ creatorCache['Distill Potions'].loop={};
 creatorCache['Distill Potions'].loop.cost={};
 creatorCache['Distill Potions'].loop.cost.game=\`loopCost(segment) {
 		const numberLoops = towns[FORESTPATH].DistillLoopCounter / 3;
-        return Math.floor(Math.pow(1.6, numberLoops)+ 0.0000001) * 40000;
+        return Math.floor(Math.pow(1.3, numberLoops)+ 0.0000001) * 20000;
     }\`;
-creatorCache['Distill Potions'].loop.cost.pred=\`(p) => segment =>  Math.floor(Math.pow(1.6, p.completed/3)+0.0000001)*40000\`;
+creatorCache['Distill Potions'].loop.cost.pred=\`(p) => segment =>  Math.floor(Math.pow(1.3, p.completed/3)+0.0000001)*20000\`;
 creatorCache['Distill Potions'].loop.tick={};
 creatorCache['Distill Potions'].loop.tick.game=\`tickProgress(offset) {
 		if(this.squirrelAction) return 0;
@@ -3023,19 +3003,7 @@ creatorCache['Distill Potions'].loop.tick.pred=\`(p, a, s, k, r,sq) => offset =>
 creatorCache['Distill Potions'].loop.end={};
 creatorCache['Distill Potions'].loop.end.skills={};	
 creatorCache['Distill Potions'].loop.end.skills.Alchemy=\`Alchemy() {
-			let brewingLevel = getSkillLevel("Brewing");
-			let brewingMultiplier = 0;
-			
-			for(let levelsNeededForBoost = 1; brewingLevel > 0; levelsNeededForBoost++) {
-				for (let i = 0; i < 10 && brewingLevel > 0; i++){
-				
-					brewingMultiplier += 1;
-					brewingLevel -= levelsNeededForBoost;
-				
-				}
-			}
-			
-			return 100 + brewingMultiplier * 10;
+			return 10 + 10 * getSkillLevel("Brewing");
 		}\`,
 creatorCache['Distill Potions'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
@@ -3079,15 +3047,7 @@ creatorCache['Distill Potions'].loop.loop.game=\`loopsFinished() {
 creatorCache['Distill Potions'].loop.loop.pred=\`(r,k) => {
             r.herbs-=10;
             r.potions++;
-            let brewingLevel = getSkillLevelFromExp(k.brewing);
-			let brewingMultiplier = 0;			
-			for(let levelsNeededForBoost = 1; brewingLevel > 0; levelsNeededForBoost++) {
-				for (let i = 0; i < 10 && brewingLevel > 0; i++){
-					brewingMultiplier += 1;
-					brewingLevel -= levelsNeededForBoost;				
-				}
-			}
-            k.alchemy += 100 + brewingMultiplier * 10;
+            k.alchemy += 10 + 10 * getSkillLevelFromExp(k.brewing);
             }\`;
 creatorCache['Distill Potions'].loop.max=\`\`;
 creatorCache['Train Squirrel']={};
@@ -3396,12 +3356,12 @@ creatorCache['Burn Forest'].loop.end.pred=\`(r,k,sq)=> {
         }\`;
 creatorCache['Burn Forest'].loop.loop={};
 creatorCache['Burn Forest'].loop.loop.game=\`loopsFinished() {
-		addMana(3500);
+		addMana(4500);
         addResource("darkEssences", Math.floor(towns[FORESTPATH].getLevel("DarkForest")/10 + 0.000001));
 		addResource("herbs", -10);
 		if(towns[FORESTPATH].BurnLoopCounter%4 === 0) addResource("reputation", -1);
     }\`;
-creatorCache['Burn Forest'].loop.loop.pred=\`(r,k) => {r.mana+=3500;r.herbs-=10;r.darkEssences+=Math.floor(towns[FORESTPATH].getLevel("DarkForest")/10 + 0.000001);r.forestBurn=(r.forestBurn||0)+1; if(r.forestBurn%2==0) r.rep-=1;}\`;
+creatorCache['Burn Forest'].loop.loop.pred=\`(r,k) => {r.mana+=4500;r.herbs-=10;r.darkEssences+=Math.floor(towns[FORESTPATH].getLevel("DarkForest")/10 + 0.000001);r.forestBurn=(r.forestBurn||0)+1; if(r.forestBurn%2==0) r.rep-=1;}\`;
 creatorCache['Burn Forest'].loop.max=\`\`;
 creatorCache['Bird Watching']={};
 creatorCache['Bird Watching'].affected=[''];
@@ -3657,19 +3617,7 @@ creatorCache['Learn Brewing'].canStart.pred=\`(input) => {
 creatorCache['Learn Brewing'].effect={};
 creatorCache['Learn Brewing'].effect.skills={};	
 creatorCache['Learn Brewing'].effect.skills.Brewing=\`Brewing() {
-			let alchemyLevel = getSkillLevel("Alchemy");
-			let alchemyMultiplier = 0;
-			
-			for(let levelsNeededForBoost = 1; alchemyLevel > 0; levelsNeededForBoost++) {
-				for (let i = 0; i < 10 && alchemyLevel > 0; i++){
-				
-					alchemyMultiplier += 1;
-					alchemyLevel -= levelsNeededForBoost;
-				
-				}
-			}
-			
-			return 100 + alchemyMultiplier * 10;
+			return 10 + 10 * getSkillLevel("Alchemy");
 		}\`,
 creatorCache['Learn Brewing'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
@@ -3706,15 +3654,7 @@ creatorCache['Learn Brewing'].effect.game=\`finish() {
 creatorCache['Learn Brewing'].effect.pred=\`(r,k,sq) => {
             if (sq) return;
             r.darkEssences-=10;
-            let alchemyLevel = getSkillLevelFromExp(k.alchemy);
-			let alchemyMultiplier = 0;			
-			for(let levelsNeededForBoost = 1; alchemyLevel > 0; levelsNeededForBoost++) {
-				for (let i = 0; i < 10 && alchemyLevel > 0; i++){
-					alchemyMultiplier += 1;
-					alchemyLevel -= levelsNeededForBoost;				
-				}
-			}
-            k.brewing += 100 + alchemyMultiplier * 10;
+            k.brewing += 10 + 10 * getSkillLevelFromExp(k.alchemy);
           }\`;
 creatorCache['Concoct Potions']={};
 creatorCache['Concoct Potions'].affected=['rep','darkEssences','darkPotions'];
@@ -3730,9 +3670,10 @@ creatorCache['Concoct Potions'].loop={};
 creatorCache['Concoct Potions'].loop.cost={};
 creatorCache['Concoct Potions'].loop.cost.game=\`loopCost(segment) {
 		const numberLoops = towns[FORESTPATH].ConcoctLoopCounter / 3;
-        return Math.floor(Math.pow(1.6, numberLoops)+ 0.0000001) * 50000;
+        return Math.floor(Math.pow(1.3, numberLoops)+ 0.0000001) * 25000;
     }\`;
-creatorCache['Concoct Potions'].loop.cost.pred=\`(p) => segment =>  precision3(Math.pow(1.6, p.completed/3))*50000\`;
+//TODO: Check validity
+creatorCache['Concoct Potions'].loop.cost.pred=\`(p) => segment =>  precision3(Math.pow(1.3, p.completed/3))*25000\`;
 creatorCache['Concoct Potions'].loop.tick={};
 creatorCache['Concoct Potions'].loop.tick.game=\`tickProgress(offset) {
 		if(this.squirrelAction) return 0;
@@ -3742,19 +3683,7 @@ creatorCache['Concoct Potions'].loop.tick.pred=\`(p, a, s, k, r, sq) => offset =
 creatorCache['Concoct Potions'].loop.end={};
 creatorCache['Concoct Potions'].loop.end.skills={};	
 creatorCache['Concoct Potions'].loop.end.skills.Brewing=\`Brewing() {
-			let alchemyLevel = getSkillLevel("Alchemy");
-			let alchemyMultiplier = 0;
-			
-			for(let levelsNeededForBoost = 1; alchemyLevel > 0; levelsNeededForBoost++) {
-				for (let i = 0; i < 10 && alchemyLevel > 0; i++){
-				
-					alchemyMultiplier += 1;
-					alchemyLevel -= levelsNeededForBoost;
-				
-				}
-			}
-			
-			return 100 + alchemyMultiplier * 10;
+			return 10 + 10 * getSkillLevel("Alchemy");
 		}\`,
 creatorCache['Concoct Potions'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
 		
@@ -3798,15 +3727,7 @@ creatorCache['Concoct Potions'].loop.loop.game=\`loopsFinished() {
 creatorCache['Concoct Potions'].loop.loop.pred=\`(r,k) => {
             r.darkEssences-=10;
             r.darkPotions++;
-            let alchemyLevel = getSkillLevelFromExp(k.alchemy);
-			let alchemyMultiplier = 0;			
-			for(let levelsNeededForBoost = 1; alchemyLevel > 0; levelsNeededForBoost++) {
-				for (let i = 0; i < 10 && alchemyLevel > 0; i++){
-					alchemyMultiplier += 1;
-					alchemyLevel -= levelsNeededForBoost;				
-				}
-			}
-            k.brewing += 100 + alchemyMultiplier * 10;
+            k.brewing += 10 + 10 * getSkillLevelFromExp(k.alchemy);
             }\`;
 creatorCache['Concoct Potions'].loop.max=\`\`;
 creatorCache['Continue On']={};
@@ -3941,6 +3862,10 @@ creatorCache['Gamble'].effect.cost=\`cost() {
 		
 		let reputationLost = Math.floor((gamblesInARow+5)/10);
         addResource("reputation", reputationLost * (-1));
+		if(resources.reputation < 0){
+			resources.reputation = 1;
+			addResource("reputation", -1);
+		}
 		
 		view.adjustGoldCost("Gamble", Action.Gamble.goldCost());
 		
@@ -3987,6 +3912,9 @@ creatorCache['Gamble'].effect.pred=\`(r) => {
             r.gamblesInARow=0;
           }
           r.rep-=Math.floor((r.gamblesInARow+5)/10);
+          if (r.rep<0) {
+            r.rep=0;
+          }
         }\`;
 creatorCache['Slave Auction']={};
 creatorCache['Slave Auction'].affected=['gold','rep'];
@@ -4063,16 +3991,16 @@ creatorCache['Adventure Guild'].canStart.pred=\`(input) => (input.guild=='')\`;
 creatorCache['Adventure Guild'].loop={};
 creatorCache['Adventure Guild'].loop.cost={};
 creatorCache['Adventure Guild'].loop.cost.game=\`loopCost(segment) {
-        return precision3(Math.pow(1.65, towns[MERCHANTON]['@{this.varName}LoopCounter'] + segment)) * 230000;
+        return precision3(Math.pow(1.65, towns[MERCHANTON]['@{this.varName}LoopCounter'] + segment)) * 175000;
     }\`;
-creatorCache['Adventure Guild'].loop.cost.pred=\`(p) => segment =>  precision3(Math.pow(1.65, p.completed + segment)) * 230000\`;
+creatorCache['Adventure Guild'].loop.cost.pred=\`(p) => segment =>  precision3(Math.pow(1.65, p.completed + segment)) * 175000\`;
 creatorCache['Adventure Guild'].loop.tick={};
 creatorCache['Adventure Guild'].loop.tick.game=\`tickProgress(offset) {
         return (getSkillLevel("Magic") / 2 + getSelfCombat("Combat") / 2) *
                 Math.sqrt((1 + getLevel(this.loopStats[(towns[MERCHANTON]['@{this.varName}LoopCounter'] + offset) % this.loopStats.length]) / 100)) *
-                Math.sqrt(1 + towns[MERCHANTON]['total@{this.varName}']);
+                Math.sqrt(1 + towns[MERCHANTON]['total@{this.varName}']/2);
     }\`;
-creatorCache['Adventure Guild'].loop.tick.pred=\`(p, a, s, k, r) => offset => ((h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) / 2) * Math.sqrt(h.getStatProgress(p, a, s, offset, 100)) * Math.sqrt(1 + p.total)\`;
+creatorCache['Adventure Guild'].loop.tick.pred=\`(p, a, s, k, r) => offset => ((h.getSelfCombat(r, k) +  getSkillLevelFromExp(k.magic)) / 2) * Math.sqrt(h.getStatProgress(p, a, s, offset, 100)) * Math.sqrt(1 + p.total/2)\`;
 creatorCache['Adventure Guild'].loop.end={};
 creatorCache['Adventure Guild'].loop.end.game=\`finish() {
         guild = "Adventure";
@@ -4108,7 +4036,7 @@ creatorCache['Training Facility'].canStart.pred=\`(input) => {
 creatorCache['Training Facility'].effect={};
 creatorCache['Training Facility'].effect.skills={};	
 creatorCache['Training Facility'].effect.skills.TeamWork=\`TeamWork() {
-			let exp = 40;
+			let exp = 20;
 			exp = exp * getAdvGuildRank().bonus;
 			exp = exp * ( 1 + resources.teamMembers);
 			return exp;
@@ -4125,7 +4053,7 @@ creatorCache['Training Facility'].effect.pred=\`(r,k) => {
           if (r.teamMembers>0) {
             r.gold-=25;
           }
-          let exp = 40;
+          let exp = 20;
 		  exp = exp * h.getGuildRankBonus(r.adventures);
 		  exp = exp * ( 1 + r.teamMembers);
 	      k.teamwork+=exp;
@@ -4175,7 +4103,7 @@ creatorCache['Large Dungeon'].loop.tick.pred=\`(p, a, s, k, r) => offset => {
           }\`;
 creatorCache['Large Dungeon'].loop.end={};
 creatorCache['Large Dungeon'].loop.end.skills={};	
-creatorCache['Large Dungeon'].loop.end.skills.TeamWork=100,
+creatorCache['Large Dungeon'].loop.end.skills.TeamWork=200,
 creatorCache['Large Dungeon'].loop.end.game=\`finish() {
         
     }\`;
@@ -4188,7 +4116,7 @@ creatorCache['Large Dungeon'].loop.loop.game=\`loopsFinished() {
     }\`;
 creatorCache['Large Dungeon'].loop.loop.pred=\`(r,k) => {
       r.soul +=Math.min(10,Math.floor(10 / (1 +r.teamMembers) * (1 + getSkillLevelFromExp(k.teamwork)/100)));
-      k.teamwork+=100;
+      k.teamwork+=200;
     }\`;
 creatorCache['Large Dungeon'].loop.max=\`(a) =>  dungeons[a.dungeonNum].length\`;
 creatorCache['Mock Battle']={};
@@ -4196,7 +4124,7 @@ creatorCache['Mock Battle'].affected=['climbingGears'];
 creatorCache['Mock Battle'].canStart={};
 creatorCache['Mock Battle'].canStart.game=\`canStart() {
 		const curWins = Math.floor((towns[this.townNum].MockLoopCounter) / 5 + 0.0000001);
-		return guild === "Adventure" && curWins < 4;
+		return guild === "Adventure" && curWins < 3;
     }\`;
 creatorCache['Mock Battle'].canStart.pred=\`(input) => {
           return input.guild=="Adventure";
@@ -4205,9 +4133,9 @@ creatorCache['Mock Battle'].loop={};
 creatorCache['Mock Battle'].loop.cost={};
 creatorCache['Mock Battle'].loop.cost.game=\`loopCost(segment) {
 		const numberLoops = towns[this.townNum].MockLoopCounter / 5;
-        return Math.floor(Math.pow(20, numberLoops)+ 0.0000001) * 170000;
+        return Math.floor(Math.pow(20, numberLoops)+ 0.0000001) * 200000;
     }\`;
-creatorCache['Mock Battle'].loop.cost.pred=\`(p,a) => segment =>  Math.floor(Math.pow(20, Math.floor((p.completed + segment) / a.segments + .0000001)))*170000\`;
+creatorCache['Mock Battle'].loop.cost.pred=\`(p,a) => segment =>  Math.floor(Math.pow(20, Math.floor((p.completed + segment) / a.segments + .0000001)))*200000\`;
 creatorCache['Mock Battle'].loop.tick={};
 creatorCache['Mock Battle'].loop.tick.game=\`tickProgress(offset) {
         return (getSkillLevel("TeamWork")) * Math.sqrt(1 + getLevel(this.loopStats[(towns[this.townNum].MockLoopCounter + offset) % this.loopStats.length]) / 100) * Math.sqrt(1 + towns[this.townNum].totalMock / 100);
@@ -4359,7 +4287,7 @@ creatorCache['Delivery Address One'].effect={};
 creatorCache['Delivery Address One'].effect.game=\`finish() {
 		if(magicFight && magicFighterStrenght === 0) {
 			magicFighterStrenght = 1;
-			view.adjustGoldCost("MagicFighter", magicFighterStrenght);
+			view.adjustGoldCost("MagFgt", Action.MagicFighter.goldCost());
 			upgradeAction(Action.TrainingDummy, Action.MagicFighter);
 			if(getLevelSquirrelAction("Magic Fighter") === 1) levelUpSquirrelAction("Magic Fighter");
 			upgradeAction(Action.DeliveryAddressOne, Action.DeliveryAddressTwo);
@@ -4374,7 +4302,7 @@ creatorCache['Delivery Address Two'].effect={};
 creatorCache['Delivery Address Two'].effect.game=\`finish() {
 		if(magicFight && magicFighterStrenght === 1) {
 			magicFighterStrenght = 2;
-			view.adjustGoldCost("MagicFighter", magicFighterStrenght);
+			view.adjustGoldCost("MagFgt", magicFighterStrenght);
 			upgradeAction(Action.DeliveryAddressTwo, Action.DeliveryAddressThree);
 		}
     }\`;
@@ -4387,7 +4315,7 @@ creatorCache['Delivery Address Three'].effect={};
 creatorCache['Delivery Address Three'].effect.game=\`finish() {
 		if(magicFight && magicFighterStrenght === 2) {
 			magicFighterStrenght = 3;
-			view.adjustGoldCost("MagicFighter", magicFighterStrenght);
+			view.adjustGoldCost("MagFgt", magicFighterStrenght);
 			upgradeAction(Action.DeliveryAddressThree, Action.DeliveryAddressFour);
 		}
     }\`;
@@ -4400,7 +4328,7 @@ creatorCache['Delivery Address Four'].effect={};
 creatorCache['Delivery Address Four'].effect.game=\`finish() {
 		if(magicFight && magicFighterStrenght === 3) {
 			magicFighterStrenght = 4;
-			view.adjustGoldCost("MagicFighter", magicFighterStrenght);
+			view.adjustGoldCost("MagFgt", magicFighterStrenght);
 			upgradeAction(Action.DeliveryAddressFour, Action.DeliveryAddressFive);
 		}
     }\`;
@@ -4432,17 +4360,17 @@ creatorCache['Sell Potions'].affected=['gold','potions','darkPotions'];
 creatorCache['Sell Potions'].effect={};
 creatorCache['Sell Potions'].effect.game=\`finish() {
 		if(resources.potions > 0){
-			addResource("gold", resources.potions * 200);
+			addResource("gold", resources.potions * 100);
 			resetResource("potions");
 		}
 		
 		if(resources.darkPotions > 0){
-			addResource("gold", resources.darkPotions * 200);
+			addResource("gold", resources.darkPotions * 100);
 			resetResource("darkPotions");
 		}
     }\`;
 creatorCache['Sell Potions'].effect.pred=\`(r, k) =>  {
-       r.gold += r.potions * 200+r.darkPotions*200;
+       r.gold += r.potions * 100+r.darkPotions*100;
        r.potions = 0;
        r.darkPotions=0;
     }\`;
@@ -4464,8 +4392,10 @@ creatorCache['Tail Judges'].effect={};
 creatorCache['Tail Judges'].effect.game=\`finish() {
 		if(guild === "Adventure"){
 			towns[MERCHANTON]["totalAdvGuild"] = towns[MERCHANTON]["totalAdvGuild"] + Math.floor(Math.pow(10, Math.floor(getAdvGuildRank().bonus - 1)));
+			view.requestUpdate("updateMultiPart", Action.AdventureGuild);
 		} else if(guild === "Crafting"){
 			towns[MERCHANTON]["totalCraftGuild"] = towns[MERCHANTON]["totalCraftGuild"] + Math.floor(Math.pow(10, Math.floor(getCraftGuildRank().bonus - 1)));
+			view.requestUpdate("updateMultiPart", Action.CraftingGuild);
 		} else {
 			//addResource("climbingGears", 1);
 			//add boat
