@@ -760,8 +760,6 @@ const Koviko = {
 
 
 
- 
-
         'RuinsZ1':{ affected:['']},
         'RuinsZ3':{ affected:['']},
         'RuinsZ5':{ affected:['']},
@@ -904,7 +902,7 @@ const Koviko = {
             r.squirrel=1;
           }
         }},
-        'Pick Locks':{ affected:['gold','stolenGoods','mana'],
+        'Pick Locks':{ affected:['mana','gold','stolenGoods'],
           canStart:true,
           effect:(r,k,sq) => {
           if (sq) {
@@ -928,29 +926,13 @@ const Koviko = {
           effect:(r,k) => {
           r.glasses = true;
         }},
-        'Buy Mana Z1':{ affected:['mana','gold','stolenGoods'],
-          canStart:true,
-          effect:(r,k, sq) => {
-          if (sq) {
-            switch(getLevelSquirrelAction("Buy Mana Z1")) {
-              case 3:
-                r.mana+=1400;
-              case 2:
-                r.mana+=100;
-                h.killSquirrel(r);
-              case 1:
-            }
-          }
-          r.gold+=r.stolenGoods * Action.BuyManaZ1.stolenGoodsValue()
-          r.mana += r.gold *  Action.BuyManaZ1.goldCost();
-          r.gold = 0;
-          r.stolenGoods=0;
-          
-        }},
         'Meet People':{ affected:[''],
           canStart:true},
-        'Train Strength':{ affected:[''],
-          canStart:true},
+        'Throw Party':{ affected:['rep'],
+          canStart:(input)=>(input.rep>=2),
+          effect:(r,k,sq)=>{
+            r.rep-=2;
+          }},
         'Short Quest':{ affected:['gold'],
           canStart:true,
           effect:(r,k,sq) => {
@@ -993,11 +975,25 @@ const Koviko = {
             r.rep += repGain;
           }
         }},
-        'Throw Party':{ affected:['rep'],
-          canStart:(input)=>(input.rep>=2),
-          effect:(r,k,sq)=>{
-            r.rep-=2;
-          }},
+        'Buy Mana Z1':{ affected:['mana','gold','stolenGoods'],
+          canStart:true,
+          effect:(r,k, sq) => {
+          if (sq) {
+            switch(getLevelSquirrelAction("Buy Mana Z1")) {
+              case 3:
+                r.mana+=1400;
+              case 2:
+                r.mana+=100;
+                h.killSquirrel(r);
+              case 1:
+            }
+          }
+          r.gold+=r.stolenGoods * Action.BuyManaZ1.stolenGoodsValue()
+          r.mana += r.gold *  Action.BuyManaZ1.goldCost();
+          r.gold = 0;
+          r.stolenGoods=0;
+          
+        }},
         'Warrior Lessons':{ affected:[''],
           canStart:(input) => input.rep >= 2,
           effect:(r, k, sq) => {
@@ -1026,17 +1022,6 @@ const Koviko = {
             k.magic += 100;
           }
         }},
-        'Heal The Sick':{ affected:['rep'],
-          canStart:(input,sq) => {
-      if (sq) {
-        if (input.alreadyHealed) return false;
-      }
-      return input.rep >= 1;
-    }, loop: {
-          cost:(p, a) => segment =>  fibonacci(2 + Math.floor((p.completed + segment) / a.segments + .0000001)) * 10000,
-          tick:(p, a, s, k, r, sq, lCost) => offset =>  sq ?  Math.max(getLevelSquirrelAction("Heal The Sick")-1,0) * lCost(offset) * 3 / a.manaCost() : getSkillLevelFromExp(k.magic) * Math.max( getSkillLevelFromExp(k.restoration) / 50, 1) * h.getStatProgress(p, a, s, offset, 100) * Math.sqrt(1 + p.total / 100),
-          effect:{ end:(r,k,sq)=>{if (sq) r.alreadyHealed=true;}, loop:(r,k,sq) => {r.rep += 3; k.magic+=(sq?150:50);}}
-        }},
         'Fight Monsters':{ affected:['gold'],
           canStart:(input,sq) => {
       if (sq) {
@@ -1056,6 +1041,19 @@ const Koviko = {
           }
         }, segment:(r,k) => (r.gold += 20,k.combat += 50*(1+getBuffLevel("Heroism") * 0.02))}
         }},
+        'Heal The Sick':{ affected:['rep'],
+          canStart:(input,sq) => {
+      if (sq) {
+        if (input.alreadyHealed) return false;
+      }
+      return input.rep >= 1;
+    }, loop: {
+          cost:(p, a) => segment =>  fibonacci(2 + Math.floor((p.completed + segment) / a.segments + .0000001)) * 10000,
+          tick:(p, a, s, k, r, sq, lCost) => offset =>  sq ?  Math.max(getLevelSquirrelAction("Heal The Sick")-1,0) * lCost(offset) * 3 / a.manaCost() : getSkillLevelFromExp(k.magic) * Math.max( getSkillLevelFromExp(k.restoration) / 50, 1) * h.getStatProgress(p, a, s, offset, 100) * Math.sqrt(1 + p.total / 100),
+          effect:{ end:(r,k,sq)=>{if (sq) r.alreadyHealed=true;}, loop:(r,k,sq) => {r.rep += 3; k.magic+=(sq?150:50);}}
+        }},
+        'Train Strength':{ affected:[''],
+          canStart:true},
         'Training Dummy':{ affected:['magicFight'],
           canStart:(input,sq) => {
 			return ((!sq || input.squirrel) && input.rep >= 2);
@@ -1110,13 +1108,6 @@ const Koviko = {
           },
           effect:{ end:(r,k,sq)=>{if (sq) r.alreadySDungeon=true;}, loop:(r,k) => {r.soul+=h.getRewardSS(0);k.combat += 100*(1+getBuffLevel("Heroism") * 0.02); k.magic += 100;}}
         }},
-        'Buy Supplies':{ affected:['gold'],
-          canStart:(input,sq) => sq || (input.gold >= 450 - Math.max((input.supplyDiscount || 0) * 30, 0)),
-          effect:(r,k,sq) => {
-            if (sq) return;
-            r.gold -= 450 - Math.max((r.supplyDiscount || 0) * 30, 0);
-            r.supplies = (r.supplies || 0) + 1;
-          }},
         'Haggle':{ affected:['rep'],
           canStart:(input, sq) => sq ? !input.squirrelHaggle:(input.rep > 0),
           effect:(r,k,sq) => {
@@ -1128,6 +1119,13 @@ const Koviko = {
           }
           r.supplyDiscount = (r.supplyDiscount >= 15 ? 15 : (r.supplyDiscount || 0) + 1)
 }},
+        'Buy Supplies':{ affected:['gold'],
+          canStart:(input,sq) => sq || (input.gold >= 450 - Math.max((input.supplyDiscount || 0) * 30, 0)),
+          effect:(r,k,sq) => {
+            if (sq) return;
+            r.gold -= 450 - Math.max((r.supplyDiscount || 0) * 30, 0);
+            r.supplies = (r.supplies || 0) + 1;
+          }},
         'Start Journey':{ affected:[''],
           canStart:r => r.supplies >= 1,
           effect:(r,k,sq) => {
