@@ -2,7 +2,7 @@
 // @name         IdleLoops Squirrel Predictor Makro
 // @namespace    https://github.com/Tomnar9/
 // @downloadURL  https://raw.githubusercontent.com/Tomnar9/IdleLoops-Predictor/master/idleloops-predictor.user.js
-// @version      0.3.11
+// @version      0.3.12
 // @description  Predicts the amount of resources spent and gained by each action in the action list. Valid as of IdleLoops Reworked  v.0.2.7/Morana.
 // @author       Koviko <koviko.net@gmail.com>, Tomnar <Tomnar#4672 on discord>
 // @match        https://mopatissier.github.io/IdleLoopsReworked/
@@ -828,6 +828,130 @@ const Koviko = {
             r.stone=1;
           }
         }},
+        'Search Around':{ affected:[''],
+          effect:(r,k) => {
+        }},
+        'Add Reagents':{ affected:['mana'],
+          effect:(r,k,sq) => {
+          var factor=1;
+          if (sq) {
+            if (getLevelSquirrelAction("Add Reagents")>=2) {
+              factor=2;
+            } else {
+              return;
+            }
+          }
+     
+          r.addReagents = (r.addReagents || 0) + factor;
+          r.mana += r.addReagents <= towns[TUTORIALIS].goodReagents ?  100*factor : 0;
+    }},
+        'Dissolve Mana':{ affected:['mana'],
+          effect:(r,k,sq) => {
+		if (sq) {
+		  switch(getLevelSquirrelAction("Dissolve Mana")) {
+            case 0:
+            case 1:
+              return;
+            case 2:
+              h.killSquirrel(r);
+            case 3:
+              r.mana+=1600;
+          }
+        } else {
+          r.mana+=1100
+        }
+        }},
+        'Spare Change':{ affected:['gold'],
+          effect:(r,k,sq) => {
+          if (sq) {
+            if (getLevelSquirrelAction("Spare Change")>=2) {
+              r.gold+=15;
+            } else {
+              h.killSquirrel(r);
+            }
+          } else {
+            r.gold+=10;
+          }
+        }},
+        'Psych Up':{ affected:['']},
+        'Pet Animals':{ affected:[''],
+          effect:(r,k) => {
+          k.handling+=100;
+        }},
+        'Get Squirrel':{ affected:[''],
+          canStart:(input) => {
+           return !input.squirrel && !input.deadSquirrel;
+        },
+          effect:(r,k) => {
+          r.squirrel=1;
+        }},
+        'Train Presence':{ affected:[''],
+          canStart:(input) => {
+          return input.squirrel;
+        },
+          effect:(r,k,sq) => {
+          if (sq) {
+            if (getLevelSquirrelAction("Train Presence") >= 2) {
+              k.squeakiness_squirrel+=100 * (getSkillSquirrelLevelFromExp(k.squeakiness_squirrel) + 1);
+            }
+          } else {
+            k.squeakiness_squirrel+=100;
+          }
+        }},
+        'Pick Up Package':{ affected:['loopPotion'],
+          canStart:(input) => {
+          return input.squirrel;
+        },
+          effect:(r,k) => {
+          r.loopPotion=1;
+        }},
+        'Work On Yourself':{ affected:[''],
+          effect:(r,k,sq) => {
+          if (sq) {
+            if (getLevelSquirrelAction("Work On Yourself")<2) return;
+            k.clumsiness+=100-getLevelFromExp(k.squeakiness_squirrel);
+          } else {
+            k.clumsiness+=100
+          }
+        }},
+        'Potion Replicator':{ affected:['gold','loopPotion'],
+          canStart:(input) => {
+            return input.gold >= 240 && input.loopPotion > 0;
+        },
+          effect:(r,k) => {
+        }},
+        'Treasure Box':{ affected:['chronosPotion'],
+          effect:(r,k) => {
+          r.chronosPotion=1;
+        }},
+        'Time Traveler':{ affected:['loopPotion'],
+          canStart:(input) => {
+          return input.loopPotion;
+        }},
+        'Deliver Potion One':{ affected:['delivered'],
+          effect:(r,k) => r.delivered+=1},
+        'Deliver Potion Two':{ affected:['gold','delivered'],
+          canStart:(input) => {
+          return input.gold>=10;
+        },
+          effect:(r,k) => r.delivered+=1},
+        'Deliver Potion Three':{ affected:['delivered'],
+          effect:(r,k) => r.delivered+=1},
+        'Deliver Potion Four':{ affected:['delivered'],
+          effect:(r,k) => r.delivered+=1},
+        'Deliver Potion Five':{ affected:['delivered'], loop: {
+          max:()=>1,
+          cost:(p) => segment =>  4000,
+          tick:(p, a, s, k, r) => offset => getLevelFromExp(k.handling) * h.getStatProgress(p, a, s, offset, 100) * Math.sqrt(1 + p.total) ,
+          effect:{loop:(r,k) => {r.delivered+=1;}}
+        }},
+        'Deliver Potion Six':{ affected:['delivered'],
+          canStart:(input) => {
+            return input.squirrel && input.loopPotion
+        },
+          effect:(r,k,sq) => {
+          if (!sq) r.delivered+=1;
+        }},
         'Look Around':{ affected:[''],
           canStart:(input) => (input.glasses)},
         'Absorb Mana':{ affected:[''],
@@ -901,6 +1025,13 @@ const Koviko = {
             k.trust_squirrel+=100;
             r.squirrel=1;
           }
+        }},
+        'Chronos Potion':{ affected:['chronosPotion'],
+          canStart:(input) => {
+		    return true;
+        },
+          effect:(r,k,sq) => {
+		r.chronosPotion=0;
         }},
         'Pick Locks':{ affected:['mana','gold','stolenGoods'],
           canStart:true,
@@ -1924,7 +2055,7 @@ const Koviko = {
         'First Trial':{ affected:['']},
         'Break Loop':{ affected:['loopPotion'],
           canStart:(input) => {
-          return input.loopPotion
+          return input.loopPotion || input.loopPotionCopy;
         }},
 
         //SPECIAL ACTIONS
@@ -2020,7 +2151,7 @@ const Koviko = {
 
       if (!state) {
         state = {
-          resources: { mana: (500+50*getBuffLevel("ImbueSoulstones")), town: 0, guild: "",rep:0, total:0, totalTicks:0,  squirrel:0, deadSquirrel:0},
+          resources: { mana: (500+50*getBuffLevel("ImbueSoulstones")), town: (tutorialLevel<6?TUTORIALIS:0), guild: "",rep:0, total:0, totalTicks:0,  squirrel:0, deadSquirrel:0},
           stats: Koviko.globals.statList.reduce((stats, name) => (stats[name] = getExpOfLevel(buffs.Imbuement2.amt*(Koviko.globals.skills.Wunderkind.exp>=100?2:1)), stats), {}),
           talents:  Koviko.globals.statList.reduce((talents, name) => (talents[name] = stats[name].talent, talents), {}),
           skills: Object.assign(Object.entries(skills).reduce((skills, x) => (skills[x[0].toLowerCase()] = x[1].exp, skills), {}),Object.entries(skillsSquirrel).reduce((skills, x) => (skills[x[0].toLowerCase()+"_squirrel"] = x[1].exp, skills), {})),
@@ -2055,7 +2186,7 @@ const Koviko = {
         stats: new Koviko.Snapshot(state.stats),
         skills: new Koviko.Snapshot(state.skills),
         currProgress: new Koviko.Snapshot({"Fight Monsters": 0, "Heal The Sick": 0, "Small Dungeon": 0, "Large Dungeon": 0, "Hunt Trolls": 0, "Tidy Up":0,"Fight Frost Giants":0, "The Spire":0, "Fight Jungle Monsters":0,"Rescue Survivors":0,"Heroes Trial":0,
-          "Dead Trial":0, "Secret Trial":0, "Gods Trial":0, "Challenge Gods":0, "Magic Fighter":0, "Training Dummy":0,"Mock Battle":0})
+          "Dead Trial":0, "Secret Trial":0, "Gods Trial":0, "Challenge Gods":0, "Magic Fighter":0, "Training Dummy":0,"Mock Battle":0,"Deliver Potion Five":0})
       };
 
       /**
@@ -2063,7 +2194,6 @@ const Koviko = {
        * @var {Array.<string>}
        */
       const affected = Object.keys(actions.reduce((stats, x) => (x.name in this.predictions && this.predictions[x.name].affected || []).reduce((stats, name) => (stats[name] = true, stats), stats), {}));
-
       // Reset the cache's index
       // returns false on cache miss
       let cache = this.cache.reset([state, affected]);
@@ -2523,7 +2653,7 @@ const Koviko = {
               tooltip += "MOCK";
               break;
             default:
-              tooltip += i.toUpperCase();
+              tooltip += i.toUpperCase().substring(0,5);
           }
           tooltip += '</b></td><td>' + intToString(level.end, 1) + '</td><td>(+' + intToString(level.end - level.start, 1) + ')</td></tr>';
         }

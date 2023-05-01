@@ -122,7 +122,8 @@ function crOutputPredictions() {
 		}
 		let itemCache=creatorCache[Action[act].name];
 		if (!itemCache) {
-			console.log("Error, action not found?");
+			console.log("Error, action not found? " +Action[act].name);
+            continue;
 		}
 		output+=\`\n        '\`+Action[act].name+\`':{ affected:['\`+itemCache.affected.toString().replace(/,/g,"','")+"']";
 		if (itemCache.manaCost && itemCache.manaCost.pred) {
@@ -248,7 +249,7 @@ function crUpdatePredictions() {
 			}
 		} else {
 			//For multipart actions the effect is stored inside the loop object
-			rObject=crCheckCache(Action[act],"finish", "effect",cacheString,\`(r,k) => {\n//TODO: Add function\n        }\`);
+			rObject=crCheckCache(Action[act],"finish", "effect",cacheString,\`(r,k,sq) => {\n//TODO: Add function\n        }\`);
 			item+=rObject.txt;
 			toEdit=toEdit||rObject.toEdit;
 		}
@@ -414,6 +415,983 @@ creatorCache['HaulZ6'].effect.pred=\`(r) => {
             r.stone=1;
           }
         }\`;
+creatorCache['Search Around']={};
+creatorCache['Search Around'].affected=[''];
+creatorCache['Search Around'].canStart={};
+creatorCache['Search Around'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Search Around'].canStart.pred=\`\`;
+creatorCache['Search Around'].effect={};
+creatorCache['Search Around'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
+		
+		let actionEffect = () => {};
+		let loseSquirrel = false;
+		
+		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
+		
+		switch(additionalLevel + getLevelSquirrelAction("Search Around")){
+						
+				case 1: break;
+									
+				case 2: actionEffect = () => {
+							towns[TUTORIALIS].finishProgress(this.varName, this.progressExp());
+						};
+					break;
+			
+				case 3: actionEffect = () => {
+							towns[TUTORIALIS].finishProgress(this.varName, this.progressExp());
+						};
+					break;
+										
+		}
+		
+		if(onlyGetLoseSquirrel){
+			if(loseSquirrel) return true;
+			return false;
+		}
+		
+		if(onlyGetEmptySquirrel){
+			if(String(actionEffect) === "() => {}" || nothingHappens === true) return true;
+			return false;
+		}
+		
+		if(loseSquirrel) addResource("squirrel", false);
+		
+		actionEffect();
+	}\`;
+creatorCache['Search Around'].effect.game=\`finish() {
+		
+		towns[TUTORIALIS].finishProgress(this.varName, this.progressExp());
+
+    }\`;
+creatorCache['Search Around'].effect.pred=\`(r,k) => {
+        }\`;
+creatorCache['Add Reagents']={};
+creatorCache['Add Reagents'].affected=['mana'];
+creatorCache['Add Reagents'].canStart={};
+creatorCache['Add Reagents'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Add Reagents'].canStart.pred=\`\`;
+creatorCache['Add Reagents'].effect={};
+creatorCache['Add Reagents'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
+		
+		let actionEffect = () => {};
+		let loseSquirrel = false;
+		
+		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
+		
+		switch(additionalLevel + getLevelSquirrelAction("Add Reagents")){
+						
+				case 1: break;
+									
+				case 2: actionEffect = () => {
+							towns[TUTORIALIS].finishRegular(this.varName, 2, () => {
+								const manaGain = this.goldCost();
+								addMana(manaGain);
+								return manaGain;
+							});
+							towns[TUTORIALIS].finishRegular(this.varName, 2, () => {
+								const manaGain = this.goldCost();
+								addMana(manaGain);
+								return manaGain;
+							});
+						};
+					break;
+													
+		}
+		
+		if(onlyGetLoseSquirrel){
+			if(loseSquirrel) return true;
+			return false;
+		}
+		
+		if(onlyGetEmptySquirrel){
+			if(String(actionEffect) === "() => {}" || nothingHappens === true) return true;
+			return false;
+		}
+		
+		if(loseSquirrel) addResource("squirrel", false);
+		
+		actionEffect();
+	}\`;
+creatorCache['Add Reagents'].effect.game=\`finish() {
+        	
+		towns[TUTORIALIS].finishRegular(this.varName, 2, () => {
+			const manaGain = this.goldCost();
+			addMana(manaGain);
+			return manaGain;
+		});
+		
+    }\`;
+creatorCache['Add Reagents'].effect.pred=\`(r,k,sq) => {
+          var factor=1;
+          if (sq) {
+            if (getLevelSquirrelAction("Add Reagents")>=2) {
+              factor=2;
+            } else {
+              return;
+            }
+          }
+     
+          r.addReagents = (r.addReagents || 0) + factor;
+          r.mana += r.addReagents <= towns[TUTORIALIS].goodReagents ?  100*factor : 0;
+    }\`;
+creatorCache['Dissolve Mana']={};
+creatorCache['Dissolve Mana'].affected=['mana'];
+creatorCache['Dissolve Mana'].canStart={};
+creatorCache['Dissolve Mana'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Dissolve Mana'].canStart.pred=\`\`;
+creatorCache['Dissolve Mana'].effect={};
+creatorCache['Dissolve Mana'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
+		
+		let actionEffect = () => {};
+		let loseSquirrel = false;
+		
+		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
+		
+		switch(additionalLevel + getLevelSquirrelAction("Dissolve Mana")){
+						
+				case 1: break;
+									
+				case 2: actionEffect = () => {
+							addMana(1600);
+						};
+						loseSquirrel = true;
+					break;
+			
+				case 3: actionEffect = () => {
+							addMana(1600);
+						};
+					break;
+										
+		}
+		
+		if(onlyGetLoseSquirrel){
+			if(loseSquirrel) return true;
+			return false;
+		}
+		
+		if(onlyGetEmptySquirrel){
+			if(String(actionEffect) === "() => {}" || nothingHappens === true) return true;
+			return false;
+		}
+		
+		if(loseSquirrel) addResource("squirrel", false);
+		
+		actionEffect();
+	}\`;
+creatorCache['Dissolve Mana'].effect.game=\`finish() {
+		
+		addMana(1100);
+
+    }\`;
+creatorCache['Dissolve Mana'].effect.pred=\`(r,k,sq) => {
+		if (sq) {
+		  switch(getLevelSquirrelAction("Dissolve Mana")) {
+            case 0:
+            case 1:
+              return;
+            case 2:
+              h.killSquirrel(r);
+            case 3:
+              r.mana+=1600;
+          }
+        } else {
+          r.mana+=1100
+        }
+        }\`;
+creatorCache['Spare Change']={};
+creatorCache['Spare Change'].affected=['gold'];
+creatorCache['Spare Change'].canStart={};
+creatorCache['Spare Change'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Spare Change'].canStart.pred=\`\`;
+creatorCache['Spare Change'].effect={};
+creatorCache['Spare Change'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
+		
+		let actionEffect = () => {};
+		let loseSquirrel = false;
+		
+		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
+		
+		switch(additionalLevel + getLevelSquirrelAction("Spare Change")){
+															
+				case 1: loseSquirrel = true;
+					break;
+			
+				case 2: actionEffect = () => {
+							addResource("gold", 15);
+							if(resources.gold >= 270) actionUnlocks.unlockReplicatorAction = true;
+						};
+					break;
+										
+		}
+		
+		if(onlyGetLoseSquirrel){
+			if(loseSquirrel) return true;
+			return false;
+		}
+		
+		if(onlyGetEmptySquirrel){
+			if(String(actionEffect) === "() => {}" || nothingHappens === true) return true;
+			return false;
+		}
+		
+		if(loseSquirrel) addResource("squirrel", false);
+		
+		actionEffect();
+	}\`;
+creatorCache['Spare Change'].effect.game=\`finish() {
+		addResource("gold", 10);
+		if(resources.gold >= 270) actionUnlocks.unlockReplicatorAction = true;
+    }\`;
+creatorCache['Spare Change'].effect.pred=\`(r,k,sq) => {
+          if (sq) {
+            if (getLevelSquirrelAction("Spare Change")>=2) {
+              r.gold+=15;
+            } else {
+              h.killSquirrel(r);
+            }
+          } else {
+            r.gold+=10;
+          }
+        }\`;
+creatorCache['Psych Up']={};
+creatorCache['Psych Up'].affected=[''];
+creatorCache['Psych Up'].canStart={};
+creatorCache['Psych Up'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Psych Up'].canStart.pred=\`\`;
+creatorCache['Psych Up'].effect={};
+creatorCache['Psych Up'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
+		
+		let actionEffect = () => {};
+		let loseSquirrel = false;
+		
+		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
+		
+		switch(additionalLevel + getLevelSquirrelAction("Psych Up")){
+						
+				case 1: break;
+										
+		}
+		
+		if(onlyGetLoseSquirrel){
+			if(loseSquirrel) return true;
+			return false;
+		}
+		
+		if(onlyGetEmptySquirrel){
+			if(String(actionEffect) === "() => {}" || nothingHappens === true) return true;
+			return false;
+		}
+		
+		if(loseSquirrel) addResource("squirrel", false);
+		
+		actionEffect();
+	}\`;
+creatorCache['Psych Up'].effect.game=\`finish() {
+    }\`;
+creatorCache['Psych Up'].effect.pred=\`\`;
+creatorCache['Pet Animals']={};
+creatorCache['Pet Animals'].affected=[''];
+creatorCache['Pet Animals'].canStart={};
+creatorCache['Pet Animals'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Pet Animals'].canStart.pred=\`\`;
+creatorCache['Pet Animals'].effect={};
+creatorCache['Pet Animals'].effect.skills={};	
+creatorCache['Pet Animals'].effect.skills.Handling=100,
+creatorCache['Pet Animals'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
+		
+		let actionEffect = () => {};
+		let loseSquirrel = false;
+		
+		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
+		
+		switch(additionalLevel + getLevelSquirrelAction("Pet Animals")){
+						
+				case 1: break;
+										
+		}
+		
+		if(onlyGetLoseSquirrel){
+			if(loseSquirrel) return true;
+			return false;
+		}
+		
+		if(onlyGetEmptySquirrel){
+			if(String(actionEffect) === "() => {}" || nothingHappens === true) return true;
+			return false;
+		}
+		
+		if(loseSquirrel) addResource("squirrel", false);
+		
+		actionEffect();
+	}\`;
+creatorCache['Pet Animals'].effect.game=\`finish() {
+		handleSkillExp(this.skills);
+    }\`;
+creatorCache['Pet Animals'].effect.pred=\`(r,k) => {
+          k.handling+=100;
+        }\`;
+creatorCache['Get Squirrel']={};
+creatorCache['Get Squirrel'].affected=[''];
+creatorCache['Get Squirrel'].canStart={};
+creatorCache['Get Squirrel'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements && !(squirrelAlreadyPickedUp === true && !resources.squirrel);
+    }\`;
+creatorCache['Get Squirrel'].canStart.pred=\`(input) => {
+           return !input.squirrel && !input.deadSquirrel;
+        }\`;
+creatorCache['Get Squirrel'].effect={};
+creatorCache['Get Squirrel'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
+		
+		let actionEffect = () => {};
+		let loseSquirrel = false;
+		
+		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
+		
+		switch(additionalLevel + getLevelSquirrelAction("Get Squirrel")){
+						
+				case 1: break;
+										
+		}
+		
+		if(onlyGetLoseSquirrel){
+			if(loseSquirrel) return true;
+			return false;
+		}
+		
+		if(onlyGetEmptySquirrel){
+			if(String(actionEffect) === "() => {}" || nothingHappens === true) return true;
+			return false;
+		}
+		
+		if(loseSquirrel) addResource("squirrel", false);
+		
+		actionEffect();
+	}\`;
+creatorCache['Get Squirrel'].effect.game=\`finish() {
+		addResource("squirrel", true);
+		squirrelAlreadyPickedUp = true;
+    }\`;
+creatorCache['Get Squirrel'].effect.pred=\`(r,k) => {
+          r.squirrel=1;
+        }\`;
+creatorCache['Train Presence']={};
+creatorCache['Train Presence'].affected=[''];
+creatorCache['Train Presence'].canStart={};
+creatorCache['Train Presence'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements && resources.squirrel;
+    }\`;
+creatorCache['Train Presence'].canStart.pred=\`(input) => {
+          return input.squirrel;
+        }\`;
+creatorCache['Train Presence'].effect={};
+creatorCache['Train Presence'].effect.skillsSquirrel={};	
+creatorCache['Train Presence'].effect.skillsSquirrel.Squeakiness=\`Squeakiness(squirrelMode) {
+			let expGain = 100;
+			if(squirrelMode && getLevelSquirrelAction("Train Presence") >= 2) expGain = 100 * (getSkillSquirrelLevel("Squeakiness") + 1);
+			return expGain;
+		}\`,
+creatorCache['Train Presence'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
+		
+		let actionEffect = () => {};
+		let loseSquirrel = false;
+		
+		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
+		
+		switch(additionalLevel + getLevelSquirrelAction("Train Presence")){
+						
+				case 1: break;
+									
+				case 2: actionEffect = () => {
+							handleSkillSquirrelExp(this.skillsSquirrel, true);
+						};
+					break;
+										
+		}
+		
+		if(onlyGetLoseSquirrel){
+			if(loseSquirrel) return true;
+			return false;
+		}
+		
+		if(onlyGetEmptySquirrel){
+			if(String(actionEffect) === "() => {}" || nothingHappens === true) return true;
+			return false;
+		}
+		
+		if(loseSquirrel) addResource("squirrel", false);
+		
+		actionEffect();
+	}\`;
+creatorCache['Train Presence'].effect.game=\`finish() {
+		handleSkillSquirrelExp(this.skillsSquirrel);
+    }\`;
+creatorCache['Train Presence'].effect.pred=\`(r,k,sq) => {
+          if (sq) {
+            if (getLevelSquirrelAction("Train Presence") >= 2) {
+              k.squeakiness_squirrel+=100 * (getSkillSquirrelLevelFromExp(k.squeakiness_squirrel) + 1);
+            }
+          } else {
+            k.squeakiness_squirrel+=100;
+          }
+        }\`;
+creatorCache['Pick Up Package']={};
+creatorCache['Pick Up Package'].affected=['loopPotion'];
+creatorCache['Pick Up Package'].canStart={};
+creatorCache['Pick Up Package'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements && resources.squirrel;
+    }\`;
+creatorCache['Pick Up Package'].canStart.pred=\`(input) => {
+          return input.squirrel;
+        }\`;
+creatorCache['Pick Up Package'].effect={};
+creatorCache['Pick Up Package'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
+		
+		let actionEffect = () => {};
+		let loseSquirrel = false;
+		
+		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
+		
+		switch(additionalLevel + getLevelSquirrelAction("Pick Up Package")){
+						
+				case 1: break;
+										
+		}
+		
+		if(onlyGetLoseSquirrel){
+			if(loseSquirrel) return true;
+			return false;
+		}
+		
+		if(onlyGetEmptySquirrel){
+			if(String(actionEffect) === "() => {}" || nothingHappens === true) return true;
+			return false;
+		}
+		
+		if(loseSquirrel) addResource("squirrel", false);
+		
+		actionEffect();
+	}\`;
+creatorCache['Pick Up Package'].effect.game=\`finish() {
+		addResource("loopPotion", true);
+    }\`;
+creatorCache['Pick Up Package'].effect.pred=\`(r,k) => {
+          r.loopPotion=1;
+        }\`;
+creatorCache['Work On Yourself']={};
+creatorCache['Work On Yourself'].affected=[''];
+creatorCache['Work On Yourself'].canStart={};
+creatorCache['Work On Yourself'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Work On Yourself'].canStart.pred=\`\`;
+creatorCache['Work On Yourself'].effect={};
+creatorCache['Work On Yourself'].effect.skills={};	
+creatorCache['Work On Yourself'].effect.skills.Clumsiness=\`Clumsiness(squirrelMode) {
+			let baseExp = 100;
+			if(squirrelMode && getLevelSquirrelAction("Work On Yourself") >= 2) baseExp -= getSkillSquirrelLevel("Squeakiness");
+			return baseExp;
+		}\`,
+creatorCache['Work On Yourself'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
+		
+		let actionEffect = () => {};
+		let loseSquirrel = false;
+		
+		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
+		
+		switch(additionalLevel + getLevelSquirrelAction("Work On Yourself")){
+						
+				case 1: break;
+				
+				case 2: actionEffect = () => {
+							handleSkillExp(this.skills, true);
+						};
+					break;
+										
+		}
+		
+		if(onlyGetLoseSquirrel){
+			if(loseSquirrel) return true;
+			return false;
+		}
+		
+		if(onlyGetEmptySquirrel){
+			if(String(actionEffect) === "() => {}" || nothingHappens === true) return true;
+			return false;
+		}
+		
+		if(loseSquirrel) addResource("squirrel", false);
+		
+		actionEffect();
+	}\`;
+creatorCache['Work On Yourself'].effect.game=\`finish() {
+		handleSkillExp(this.skills);
+    }\`;
+creatorCache['Work On Yourself'].effect.pred=\`(r,k,sq) => {
+          if (sq) {
+            if (getLevelSquirrelAction("Work On Yourself")<2) return;
+            k.clumsiness+=100-getLevelFromExp(k.squeakiness_squirrel);
+          } else {
+            k.clumsiness+=100
+          }
+        }\`;
+creatorCache['Potion Replicator']={};
+creatorCache['Potion Replicator'].affected=['gold','loopPotion'];
+creatorCache['Potion Replicator'].canStart={};
+creatorCache['Potion Replicator'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements && resources.gold >= 240 && resources.loopPotion === true;
+    }\`;
+creatorCache['Potion Replicator'].canStart.pred=\`(input) => {
+            return input.gold >= 240 && input.loopPotion > 0;
+        }\`;
+creatorCache['Potion Replicator'].effect={};
+creatorCache['Potion Replicator'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
+		
+		let actionEffect = () => {};
+		let loseSquirrel = false;
+		
+		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
+		
+		switch(additionalLevel + getLevelSquirrelAction("Potion Replicator")){
+						
+				case 1: break;
+										
+		}
+		
+		if(onlyGetLoseSquirrel){
+			if(loseSquirrel) return true;
+			return false;
+		}
+		
+		if(onlyGetEmptySquirrel){
+			if(String(actionEffect) === "() => {}" || nothingHappens === true) return true;
+			return false;
+		}
+		
+		if(loseSquirrel) addResource("squirrel", false);
+		
+		actionEffect();
+	}\`;
+creatorCache['Potion Replicator'].effect.game=\`finish() {
+		actionUnlocks.replicatorUnlocked = true;
+    }\`;
+creatorCache['Potion Replicator'].effect.pred=\`(r,k) => {
+        }\`;
+creatorCache['Treasure Box']={};
+creatorCache['Treasure Box'].affected=['chronosPotion'];
+creatorCache['Treasure Box'].canStart={};
+creatorCache['Treasure Box'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Treasure Box'].canStart.pred=\`\`;
+creatorCache['Treasure Box'].effect={};
+creatorCache['Treasure Box'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
+		
+		let actionEffect = () => {};
+		let loseSquirrel = false;
+		
+		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
+		
+		switch(additionalLevel + getLevelSquirrelAction("Treasure Box")){
+						
+				case 1: break;
+										
+		}
+		
+		if(onlyGetLoseSquirrel){
+			if(loseSquirrel) return true;
+			return false;
+		}
+		
+		if(onlyGetEmptySquirrel){
+			if(String(actionEffect) === "() => {}" || nothingHappens === true) return true;
+			return false;
+		}
+		
+		if(loseSquirrel) addResource("squirrel", false);
+		
+		actionEffect();
+	}\`;
+creatorCache['Treasure Box'].effect.game=\`finish() {
+		addResource("chronosPotion", true);
+		actionUnlocks.unlockTreasureBoxAction = false;
+    }\`;
+creatorCache['Treasure Box'].effect.pred=\`(r,k) => {
+          r.chronosPotion=1;
+        }\`;
+creatorCache['Time Traveler']={};
+creatorCache['Time Traveler'].affected=['loopPotion'];
+creatorCache['Time Traveler'].canStart={};
+creatorCache['Time Traveler'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements && resources.loopPotion;
+    }\`;
+creatorCache['Time Traveler'].canStart.pred=\`(input) => {
+          return input.loopPotion;
+        }\`;
+creatorCache['Time Traveler'].effect={};
+creatorCache['Time Traveler'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
+		
+		let actionEffect = () => {};
+		let loseSquirrel = false;
+		
+		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
+		
+		switch(additionalLevel + getLevelSquirrelAction("Time Traveler")){
+						
+				case 1: break;
+										
+		}
+		
+		if(onlyGetLoseSquirrel){
+			if(loseSquirrel) return true;
+			return false;
+		}
+		
+		if(onlyGetEmptySquirrel){
+			if(String(actionEffect) === "() => {}" || nothingHappens === true) return true;
+			return false;
+		}
+		
+		if(loseSquirrel) addResource("squirrel", false);
+		
+		actionEffect();
+	}\`;
+creatorCache['Time Traveler'].effect.game=\`finish() {
+		view.showPopup("endingANormalLife", "endingANormalLifeEndCard");
+    }\`;
+creatorCache['Time Traveler'].effect.pred=\`\`;
+creatorCache['Deliver Potion One']={};
+creatorCache['Deliver Potion One'].affected=['delivered'];
+creatorCache['Deliver Potion One'].canStart={};
+creatorCache['Deliver Potion One'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Deliver Potion One'].canStart.pred=\`\`;
+creatorCache['Deliver Potion One'].effect={};
+creatorCache['Deliver Potion One'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
+		
+		let actionEffect = () => {};
+		let loseSquirrel = false;
+		
+		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
+		
+		switch(additionalLevel + getLevelSquirrelAction("Deliver Potion One")){
+						
+				case 1: break;
+										
+		}
+		
+		if(onlyGetLoseSquirrel){
+			if(loseSquirrel) return true;
+			return false;
+		}
+		
+		if(onlyGetEmptySquirrel){
+			if(String(actionEffect) === "() => {}" || nothingHappens === true) return true;
+			return false;
+		}
+		
+		if(loseSquirrel) addResource("squirrel", false);
+		
+		actionEffect();
+	}\`;
+creatorCache['Deliver Potion One'].effect.game=\`finish() {
+		
+		advanceTutorial(1);
+
+    }\`;
+creatorCache['Deliver Potion One'].effect.pred=\`(r,k) => r.delivered+=1\`;
+creatorCache['Deliver Potion Two']={};
+creatorCache['Deliver Potion Two'].affected=['gold','delivered'];
+creatorCache['Deliver Potion Two'].canStart={};
+creatorCache['Deliver Potion Two'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements && resources.gold >= 10;
+    }\`;
+creatorCache['Deliver Potion Two'].canStart.pred=\`(input) => {
+          return input.gold>=10;
+        }\`;
+creatorCache['Deliver Potion Two'].effect={};
+creatorCache['Deliver Potion Two'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
+		
+		let actionEffect = () => {};
+		let loseSquirrel = false;
+		
+		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
+		
+		switch(additionalLevel + getLevelSquirrelAction("Deliver Potion Two")){
+						
+				case 1: break;
+										
+		}
+		
+		if(onlyGetLoseSquirrel){
+			if(loseSquirrel) return true;
+			return false;
+		}
+		
+		if(onlyGetEmptySquirrel){
+			if(String(actionEffect) === "() => {}" || nothingHappens === true) return true;
+			return false;
+		}
+		
+		if(loseSquirrel) addResource("squirrel", false);
+		
+		actionEffect();
+	}\`;
+creatorCache['Deliver Potion Two'].effect.game=\`finish() {
+		
+		advanceTutorial(2);
+
+    }\`;
+creatorCache['Deliver Potion Two'].effect.pred=\`(r,k) => r.delivered+=1\`;
+creatorCache['Deliver Potion Three']={};
+creatorCache['Deliver Potion Three'].affected=['delivered'];
+creatorCache['Deliver Potion Three'].canStart={};
+creatorCache['Deliver Potion Three'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Deliver Potion Three'].canStart.pred=\`\`;
+creatorCache['Deliver Potion Three'].effect={};
+creatorCache['Deliver Potion Three'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
+		
+		let actionEffect = () => {};
+		let loseSquirrel = false;
+		
+		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
+		
+		switch(additionalLevel + getLevelSquirrelAction("Deliver Potion Three")){
+						
+				case 1: break;
+										
+		}
+		
+		if(onlyGetLoseSquirrel){
+			if(loseSquirrel) return true;
+			return false;
+		}
+		
+		if(onlyGetEmptySquirrel){
+			if(String(actionEffect) === "() => {}" || nothingHappens === true) return true;
+			return false;
+		}
+		
+		if(loseSquirrel) addResource("squirrel", false);
+		
+		actionEffect();
+	}\`;
+creatorCache['Deliver Potion Three'].effect.game=\`finish() {
+		
+		advanceTutorial(3);
+
+    }\`;
+creatorCache['Deliver Potion Three'].effect.pred=\`(r,k) => r.delivered+=1\`;
+creatorCache['Deliver Potion Four']={};
+creatorCache['Deliver Potion Four'].affected=['delivered'];
+creatorCache['Deliver Potion Four'].canStart={};
+creatorCache['Deliver Potion Four'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements;
+    }\`;
+creatorCache['Deliver Potion Four'].canStart.pred=\`\`;
+creatorCache['Deliver Potion Four'].effect={};
+creatorCache['Deliver Potion Four'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
+		
+		let actionEffect = () => {};
+		let loseSquirrel = false;
+		
+		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
+		
+		switch(additionalLevel + getLevelSquirrelAction("Deliver Potion Four")){
+						
+				case 1: break;
+										
+		}
+		
+		if(onlyGetLoseSquirrel){
+			if(loseSquirrel) return true;
+			return false;
+		}
+		
+		if(onlyGetEmptySquirrel){
+			if(String(actionEffect) === "() => {}" || nothingHappens === true) return true;
+			return false;
+		}
+		
+		if(loseSquirrel) addResource("squirrel", false);
+		
+		actionEffect();
+	}\`;
+creatorCache['Deliver Potion Four'].effect.game=\`finish() {
+		
+		advanceTutorial(4);
+
+    }\`;
+creatorCache['Deliver Potion Four'].effect.pred=\`(r,k) => r.delivered+=1\`;
+creatorCache['Deliver Potion Five']={};
+creatorCache['Deliver Potion Five'].affected=['delivered'];
+creatorCache['Deliver Potion Five'].canStart={};
+creatorCache['Deliver Potion Five'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		const curDeliveryPart = Math.floor((towns[TUTORIALIS].PotionFiveLoopCounter) / 4 + 0.0000001);
+		
+		return squirrelRequirements && curDeliveryPart < 1;
+    }\`;
+creatorCache['Deliver Potion Five'].canStart.pred=\`\`;
+creatorCache['Deliver Potion Five'].loop={};
+creatorCache['Deliver Potion Five'].loop.cost={};
+creatorCache['Deliver Potion Five'].loop.cost.game=\`loopCost(segment) {
+        return 4000;
+    }\`;
+creatorCache['Deliver Potion Five'].loop.cost.pred=\`(p) => segment =>  4000\`;
+creatorCache['Deliver Potion Five'].loop.tick={};
+creatorCache['Deliver Potion Five'].loop.tick.game=\`tickProgress(offset) {
+        return getSkillLevel("Handling") * (1 + getLevel(this.loopStats[(towns[TUTORIALIS].PotionFiveLoopCounter + offset) % this.loopStats.length])/100) * (1 + towns[TUTORIALIS].totalPotionFive);
+    }\`;
+creatorCache['Deliver Potion Five'].loop.tick.pred=\`(p, a, s, k, r) => offset => getLevelFromExp(k.handling) * h.getStatProgress(p, a, s, offset, 100) * Math.sqrt(1 + p.total) \`;
+creatorCache['Deliver Potion Five'].loop.end={};
+creatorCache['Deliver Potion Five'].loop.end.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
+		
+		let actionEffect = () => {};
+		let loseSquirrel = false;
+		
+		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
+		
+		switch(additionalLevel + getLevelSquirrelAction("Deliver Potion Five")){
+						
+				case 1: break;
+										
+		}
+		
+		if(onlyGetLoseSquirrel){
+			if(loseSquirrel) return true;
+			return false;
+		}
+		
+		if(onlyGetEmptySquirrel){
+			if(String(actionEffect) === "() => {}" || nothingHappens === true) return true;
+			return false;
+		}
+		
+		if(loseSquirrel) addResource("squirrel", false);
+		
+		actionEffect();
+	}\`;
+creatorCache['Deliver Potion Five'].loop.end.game=\`finish() {
+		
+    }\`;
+creatorCache['Deliver Potion Five'].loop.end.pred=\`\`;
+creatorCache['Deliver Potion Five'].loop.loop={};
+creatorCache['Deliver Potion Five'].loop.loop.game=\`loopsFinished() {
+        advanceTutorial(5);
+    }\`;
+creatorCache['Deliver Potion Five'].loop.loop.pred=\`(r,k) => {r.delivered+=1;}\`;
+creatorCache['Deliver Potion Five'].loop.max=\`()=>1\`;
+creatorCache['Deliver Potion Six']={};
+creatorCache['Deliver Potion Six'].affected=['delivered'];
+creatorCache['Deliver Potion Six'].canStart={};
+creatorCache['Deliver Potion Six'].canStart.game=\`canStart() {
+		const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements && resources.squirrel && resources.loopPotion;
+    }\`;
+creatorCache['Deliver Potion Six'].canStart.pred=\`(input) => {
+          return input.squirrel && input.loopPotion
+        }\`;
+creatorCache['Deliver Potion Six'].effect={};
+creatorCache['Deliver Potion Six'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
+		
+		let actionEffect = () => {};
+		let loseSquirrel = false;
+		
+		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
+		
+		switch(additionalLevel + getLevelSquirrelAction("Deliver Potion Six")){
+						
+				case 1: actionEffect = () => {
+							if(skills["Clumsiness"].exp === 0) {
+								let skill = {
+									Clumsiness: 505000
+								}
+								handleSkillExp(skill);
+							}
+						};
+						nothingHappens = true;
+					break;
+									
+				case 2: actionEffect = () => {
+							view.showPopup("tutorialEnd", "endingNotTripping", "endingNotTrippingEndCard");
+						};
+					break;
+										
+		}
+		
+		if(onlyGetLoseSquirrel){
+			if(loseSquirrel) return true;
+			return false;
+		}
+		
+		if(onlyGetEmptySquirrel){
+			if(String(actionEffect) === "() => {}" || nothingHappens === true) return true;
+			return false;
+		}
+		
+		if(loseSquirrel) addResource("squirrel", false);
+		
+		actionEffect();
+	}\`;
+creatorCache['Deliver Potion Six'].effect.game=\`finish() {
+		
+		advanceTutorial(6);
+
+    }\`;
+creatorCache['Deliver Potion Six'].effect.pred=\`(r,k,sq) => {
+          if (!sq) r.delivered+=1;
+        }\`;
 creatorCache['Look Around']={};
 creatorCache['Look Around'].affected=[''];
 creatorCache['Look Around'].manaCost={};
@@ -532,8 +1510,9 @@ creatorCache['Imbue Squirrel'].canStart.game=\`canStart() {
 creatorCache['Imbue Squirrel'].canStart.pred=\`\`;
 creatorCache['Imbue Squirrel'].effect={};
 creatorCache['Imbue Squirrel'].effect.skillsSquirrel={};	
-creatorCache['Imbue Squirrel'].effect.skillsSquirrel.Magic=\`Magic() {
-			const squirrelMod = ((this.squirrelAction && getLevelSquirrelAction("Imbue Squirrel") >= 1) ? 1 : 0);
+creatorCache['Imbue Squirrel'].effect.skillsSquirrel.Magic=\`Magic(squirrelMode) {
+			const squirrelMod = ((squirrelMode && getLevelSquirrelAction("Imbue Squirrel") >= 1) ? 1 : 0);
+			console.log("Squirrel exp = " +  Math.pow(4, getBuffLevel("SpiritBlessing") - squirrelMod));
 			return Math.pow(4, getBuffLevel("SpiritBlessing") - squirrelMod);
 		}\`,
 creatorCache['Imbue Squirrel'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
@@ -546,7 +1525,7 @@ creatorCache['Imbue Squirrel'].effect.squirrel=\`squirrelActionEffect(onlyGetLos
 		switch(additionalLevel + getLevelSquirrelAction("Imbue Squirrel")){
 						
 			case 1: actionEffect = () => {
-						handleSkillSquirrelExp(this.skillsSquirrel);
+						handleSkillSquirrelExp(this.skillsSquirrel, true);
 						view.adjustManaCost("Imbue Squirrel", squirrelMode);
 					};
 				break;
@@ -954,6 +1933,7 @@ creatorCache['Pet Squirrel'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseS
 				case 1: break;
 						
 				case 2: //get the squirrel with you from the start of every loop : managed somewhere else.
+						unlockOffline();
 						break;
 				
 				case 3: actionEffect = () => {
@@ -994,6 +1974,55 @@ creatorCache['Pet Squirrel'].effect.pred=\`(r,k,sq) => {
             k.trust_squirrel+=100;
             r.squirrel=1;
           }
+        }\`;
+creatorCache['Chronos Potion']={};
+creatorCache['Chronos Potion'].affected=['chronosPotion'];
+creatorCache['Chronos Potion'].canStart={};
+creatorCache['Chronos Potion'].canStart.game=\`canStart() {
+        const squirrelRequirements = (!this.squirrelAction || resources.squirrel);
+		return squirrelRequirements && resources.chronosPotion === true;
+    }\`;
+creatorCache['Chronos Potion'].canStart.pred=\`(input) => {
+		  return true;
+        }\`;
+creatorCache['Chronos Potion'].effect={};
+creatorCache['Chronos Potion'].effect.cost=\`cost() {
+        if(!this.squirrelAction) addResource("chronosPotion", false);
+    }\`;
+creatorCache['Chronos Potion'].effect.squirrel=\`squirrelActionEffect(onlyGetLoseSquirrel, onlyGetEmptySquirrel, checkNextLevel) {
+		
+		let actionEffect = () => {};
+		let loseSquirrel = false;
+		let nothingHappens = false;
+		const additionalLevel = (checkNextLevel === true ? 1 : 0);
+		
+		switch(additionalLevel + getLevelSquirrelAction("Chronos Potion")){
+						
+				case 1: break;
+				
+		}
+		
+		if(onlyGetLoseSquirrel){
+			if(loseSquirrel) return true;
+			return false;
+		}
+		
+		if(onlyGetEmptySquirrel){
+			if(String(actionEffect) === "() => {}" || nothingHappens === true) return true;
+			return false;
+		}
+		
+		if(loseSquirrel) addResource("squirrel", false);
+		
+		actionEffect();
+	}\`;
+creatorCache['Chronos Potion'].effect.game=\`finish() {	
+		actionUnlocks.TimeTravelerUnlocked = true;
+		actionUnlocks.unlockTreasureBoxAction = false;
+		view.showPopup("drinkChronosPotion");
+    }\`;
+creatorCache['Chronos Potion'].effect.pred=\`(r,k,sq) => {
+		r.chronosPotion=0;
         }\`;
 creatorCache['Pick Locks']={};
 creatorCache['Pick Locks'].affected=['mana','gold','stolenGoods'];
@@ -3152,7 +4181,8 @@ creatorCache['Feed Animals'].effect.game=\`finish() {
    
 		if(getLevelSquirrelAction("Pet Squirrel") === 0) levelUpSquirrelAction("Pet Squirrel");
 		if(getLevelSquirrelAction("Pet Squirrel") === 1) levelUpSquirrelAction("Pet Squirrel");
-
+		
+		unlockOffline();
 	   
     }\`;
 creatorCache['Feed Animals'].effect.pred=\`(r,k,sq) => {
@@ -5988,14 +7018,14 @@ creatorCache['Break Loop']={};
 creatorCache['Break Loop'].affected=['loopPotion'];
 creatorCache['Break Loop'].canStart={};
 creatorCache['Break Loop'].canStart.game=\`canStart() {
-        return resources.loopPotion;
+        return resources.loopPotion || resources.loopPotionCopy;
     }\`;
 creatorCache['Break Loop'].canStart.pred=\`(input) => {
-          return input.loopPotion
+          return input.loopPotion || input.loopPotionCopy;
         }\`;
 creatorCache['Break Loop'].effect={};
 creatorCache['Break Loop'].effect.game=\`finish() {
-		
+		view.showPopup("endingTrickedChronos", "endingTrickedChronosEndCard");
     }\`;
 creatorCache['Break Loop'].effect.pred=\`\`;
 
